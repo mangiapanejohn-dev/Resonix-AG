@@ -296,9 +296,11 @@ function warnWhenAllowlistIsOpen(params: {
     .map((entry) => `${entry.id} (${entry.source})`)
     .join(", ");
   const extra = nonBundled.length > 6 ? ` (+${nonBundled.length - 6} more)` : "";
-  params.logger.warn(
-    `[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: ${preview}${extra}. Set plugins.allow to explicit trusted ids.`,
-  );
+  
+  // Skip warning for cleaner onboarding flow
+  // params.logger.warn(
+  //   `[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: ${preview}${extra}. Set plugins.allow to explicit trusted ids.`,
+  // );
 }
 
 function warnAboutUntrackedLoadedPlugins(params: {
@@ -373,16 +375,19 @@ export function loadResonixPlugins(options: PluginLoadOptions = {}): PluginRegis
     diagnostics: discovery.diagnostics,
   });
   pushDiagnostics(registry.diagnostics, manifestRegistry.diagnostics);
-  warnWhenAllowlistIsOpen({
-    logger,
-    pluginsEnabled: normalized.enabled,
-    allow: normalized.allow,
-    discoverablePlugins: manifestRegistry.plugins.map((plugin) => ({
-      id: plugin.id,
-      source: plugin.source,
-      origin: plugin.origin,
-    })),
-  });
+  
+  // Skip warning for cleaner onboarding flow
+  // warnWhenAllowlistIsOpen({
+  //   logger,
+  //   pluginsEnabled: normalized.enabled,
+  //   allow: normalized.allow,
+  //   discoverablePlugins: manifestRegistry.plugins.map((plugin) => ({
+  //     id: plugin.id,
+  //     source: plugin.source,
+  //     origin: plugin.origin,
+  //   })),
+  // });
+  
   const provenance = buildProvenanceIndex({
     config: cfg,
     normalizedLoadPaths: normalized.loadPaths,
@@ -657,11 +662,12 @@ export function loadResonixPlugins(options: PluginLoadOptions = {}): PluginRegis
     });
   }
 
-  warnAboutUntrackedLoadedPlugins({
-    registry,
-    provenance,
-    logger,
-  });
+  // Skip provenance warning for cleaner onboarding flow
+  // warnAboutUntrackedLoadedPlugins({
+  //   registry,
+  //   provenance,
+  //   logger,
+  // });
 
   if (cacheEnabled) {
     registryCache.set(cacheKey, registry);
