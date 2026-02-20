@@ -16,17 +16,51 @@
 
 ---
 
-## 🚀 About Resonix-AG
+## 🚀 Quick Install
 
-**Resonix-AG** is an autonomous AI agent based on OpenClaw with enhanced memory and autonomous learning systems. 
+### Option 1: One-Click Install (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+```
+
+### Option 2: npm Global Install
+
+```bash
+npm i -g resonix-ag
+```
+
+---
+
+## 📖 Getting Started
+
+After installation, run:
+
+```bash
+# Interactive onboarding wizard
+resonix-ag onboard
+
+# Start the gateway
+resonix-ag gateway start
+
+# Check help
+resonix-ag --help
+```
+
+---
+
+## ✨ About Resonix-AG
+
+**Resonix-AG** is an autonomous AI agent based on OpenClaw with enhanced memory and autonomous learning systems.
 
 Unlike traditional AI assistants that only respond to commands, Resonix-AG can:
+
 - 🧠 **Self-Cognition**: Knows what it knows, identifies knowledge gaps
-- 📚 **Autonomous Learning**: Actively learns new knowledge without manual prompts
+- 📚 **Autonomous Learning**: Actively learns new knowledge without manual prompts  
 - 💾 **Permanent Memory**: Remembers learned information forever with smart retention
 - 🔄 **Continuous Evolution**: Improves itself over time through learning
 
-## ✨ Core Features
+## Core Features
 
 ### Self-Cognition System
 - Capability profiling (hourly updates)
@@ -46,7 +80,16 @@ Unlike traditional AI assistants that only respond to commands, Resonix-AG can:
 - Anti-crawling simulation
 - Results validation
 
-## 📦 Installation
+---
+
+## 🔧 Installation (Detailed)
+
+### Prerequisites
+
+- Node.js 22+
+- npm or pnpm
+
+### From Source
 
 ```bash
 # Clone the repository
@@ -62,27 +105,10 @@ pnpm build
 # Run
 node dist/entry.mjs --help
 # or use the CLI
-resonix --help
+resonix-ag --help
 ```
 
-## 🔧 Quick Start
-
-```bash
-# Onboarding
-resonix onboard
-
-# Start gateway
-resonix gateway start
-
-# Check status
-resonix status
-```
-
-## 🎨 Theme
-
-- **Logo**: 👾 (Alien)
-- **Theme Color**: Blue-Purple Gradient
-- **Developer**: [MarkEllington](https://x.com/moralesjavx1032) (14 years old)
+---
 
 ## 📂 Project Structure
 
@@ -102,10 +128,22 @@ src/resonix/
 └── index.ts           # Unified entry
 ```
 
+---
+
+## 🎨 Theme
+
+- **Logo**: 👾 (Alien)
+- **Theme Color**: Blue-Purple Gradient
+- **Developer**: [MarkEllington](https://x.com/moralesjavx1032) (14 years old)
+
+---
+
 ## 🤝 Community
 
 - **Discord**: https://discord.gg/FKXPBAtPwG
 - **Twitter**: https://x.com/moralesjavx1032
+
+---
 
 ## 📄 License
 
