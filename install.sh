@@ -109,7 +109,7 @@ install_pnpm() {
 }
 
 install_resonix() {
-    local install_dir="$HOME/.resonix-ag"
+    local install_dir="$HOME/.resonix"
     
     print_banner
     
@@ -138,12 +138,12 @@ install_resonix() {
     # Create wrapper script
     mkdir -p "$HOME/.local/bin"
     
-    cat > "$HOME/.local/bin/resonix-ag" <<'EOF'
+    cat > "$HOME/.local/bin/resonix" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-exec node "$HOME/.resonix-ag/dist/entry.mjs" "$@"
+exec node "$HOME/.resonix/dist/entry.mjs" "$@"
 EOF
-    chmod +x "$HOME/.local/bin/resonix-ag"
+    chmod +x "$HOME/.local/bin/resonix"
     
     # Add to PATH if needed
     if ! grep -q ".local/bin" "$HOME/.zshrc" 2>/dev/null; then
@@ -158,8 +158,8 @@ EOF
     echo -e "${BOLD}Next steps:${NC}"
     echo ""
     echo -e "  ${ACCENT}1.${NC} Restart terminal or run: source ~/.zshrc"
-    echo -e "  ${ACCENT}2.${NC} Run onboarding: ${BOLD}resonix-ag onboard${NC}"
-    echo -e "  ${ACCENT}3.${NC} Start gateway: ${BOLD}resonix-ag gateway start${NC}"
+    echo -e "  ${ACCENT}2.${NC} Run onboarding: ${BOLD}resonix onboard${NC}"
+    echo -e "  ${ACCENT}3.${NC} Start gateway: ${BOLD}resonix gateway start${NC}"
     echo ""
     echo -e "${MUTED}Join community:${NC} ${INFO}https://discord.gg/FKXPBAtPwG${NC}"
     echo -e "${MUTED}Follow updates:${NC} ${INFO}https://x.com/moralesjavx1032${NC}"
