@@ -1,17 +1,16 @@
 {
   "name": "resonix",
   "version": "2026.2.20",
-  "description": "Multi-channel AI gateway with extensible messaging integrations",
-  "keywords": [],
-  "homepage": "https://github.com/resonix/resonix#readme",
+  "description": "Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory",
+  "keywords": ["ai", "agent", "autonomous", "self-learning", "memory"],
+  "homepage": "https://github.com/mangiapanejohn-dev/Resonix-AG#readme",
   "bugs": {
-    "url": "https://github.com/resonix/resonix/issues"
+    "url": "https://github.com/mangiapanejohn-dev/Resonix-AG/issues"
   },
-  "license": "MIT",
-  "author": "",
+  "author": "MarkEllington (14 years old)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/resonix/resonix.git"
+    "url": "git+https://github.com/mangiapanejohn-dev/Resonix-AG.git"
   },
   "bin": {
     "resonix": "dist/entry.mjs"
