@@ -93,43 +93,43 @@ function parseFirstJsonRuntimeLine<T>() {
 
 describe("daemon-cli coverage", () => {
   const originalEnv = {
-    OPENCLAW_STATE_DIR: process.env.OPENCLAW_STATE_DIR,
-    OPENCLAW_CONFIG_PATH: process.env.OPENCLAW_CONFIG_PATH,
-    OPENCLAW_GATEWAY_PORT: process.env.OPENCLAW_GATEWAY_PORT,
-    OPENCLAW_PROFILE: process.env.OPENCLAW_PROFILE,
+    RESONIX_STATE_DIR: process.env.RESONIX_STATE_DIR,
+    RESONIX_CONFIG_PATH: process.env.RESONIX_CONFIG_PATH,
+    RESONIX_GATEWAY_PORT: process.env.RESONIX_GATEWAY_PORT,
+    RESONIX_PROFILE: process.env.RESONIX_PROFILE,
   };
 
   beforeEach(() => {
-    process.env.OPENCLAW_STATE_DIR = "/tmp/openclaw-cli-state";
-    process.env.OPENCLAW_CONFIG_PATH = "/tmp/openclaw-cli-state/openclaw.json";
-    delete process.env.OPENCLAW_GATEWAY_PORT;
-    delete process.env.OPENCLAW_PROFILE;
+    process.env.RESONIX_STATE_DIR = "/tmp/resonix-cli-state";
+    process.env.RESONIX_CONFIG_PATH = "/tmp/resonix-cli-state/resonix.json";
+    delete process.env.RESONIX_GATEWAY_PORT;
+    delete process.env.RESONIX_PROFILE;
     serviceReadCommand.mockResolvedValue(null);
   });
 
   afterEach(() => {
-    if (originalEnv.OPENCLAW_STATE_DIR !== undefined) {
-      process.env.OPENCLAW_STATE_DIR = originalEnv.OPENCLAW_STATE_DIR;
+    if (originalEnv.RESONIX_STATE_DIR !== undefined) {
+      process.env.RESONIX_STATE_DIR = originalEnv.RESONIX_STATE_DIR;
     } else {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.RESONIX_STATE_DIR;
     }
 
-    if (originalEnv.OPENCLAW_CONFIG_PATH !== undefined) {
-      process.env.OPENCLAW_CONFIG_PATH = originalEnv.OPENCLAW_CONFIG_PATH;
+    if (originalEnv.RESONIX_CONFIG_PATH !== undefined) {
+      process.env.RESONIX_CONFIG_PATH = originalEnv.RESONIX_CONFIG_PATH;
     } else {
-      delete process.env.OPENCLAW_CONFIG_PATH;
+      delete process.env.RESONIX_CONFIG_PATH;
     }
 
-    if (originalEnv.OPENCLAW_GATEWAY_PORT !== undefined) {
-      process.env.OPENCLAW_GATEWAY_PORT = originalEnv.OPENCLAW_GATEWAY_PORT;
+    if (originalEnv.RESONIX_GATEWAY_PORT !== undefined) {
+      process.env.RESONIX_GATEWAY_PORT = originalEnv.RESONIX_GATEWAY_PORT;
     } else {
-      delete process.env.OPENCLAW_GATEWAY_PORT;
+      delete process.env.RESONIX_GATEWAY_PORT;
     }
 
-    if (originalEnv.OPENCLAW_PROFILE !== undefined) {
-      process.env.OPENCLAW_PROFILE = originalEnv.OPENCLAW_PROFILE;
+    if (originalEnv.RESONIX_PROFILE !== undefined) {
+      process.env.RESONIX_PROFILE = originalEnv.RESONIX_PROFILE;
     } else {
-      delete process.env.OPENCLAW_PROFILE;
+      delete process.env.RESONIX_PROFILE;
     }
   });
 
@@ -153,10 +153,10 @@ describe("daemon-cli coverage", () => {
     serviceReadCommand.mockResolvedValueOnce({
       programArguments: ["/bin/node", "cli", "gateway", "--port", "19001"],
       environment: {
-        OPENCLAW_PROFILE: "dev",
-        OPENCLAW_STATE_DIR: "/tmp/openclaw-daemon-state",
-        OPENCLAW_CONFIG_PATH: "/tmp/openclaw-daemon-state/openclaw.json",
-        OPENCLAW_GATEWAY_PORT: "19001",
+        RESONIX_PROFILE: "dev",
+        RESONIX_STATE_DIR: "/tmp/resonix-daemon-state",
+        RESONIX_CONFIG_PATH: "/tmp/resonix-daemon-state/resonix.json",
+        RESONIX_GATEWAY_PORT: "19001",
       },
       sourcePath: "/tmp/bot.molt.gateway.plist",
     });

@@ -10,12 +10,12 @@ function createPrompter(confirmValue = false) {
 
 function createDeps() {
   const deps: NonNullable<Parameters<typeof setupOnboardingShellCompletion>[0]["deps"]> = {
-    resolveCliName: () => "openclaw",
+    resolveCliName: () => "resonix",
     checkShellCompletionStatus: vi.fn(async (_binName: string) => ({
       shell: "zsh" as const,
       profileInstalled: false,
       cacheExists: false,
-      cachePath: "/tmp/openclaw.zsh",
+      cachePath: "/tmp/resonix.zsh",
       usesSlowPattern: false,
     })),
     ensureCompletionCacheExists: vi.fn(async (_binName: string) => true),
@@ -32,8 +32,8 @@ describe("setupOnboardingShellCompletion", () => {
     await setupOnboardingShellCompletion({ flow: "quickstart", prompter, deps });
 
     expect(prompter.confirm).not.toHaveBeenCalled();
-    expect(deps.ensureCompletionCacheExists).toHaveBeenCalledWith("openclaw");
-    expect(deps.installCompletion).toHaveBeenCalledWith("zsh", true, "openclaw");
+    expect(deps.ensureCompletionCacheExists).toHaveBeenCalledWith("resonix");
+    expect(deps.installCompletion).toHaveBeenCalledWith("zsh", true, "resonix");
     expect(prompter.note).toHaveBeenCalled();
   });
 

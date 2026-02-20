@@ -135,10 +135,10 @@ describe("gateway-cli coverage", () => {
       expectedOutput: [
         "Gateway Discovery",
         "Found 1 gateway(s)",
-        "- Studio openclaw.internal.",
+        "- Studio resonix.internal.",
         "  tailnet: studio.tailnet.ts.net",
-        "  host: studio.openclaw.internal",
-        "  ws: ws://studio.openclaw.internal:18789",
+        "  host: studio.resonix.internal",
+        "  ws: ws://studio.resonix.internal:18789",
       ],
     },
   ])("registers gateway discover and prints $label", async ({ args, expectedOutput }) => {
@@ -146,10 +146,10 @@ describe("gateway-cli coverage", () => {
     discoverGatewayBeacons.mockReset();
     discoverGatewayBeacons.mockResolvedValueOnce([
       {
-        instanceName: "Studio (OpenClaw)",
+        instanceName: "Studio (Resonix)",
         displayName: "Studio",
-        domain: "openclaw.internal.",
-        host: "studio.openclaw.internal",
+        domain: "resonix.internal.",
+        host: "studio.resonix.internal",
         lanHost: "studio.local",
         tailnetDns: "studio.tailnet.ts.net",
         gatewayPort: 18789,
@@ -244,7 +244,7 @@ describe("gateway-cli coverage", () => {
   });
 
   it("uses env/config port when --port is omitted", async () => {
-    await withEnvOverride({ OPENCLAW_GATEWAY_PORT: "19001" }, async () => {
+    await withEnvOverride({ RESONIX_GATEWAY_PORT: "19001" }, async () => {
       resetRuntimeCapture();
       startGatewayServer.mockClear();
 

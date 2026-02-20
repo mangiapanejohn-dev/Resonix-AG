@@ -23,13 +23,13 @@ Status: ready for DMs and guild channels via the official Discord gateway.
 
 ## Quick setup
 
-You will need to create a new application with a bot, add the bot to your server, and pair it to OpenClaw. We recommend adding your bot to your own private server. If you don't have one yet, [create one first](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (choose **Create My Own > For me and my friends**).
+You will need to create a new application with a bot, add the bot to your server, and pair it to Resonix. We recommend adding your bot to your own private server. If you don't have one yet, [create one first](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server) (choose **Create My Own > For me and my friends**).
 
 <Steps>
   <Step title="Create a Discord application and bot">
-    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**. Name it something like "OpenClaw".
+    Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**. Name it something like "Resonix".
 
-    Click **Bot** on the sidebar. Set the **Username** to whatever you call your OpenClaw agent.
+    Click **Bot** on the sidebar. Set the **Username** to whatever you call your Resonix agent.
 
   </Step>
 
@@ -81,35 +81,35 @@ You will need to create a new application with a bot, add the bot to your server
     2. Right-click your **server icon** in the sidebar → **Copy Server ID**
     3. Right-click your **own avatar** → **Copy User ID**
 
-    Save your **Server ID** and **User ID** alongside your Bot Token — you'll send all three to OpenClaw in the next step.
+    Save your **Server ID** and **User ID** alongside your Bot Token — you'll send all three to Resonix in the next step.
 
   </Step>
 
   <Step title="Allow DMs from server members">
     For pairing to work, Discord needs to allow your bot to DM you. Right-click your **server icon** → **Privacy Settings** → toggle on **Direct Messages**.
 
-    This lets server members (including bots) send you DMs. Keep this enabled if you want to use Discord DMs with OpenClaw. If you only plan to use guild channels, you can disable DMs after pairing.
+    This lets server members (including bots) send you DMs. Keep this enabled if you want to use Discord DMs with Resonix. If you only plan to use guild channels, you can disable DMs after pairing.
 
   </Step>
 
   <Step title="Step 0: Set your bot token securely (do not send it in chat)">
-    Your Discord bot token is a secret (like a password). Set it on the machine running OpenClaw before messaging your agent.
+    Your Discord bot token is a secret (like a password). Set it on the machine running Resonix before messaging your agent.
 
 ```bash
-openclaw config set channels.discord.token '"YOUR_BOT_TOKEN"' --json
-openclaw config set channels.discord.enabled true --json
-openclaw gateway
+resonix config set channels.discord.token '"YOUR_BOT_TOKEN"' --json
+resonix config set channels.discord.enabled true --json
+resonix gateway
 ```
 
-    If OpenClaw is already running as a background service, use `openclaw gateway restart` instead.
+    If Resonix is already running as a background service, use `resonix gateway restart` instead.
 
   </Step>
 
-  <Step title="Configure OpenClaw and pair">
+  <Step title="Configure Resonix and pair">
 
     <Tabs>
       <Tab title="Ask your agent">
-        Chat with your OpenClaw agent on any existing channel (e.g. Telegram) and tell it. If Discord is your first channel, use the CLI / config tab instead.
+        Chat with your Resonix agent on any existing channel (e.g. Telegram) and tell it. If Discord is your first channel, use the CLI / config tab instead.
 
         > "I already set my Discord bot token in config. Please finish Discord setup with User ID `<user_id>` and Server ID `<server_id>`."
       </Tab>
@@ -150,8 +150,8 @@ DISCORD_BOT_TOKEN=...
       <Tab title="CLI">
 
 ```bash
-openclaw pairing list discord
-openclaw pairing approve discord <CODE>
+resonix pairing list discord
+resonix pairing approve discord <CODE>
 ```
 
       </Tab>
@@ -260,7 +260,7 @@ Now create some channels on your Discord server and start chatting. Your agent c
 
 ## Interactive components
 
-OpenClaw supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
+Resonix supports Discord components v2 containers for agent messages. Use the message tool with a `components` payload. Interaction results are routed back to the agent as normal inbound messages and follow the existing Discord `replyToMode` settings.
 
 Supported blocks:
 
@@ -282,7 +282,7 @@ Modal forms:
 
 - Add `components.modal` with up to 5 fields
 - Field types: `text`, `checkbox`, `radio`, `select`, `role-select`, `user-select`
-- OpenClaw adds a trigger button automatically
+- Resonix adds a trigger button automatically
 
 Example:
 
@@ -494,7 +494,7 @@ Use `bindings[].match.roles` to route Discord guild members to different agents 
     - channel ID
     - user ID
 
-    Prefer numeric IDs in OpenClaw config for reliable audits and probes.
+    Prefer numeric IDs in Resonix config for reliable audits and probes.
 
   </Accordion>
 </AccordionGroup>
@@ -505,7 +505,7 @@ Use `bindings[].match.roles` to route Discord guild members to different agents 
 - Per-channel override: `channels.discord.commands.native`.
 - `commands.native=false` explicitly clears previously registered Discord native commands.
 - Native command auth uses the same Discord allowlists/policies as normal message handling.
-- Commands may still be visible in Discord UI for users who are not authorized; execution still enforces OpenClaw auth and returns "not authorized".
+- Commands may still be visible in Discord UI for users who are not authorized; execution still enforces Resonix auth and returns "not authorized".
 
 See [Slash commands](/tools/slash-commands) for command catalog and behavior.
 
@@ -565,7 +565,7 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
   </Accordion>
 
   <Accordion title="Ack reactions">
-    `ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
+    `ackReaction` sends an acknowledgement emoji while Resonix is processing an inbound message.
 
     Resolution order:
 
@@ -692,7 +692,7 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
     discord: {
       activity: "Live coding",
       activityType: 1,
-      activityUrl: "https://twitch.tv/openclaw",
+      activityUrl: "https://twitch.tv/resonix",
     },
   },
 }
@@ -719,7 +719,7 @@ See [Slash commands](/tools/slash-commands) for command catalog and behavior.
     - `channels.discord.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
     - `agentFilter`, `sessionFilter`, `cleanupAfterResolve`
 
-    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery.
+    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, Resonix falls back to DM delivery.
 
     If approvals fail with unknown approval IDs, verify approver list and feature enablement.
 
@@ -752,7 +752,7 @@ Default gate behavior:
 
 ## Components v2 UI
 
-OpenClaw uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires Carbon component instances), while legacy `embeds` remain available but are not recommended.
+Resonix uses Discord components v2 for exec approvals and cross-context markers. Discord message actions can also accept `components` for custom UI (advanced; requires Carbon component instances), while legacy `embeds` remain available but are not recommended.
 
 - `channels.discord.ui.components.accentColor` sets the accent color used by Discord component containers (hex).
 - Set per account with `channels.discord.accounts.<id>.ui.components.accentColor`.
@@ -776,13 +776,13 @@ Example:
 
 ## Voice messages
 
-Discord voice messages show a waveform preview and require OGG/Opus audio plus metadata. OpenClaw generates the waveform automatically, but it needs `ffmpeg` and `ffprobe` available on the gateway host to inspect and convert audio files.
+Discord voice messages show a waveform preview and require OGG/Opus audio plus metadata. Resonix generates the waveform automatically, but it needs `ffmpeg` and `ffprobe` available on the gateway host to inspect and convert audio files.
 
 Requirements and constraints:
 
 - Provide a **local file path** (URLs are rejected).
 - Omit text content (Discord does not allow text + voice message in the same payload).
-- Any audio format is accepted; OpenClaw converts to OGG/Opus when needed.
+- Any audio format is accepted; Resonix converts to OGG/Opus when needed.
 
 Example:
 
@@ -811,9 +811,9 @@ message(action="send", channel="discord", target="channel:123", path="/path/to/a
     Useful checks:
 
 ```bash
-openclaw doctor
-openclaw channels status --probe
-openclaw logs --follow
+resonix doctor
+resonix channels status --probe
+resonix logs --follow
 ```
 
   </Accordion>
@@ -873,7 +873,7 @@ High-signal Discord fields:
 
 - Treat bot tokens as secrets (`DISCORD_BOT_TOKEN` preferred in supervised environments).
 - Grant least-privilege Discord permissions.
-- If command deploy/state is stale, restart gateway and re-check with `openclaw channels status --probe`.
+- If command deploy/state is stale, restart gateway and re-check with `resonix channels status --probe`.
 
 ## Related
 

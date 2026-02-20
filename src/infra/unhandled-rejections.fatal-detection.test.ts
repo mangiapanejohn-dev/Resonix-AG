@@ -53,7 +53,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[openclaw] FATAL unhandled rejection:",
+        "[resonix] FATAL unhandled rejection:",
         expect.stringContaining("Out of memory"),
       );
     });
@@ -74,7 +74,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[openclaw] CONFIGURATION ERROR - requires fix:",
+        "[resonix] CONFIGURATION ERROR - requires fix:",
         expect.stringContaining("Invalid config"),
       );
     });
@@ -98,7 +98,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
       }
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[openclaw] Non-fatal unhandled rejection (continuing):",
+        "[resonix] Non-fatal unhandled rejection (continuing):",
         expect.stringContaining("fetch failed"),
       );
     });
@@ -110,7 +110,7 @@ describe("installUnhandledRejectionHandler - fatal detection", () => {
 
       expect(exitCalls).toEqual([1]);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[openclaw] Unhandled promise rejection:",
+        "[resonix] Unhandled promise rejection:",
         expect.stringContaining("Something went wrong"),
       );
     });

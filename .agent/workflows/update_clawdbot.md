@@ -1,8 +1,8 @@
 ---
-description: Update Clawdbot from upstream when branch has diverged (ahead/behind)
+description: Update Resonixdbot from upstream when branch has diverged (ahead/behind)
 ---
 
-# Clawdbot Upstream Sync Workflow
+# Resonixdbot Upstream Sync Workflow
 
 Use this workflow when your fork has diverged from upstream (e.g., "18 commits ahead, 29 commits behind").
 
@@ -132,16 +132,16 @@ pnpm mac:package
 
 ```bash
 # Kill running app
-pkill -x "Clawdbot" || true
+pkill -x "Resonixdbot" || true
 
 # Move old version
-mv /Applications/Clawdbot.app /tmp/Clawdbot-backup.app
+mv /Applications/Resonixdbot.app /tmp/Resonixdbot-backup.app
 
 # Install new build
-cp -R dist/Clawdbot.app /Applications/
+cp -R dist/Resonixdbot.app /Applications/
 
 # Launch
-open /Applications/Clawdbot.app
+open /Applications/Resonixdbot.app
 ```
 
 ---

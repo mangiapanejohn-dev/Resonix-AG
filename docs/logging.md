@@ -9,7 +9,7 @@ title: "Logging"
 
 # Logging
 
-OpenClaw logs in two places:
+Resonix logs in two places:
 
 - **File logs** (JSON lines) written by the Gateway.
 - **Console output** shown in terminals and the Control UI.
@@ -21,16 +21,16 @@ levels and formats.
 
 By default, the Gateway writes a rolling log file under:
 
-`/tmp/openclaw/openclaw-YYYY-MM-DD.log`
+`/tmp/resonix/resonix-YYYY-MM-DD.log`
 
 The date uses the gateway host's local timezone.
 
-You can override this in `~/.openclaw/openclaw.json`:
+You can override this in `~/.resonix/resonix.json`:
 
 ```json
 {
   "logging": {
-    "file": "/path/to/openclaw.log"
+    "file": "/path/to/resonix.log"
   }
 }
 ```
@@ -42,7 +42,7 @@ You can override this in `~/.openclaw/openclaw.json`:
 Use the CLI to tail the gateway log file via RPC:
 
 ```bash
-openclaw logs --follow
+resonix logs --follow
 ```
 
 Output modes:
@@ -63,7 +63,7 @@ In JSON mode, the CLI emits `type`-tagged objects:
 If the Gateway is unreachable, the CLI prints a short hint to run:
 
 ```bash
-openclaw doctor
+resonix doctor
 ```
 
 ### Control UI (web)
@@ -76,7 +76,7 @@ See [/web/control-ui](/web/control-ui) for how to open it.
 To filter channel activity (WhatsApp/Telegram/etc), use:
 
 ```bash
-openclaw channels logs --channel whatsapp
+resonix channels logs --channel whatsapp
 ```
 
 ## Log formats
@@ -98,13 +98,13 @@ Console formatting is controlled by `logging.consoleStyle`.
 
 ## Configuring logging
 
-All logging configuration lives under `logging` in `~/.openclaw/openclaw.json`.
+All logging configuration lives under `logging` in `~/.resonix/resonix.json`.
 
 ```json
 {
   "logging": {
     "level": "info",
-    "file": "/tmp/openclaw/openclaw-YYYY-MM-DD.log",
+    "file": "/tmp/resonix/resonix-YYYY-MM-DD.log",
     "consoleLevel": "info",
     "consoleStyle": "pretty",
     "redactSensitive": "tools",
@@ -150,7 +150,7 @@ diagnostics + the exporter plugin are enabled.
 
 - **OpenTelemetry (OTel)**: the data model + SDKs for traces, metrics, and logs.
 - **OTLP**: the wire protocol used to export OTel data to a collector/backend.
-- OpenClaw exports via **OTLP/HTTP (protobuf)** today.
+- Resonix exports via **OTLP/HTTP (protobuf)** today.
 
 ### Signals exported
 
@@ -210,7 +210,7 @@ Flags are case-insensitive and support wildcards (e.g. `telegram.*` or `*`).
 Env override (one-off):
 
 ```
-OPENCLAW_DIAGNOSTICS=telegram.http,telegram.payload
+RESONIX_DIAGNOSTICS=telegram.http,telegram.payload
 ```
 
 Notes:
@@ -240,7 +240,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
       "enabled": true,
       "endpoint": "http://otel-collector:4318",
       "protocol": "http/protobuf",
-      "serviceName": "openclaw-gateway",
+      "serviceName": "resonix-gateway",
       "traces": true,
       "metrics": true,
       "logs": true,
@@ -253,7 +253,7 @@ works with any OpenTelemetry collector/backend that accepts OTLP/HTTP.
 
 Notes:
 
-- You can also enable the plugin with `openclaw plugins enable diagnostics-otel`.
+- You can also enable the plugin with `resonix plugins enable diagnostics-otel`.
 - `protocol` currently supports `http/protobuf` only. `grpc` is ignored.
 - Metrics include token usage, cost, context size, run duration, and message-flow
   counters/histograms (webhooks, queueing, session state, queue depth/wait).
@@ -267,60 +267,60 @@ Notes:
 
 Model usage:
 
-- `openclaw.tokens` (counter, attrs: `openclaw.token`, `openclaw.channel`,
-  `openclaw.provider`, `openclaw.model`)
-- `openclaw.cost.usd` (counter, attrs: `openclaw.channel`, `openclaw.provider`,
-  `openclaw.model`)
-- `openclaw.run.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.provider`, `openclaw.model`)
-- `openclaw.context.tokens` (histogram, attrs: `openclaw.context`,
-  `openclaw.channel`, `openclaw.provider`, `openclaw.model`)
+- `resonix.tokens` (counter, attrs: `resonix.token`, `resonix.channel`,
+  `resonix.provider`, `resonix.model`)
+- `resonix.cost.usd` (counter, attrs: `resonix.channel`, `resonix.provider`,
+  `resonix.model`)
+- `resonix.run.duration_ms` (histogram, attrs: `resonix.channel`,
+  `resonix.provider`, `resonix.model`)
+- `resonix.context.tokens` (histogram, attrs: `resonix.context`,
+  `resonix.channel`, `resonix.provider`, `resonix.model`)
 
 Message flow:
 
-- `openclaw.webhook.received` (counter, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.webhook.error` (counter, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.webhook.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.webhook`)
-- `openclaw.message.queued` (counter, attrs: `openclaw.channel`,
-  `openclaw.source`)
-- `openclaw.message.processed` (counter, attrs: `openclaw.channel`,
-  `openclaw.outcome`)
-- `openclaw.message.duration_ms` (histogram, attrs: `openclaw.channel`,
-  `openclaw.outcome`)
+- `resonix.webhook.received` (counter, attrs: `resonix.channel`,
+  `resonix.webhook`)
+- `resonix.webhook.error` (counter, attrs: `resonix.channel`,
+  `resonix.webhook`)
+- `resonix.webhook.duration_ms` (histogram, attrs: `resonix.channel`,
+  `resonix.webhook`)
+- `resonix.message.queued` (counter, attrs: `resonix.channel`,
+  `resonix.source`)
+- `resonix.message.processed` (counter, attrs: `resonix.channel`,
+  `resonix.outcome`)
+- `resonix.message.duration_ms` (histogram, attrs: `resonix.channel`,
+  `resonix.outcome`)
 
 Queues + sessions:
 
-- `openclaw.queue.lane.enqueue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.lane.dequeue` (counter, attrs: `openclaw.lane`)
-- `openclaw.queue.depth` (histogram, attrs: `openclaw.lane` or
-  `openclaw.channel=heartbeat`)
-- `openclaw.queue.wait_ms` (histogram, attrs: `openclaw.lane`)
-- `openclaw.session.state` (counter, attrs: `openclaw.state`, `openclaw.reason`)
-- `openclaw.session.stuck` (counter, attrs: `openclaw.state`)
-- `openclaw.session.stuck_age_ms` (histogram, attrs: `openclaw.state`)
-- `openclaw.run.attempt` (counter, attrs: `openclaw.attempt`)
+- `resonix.queue.lane.enqueue` (counter, attrs: `resonix.lane`)
+- `resonix.queue.lane.dequeue` (counter, attrs: `resonix.lane`)
+- `resonix.queue.depth` (histogram, attrs: `resonix.lane` or
+  `resonix.channel=heartbeat`)
+- `resonix.queue.wait_ms` (histogram, attrs: `resonix.lane`)
+- `resonix.session.state` (counter, attrs: `resonix.state`, `resonix.reason`)
+- `resonix.session.stuck` (counter, attrs: `resonix.state`)
+- `resonix.session.stuck_age_ms` (histogram, attrs: `resonix.state`)
+- `resonix.run.attempt` (counter, attrs: `resonix.attempt`)
 
 ### Exported spans (names + key attributes)
 
-- `openclaw.model.usage`
-  - `openclaw.channel`, `openclaw.provider`, `openclaw.model`
-  - `openclaw.sessionKey`, `openclaw.sessionId`
-  - `openclaw.tokens.*` (input/output/cache_read/cache_write/total)
-- `openclaw.webhook.processed`
-  - `openclaw.channel`, `openclaw.webhook`, `openclaw.chatId`
-- `openclaw.webhook.error`
-  - `openclaw.channel`, `openclaw.webhook`, `openclaw.chatId`,
-    `openclaw.error`
-- `openclaw.message.processed`
-  - `openclaw.channel`, `openclaw.outcome`, `openclaw.chatId`,
-    `openclaw.messageId`, `openclaw.sessionKey`, `openclaw.sessionId`,
-    `openclaw.reason`
-- `openclaw.session.stuck`
-  - `openclaw.state`, `openclaw.ageMs`, `openclaw.queueDepth`,
-    `openclaw.sessionKey`, `openclaw.sessionId`
+- `resonix.model.usage`
+  - `resonix.channel`, `resonix.provider`, `resonix.model`
+  - `resonix.sessionKey`, `resonix.sessionId`
+  - `resonix.tokens.*` (input/output/cache_read/cache_write/total)
+- `resonix.webhook.processed`
+  - `resonix.channel`, `resonix.webhook`, `resonix.chatId`
+- `resonix.webhook.error`
+  - `resonix.channel`, `resonix.webhook`, `resonix.chatId`,
+    `resonix.error`
+- `resonix.message.processed`
+  - `resonix.channel`, `resonix.outcome`, `resonix.chatId`,
+    `resonix.messageId`, `resonix.sessionKey`, `resonix.sessionId`,
+    `resonix.reason`
+- `resonix.session.stuck`
+  - `resonix.state`, `resonix.ageMs`, `resonix.queueDepth`,
+    `resonix.sessionKey`, `resonix.sessionId`
 
 ### Sampling + flushing
 
@@ -344,7 +344,7 @@ Queues + sessions:
 
 ## Troubleshooting tips
 
-- **Gateway not reachable?** Run `openclaw doctor` first.
+- **Gateway not reachable?** Run `resonix doctor` first.
 - **Logs empty?** Check that the Gateway is running and writing to the file path
   in `logging.file`.
 - **Need more detail?** Set `logging.level` to `debug` or `trace` and retry.

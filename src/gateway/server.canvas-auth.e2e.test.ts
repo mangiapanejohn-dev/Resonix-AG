@@ -168,7 +168,7 @@ describe("gateway canvas host auth", () => {
           trustedProxies: ["127.0.0.1"],
         },
       },
-      prefix: "openclaw-canvas-auth-test-",
+      prefix: "resonix-canvas-auth-test-",
       run: async () => {
         await withCanvasGatewayHarness({
           resolvedAuth,

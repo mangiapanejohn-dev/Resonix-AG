@@ -31,7 +31,7 @@ describe("gateway control-plane write rate limit", () => {
         role: "operator",
         scopes: ["operator.admin"],
         client: {
-          id: "openclaw-control-ui",
+          id: "resonix-control-ui",
           version: "1.0.0",
           platform: "darwin",
           mode: "ui",

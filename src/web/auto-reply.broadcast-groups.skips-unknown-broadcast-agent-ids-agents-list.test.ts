@@ -1,6 +1,6 @@
 import "./test-helpers.js";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import { sendWebDirectInboundAndCollectSessionKeys } from "./auto-reply.broadcast-groups.test-harness.js";
 import {
   installWebAutoReplyTestHomeHooks,
@@ -24,7 +24,7 @@ describe("broadcast groups", () => {
       broadcast: {
         "+1000": ["alfred", "missing"],
       },
-    } satisfies OpenClawConfig);
+    } satisfies ResonixConfig);
 
     const { seen, resolver } = await sendWebDirectInboundAndCollectSessionKeys();
 

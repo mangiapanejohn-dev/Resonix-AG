@@ -57,7 +57,7 @@ describe("acp cli option collisions", () => {
     const program = new Command();
     registerAcpCli(program);
 
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-acp-cli-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-acp-cli-"));
     const tokenFile = path.join(dir, "token.txt");
     const passwordFile = path.join(dir, "password.txt");
     await fs.writeFile(tokenFile, "tok_file\n", "utf8");
@@ -80,7 +80,7 @@ describe("acp cli option collisions", () => {
     const program = new Command();
     registerAcpCli(program);
 
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-acp-cli-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-acp-cli-"));
     const tokenFile = path.join(dir, "token.txt");
     await fs.writeFile(tokenFile, "tok_file\n", "utf8");
 

@@ -7,10 +7,10 @@ import { clearConfigCache } from "../config/config.js";
 import { modelsListCommand } from "./models/list.list-command.js";
 
 const ENV_KEYS = [
-  "OPENCLAW_STATE_DIR",
-  "OPENCLAW_AGENT_DIR",
+  "RESONIX_STATE_DIR",
+  "RESONIX_AGENT_DIR",
   "PI_CODING_AGENT_DIR",
-  "OPENCLAW_CONFIG_PATH",
+  "RESONIX_CONFIG_PATH",
   "OPENROUTER_API_KEY",
 ] as const;
 
@@ -41,19 +41,19 @@ async function pathExists(pathname: string): Promise<boolean> {
 describe("models list auth-profile sync", () => {
   it("marks models available when auth exists only in auth-profiles.json", async () => {
     const env = captureEnv();
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-models-list-auth-sync-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-models-list-auth-sync-"));
 
     try {
       const stateDir = path.join(root, "state");
       const agentDir = path.join(stateDir, "agents", "main", "agent");
-      const configPath = path.join(stateDir, "openclaw.json");
+      const configPath = path.join(stateDir, "resonix.json");
       await fs.mkdir(agentDir, { recursive: true });
       await fs.writeFile(configPath, "{}\n", "utf8");
 
-      process.env.OPENCLAW_STATE_DIR = stateDir;
-      process.env.OPENCLAW_AGENT_DIR = agentDir;
+      process.env.RESONIX_STATE_DIR = stateDir;
+      process.env.RESONIX_AGENT_DIR = agentDir;
       process.env.PI_CODING_AGENT_DIR = agentDir;
-      process.env.OPENCLAW_CONFIG_PATH = configPath;
+      process.env.RESONIX_CONFIG_PATH = configPath;
       delete process.env.OPENROUTER_API_KEY;
 
       saveAuthProfileStore(

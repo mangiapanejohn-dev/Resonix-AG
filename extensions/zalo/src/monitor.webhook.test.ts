@@ -1,6 +1,6 @@
 import { createServer, type RequestListener } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { OpenClawConfig, PluginRuntime } from "openclaw/plugin-sdk";
+import type { ResonixConfig, PluginRuntime } from "resonix/plugin-sdk";
 import { describe, expect, it, vi } from "vitest";
 import { handleZaloWebhookRequest, registerZaloWebhookTarget } from "./monitor.js";
 import type { ResolvedZaloAccount } from "./types.js";
@@ -34,7 +34,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregister = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",
@@ -84,7 +84,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregisterA = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",
@@ -95,7 +95,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregisterB = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",
@@ -146,7 +146,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregister = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",
@@ -194,7 +194,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregister = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",
@@ -263,7 +263,7 @@ describe("handleZaloWebhookRequest", () => {
     const unregister = registerZaloWebhookTarget({
       token: "tok",
       account,
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       runtime: {},
       core,
       secret: "secret",

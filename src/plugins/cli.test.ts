@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./loader.js", () => ({
-  loadOpenClawPlugins: () => ({
+  loadResonixPlugins: () => ({
     cliRegistrars: [
       {
         pluginId: "memory-core",

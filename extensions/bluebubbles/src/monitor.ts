@@ -1,11 +1,11 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
+import type { ResonixConfig } from "resonix/plugin-sdk";
 import {
   registerWebhookTarget,
   rejectNonPostWebhookRequest,
   resolveWebhookTargets,
-} from "openclaw/plugin-sdk";
+} from "resonix/plugin-sdk";
 import {
   normalizeWebhookMessage,
   normalizeWebhookReaction,
@@ -123,7 +123,7 @@ type BlueBubblesDebouncer = {
 const targetDebouncers = new Map<WebhookTarget, BlueBubblesDebouncer>();
 
 function resolveBlueBubblesDebounceMs(
-  config: OpenClawConfig,
+  config: ResonixConfig,
   core: BlueBubblesCoreRuntime,
 ): number {
   const inbound = config.messages?.inbound;

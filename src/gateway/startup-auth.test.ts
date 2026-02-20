@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 
 const mocks = vi.hoisted(() => ({
-  writeConfigFile: vi.fn(async (_cfg: OpenClawConfig) => {}),
+  writeConfigFile: vi.fn(async (_cfg: ResonixConfig) => {}),
 }));
 
 vi.mock("../config/config.js", async (importOriginal) => {
@@ -19,7 +19,7 @@ import {
 } from "./startup-auth.js";
 
 describe("ensureGatewayStartupAuth", () => {
-  async function expectEphemeralGeneratedTokenWhenOverridden(cfg: OpenClawConfig) {
+  async function expectEphemeralGeneratedTokenWhenOverridden(cfg: ResonixConfig) {
     const result = await ensureGatewayStartupAuth({
       cfg,
       env: {} as NodeJS.ProcessEnv,
@@ -57,7 +57,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("does not generate when token already exists", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -79,7 +79,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("does not generate in password mode", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "password",
@@ -99,7 +99,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("does not generate in trusted-proxy mode", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "trusted-proxy",
@@ -120,7 +120,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("does not generate in explicit none mode", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "none",
@@ -140,7 +140,7 @@ describe("ensureGatewayStartupAuth", () => {
   });
 
   it("treats undefined token override as no override", async () => {
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -202,7 +202,7 @@ describe("ensureGatewayStartupAuth", () => {
           },
         },
         env: {
-          OPENCLAW_GATEWAY_TOKEN: "shared-gateway-token-1234567890",
+          RESONIX_GATEWAY_TOKEN: "shared-gateway-token-1234567890",
         } as NodeJS.ProcessEnv,
       }),
     ).rejects.toThrow(/hooks\.token must not match gateway auth token/i);

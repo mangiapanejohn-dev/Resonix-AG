@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 import {
   resolveChannelGroupRequireMention,
   resolveChannelGroupToolsPolicy,
@@ -13,7 +13,7 @@ import { normalizeAtHashSlug, normalizeHyphenSlug } from "../../shared/string-no
 import { resolveSlackAccount } from "../../slack/accounts.js";
 
 type GroupMentionParams = {
-  cfg: OpenClawConfig;
+  cfg: ResonixConfig;
   groupId?: string | null;
   groupChannel?: string | null;
   groupSpace?: string | null;
@@ -49,7 +49,7 @@ function parseTelegramGroupId(value?: string | null) {
 }
 
 function resolveTelegramRequireMention(params: {
-  cfg: OpenClawConfig;
+  cfg: ResonixConfig;
   chatId?: string;
   topicId?: string;
 }): boolean | undefined {

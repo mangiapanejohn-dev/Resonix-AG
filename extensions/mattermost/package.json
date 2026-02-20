@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/mattermost",
+  "name": "@resonix/mattermost",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Mattermost channel plugin",
+  "description": "Resonix Mattermost channel plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ],
@@ -21,7 +21,7 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@openclaw/mattermost",
+      "npmSpec": "@resonix/mattermost",
       "localPath": "extensions/mattermost",
       "defaultChoice": "npm"
     }

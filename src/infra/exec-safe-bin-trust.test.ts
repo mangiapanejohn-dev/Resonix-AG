@@ -57,7 +57,7 @@ describe("exec safe bin trust", () => {
 
   it("uses startup PATH snapshot when pathEnv is omitted", () => {
     const originalPath = process.env.PATH;
-    const injected = `/tmp/openclaw-path-injected-${Date.now()}`;
+    const injected = `/tmp/resonix-path-injected-${Date.now()}`;
     const initial = getTrustedSafeBinDirs({ refresh: true });
     try {
       process.env.PATH = `${injected}${path.delimiter}${originalPath ?? ""}`;

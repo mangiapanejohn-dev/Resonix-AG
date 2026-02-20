@@ -1,8 +1,8 @@
-# ClawDock <!-- omit in toc -->
+# ResonixDock <!-- omit in toc -->
 
 Stop typing `docker-compose` commands. Just type `clawdock-start`.
 
-Inspired by Simon Willison's [Running OpenClaw in Docker](https://til.simonwillison.net/llms/openclaw-docker).
+Inspired by Simon Willison's [Running Resonix in Docker](https://til.simonwillison.net/llms/resonix-docker).
 
 - [Quickstart](#quickstart)
 - [Available Commands](#available-commands)
@@ -25,7 +25,7 @@ Inspired by Simon Willison's [Running OpenClaw in Docker](https://til.simonwilli
 **Install:**
 
 ```bash
-mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/openclaw/openclaw/main/scripts/shell-helpers/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
+mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/resonix/resonix/main/scripts/shell-helpers/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
 ```
 
 ```bash
@@ -38,9 +38,9 @@ echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
 clawdock-help
 ```
 
-On first command, ClawDock auto-detects your OpenClaw directory:
+On first command, ResonixDock auto-detects your Resonix directory:
 
-- Checks common paths (`~/openclaw`, `~/workspace/openclaw`, etc.)
+- Checks common paths (`~/resonix`, `~/workspace/resonix`, etc.)
 - If found, asks you to confirm
 - Saves to `~/.clawdock/config`
 
@@ -87,7 +87,7 @@ clawdock-approve <request-id>
 | Command                   | Description                                    |
 | ------------------------- | ---------------------------------------------- |
 | `clawdock-shell`          | Interactive shell inside the gateway container |
-| `clawdock-cli <command>`  | Run OpenClaw CLI commands                      |
+| `clawdock-cli <command>`  | Run Resonix CLI commands                      |
 | `clawdock-exec <command>` | Execute arbitrary commands in the container    |
 
 ### Web UI & Devices
@@ -117,8 +117,8 @@ clawdock-approve <request-id>
 | -------------------- | ----------------------------------------- |
 | `clawdock-health`    | Run gateway health check                  |
 | `clawdock-token`     | Display the gateway authentication token  |
-| `clawdock-cd`        | Jump to the OpenClaw project directory    |
-| `clawdock-config`    | Open the OpenClaw config directory        |
+| `clawdock-cd`        | Jump to the Resonix project directory    |
+| `clawdock-config`    | Open the Resonix config directory        |
 | `clawdock-workspace` | Open the workspace directory              |
 | `clawdock-help`      | Show all available commands with examples |
 
@@ -155,7 +155,7 @@ clawdock-shell
 **Inside the container, login to WhatsApp:**
 
 ```bash
-openclaw channels login --channel whatsapp --verbose
+resonix channels login --channel whatsapp --verbose
 ```
 
 Scan the QR code with WhatsApp on your phone.
@@ -163,7 +163,7 @@ Scan the QR code with WhatsApp on your phone.
 **Verify connection:**
 
 ```bash
-openclaw status
+resonix status
 ```
 
 ### Troubleshooting Device Pairing
@@ -193,7 +193,7 @@ clawdock-fix-token
 This will:
 
 1. Read the token from your `.env` file
-2. Configure it in the OpenClaw config
+2. Configure it in the Resonix config
 3. Restart the gateway
 4. Verify the configuration
 
@@ -209,14 +209,14 @@ docker ps
 
 - Docker and Docker Compose installed
 - Bash or Zsh shell
-- OpenClaw project (from `docker-setup.sh`)
+- Resonix project (from `docker-setup.sh`)
 
 ## Development
 
 **Test with fresh config (mimics first-time install):**
 
 ```bash
-unset CLAWDOCK_DIR && rm -f ~/.clawdock/config && source scripts/shell-helpers/clawdock-helpers.sh
+unset RESONIXDOCK_DIR && rm -f ~/.clawdock/config && source scripts/shell-helpers/clawdock-helpers.sh
 ```
 
 Then run any command to trigger auto-detect:

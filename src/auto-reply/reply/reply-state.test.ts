@@ -36,7 +36,7 @@ async function seedSessionStore(params: {
 }
 
 async function createCompactionSessionFixture(entry: SessionEntry) {
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-compact-"));
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-compact-"));
   const storePath = path.join(tmp, "sessions.json");
   const sessionKey = "main";
   const sessionStore: Record<string, SessionEntry> = { [sessionKey]: entry };
@@ -312,7 +312,7 @@ describe("resolveMemoryFlushContextWindowTokens", () => {
 
 describe("incrementCompactionCount", () => {
   it("increments compaction count", async () => {
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-compact-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-compact-"));
     const storePath = path.join(tmp, "sessions.json");
     const sessionKey = "main";
     const entry = { sessionId: "s1", updatedAt: Date.now(), compactionCount: 2 } as SessionEntry;

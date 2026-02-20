@@ -246,12 +246,12 @@ describe("resolveConfigEnvVars", () => {
       const config = {
         gateway: {
           auth: {
-            token: "${OPENCLAW_GATEWAY_TOKEN}",
+            token: "${RESONIX_GATEWAY_TOKEN}",
           },
         },
       };
       const result = resolveConfigEnvVars(config, {
-        OPENCLAW_GATEWAY_TOKEN: "secret-token",
+        RESONIX_GATEWAY_TOKEN: "secret-token",
       });
       expect(result).toEqual({
         gateway: {

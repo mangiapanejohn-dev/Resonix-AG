@@ -7,7 +7,7 @@ import {
 } from "./service.test-harness.js";
 
 const logger = createNoopLogger();
-const { makeStorePath } = createCronStoreHarness({ prefix: "openclaw-cron-get-job-" });
+const { makeStorePath } = createCronStoreHarness({ prefix: "resonix-cron-get-job-" });
 installCronTestHooks({ logger });
 
 function createCronService(storePath: string) {

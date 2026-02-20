@@ -1,4 +1,4 @@
-import type { ChannelDirectoryEntry } from "openclaw/plugin-sdk";
+import type { ChannelDirectoryEntry } from "resonix/plugin-sdk";
 import {
   escapeOData,
   fetchGraphJson,

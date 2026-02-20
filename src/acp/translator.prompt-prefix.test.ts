@@ -15,7 +15,7 @@ function createConnection(): AgentSideConnection {
 describe("acp prompt cwd prefix", () => {
   it("redacts home directory in prompt prefix", async () => {
     const sessionStore = createInMemorySessionStore();
-    const homeCwd = path.join(os.homedir(), "openclaw-test");
+    const homeCwd = path.join(os.homedir(), "resonix-test");
     sessionStore.createSession({
       sessionId: "session-1",
       sessionKey: "agent:main:main",
@@ -48,7 +48,7 @@ describe("acp prompt cwd prefix", () => {
     expect(requestSpy).toHaveBeenCalledWith(
       "chat.send",
       expect.objectContaining({
-        message: expect.stringMatching(/\[Working directory: ~[\\/]openclaw-test\]/),
+        message: expect.stringMatching(/\[Working directory: ~[\\/]resonix-test\]/),
       }),
       { expectFinal: true },
     );

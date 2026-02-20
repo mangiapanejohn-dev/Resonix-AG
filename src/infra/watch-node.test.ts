@@ -19,7 +19,7 @@ describe("watch-node script", () => {
 
     const runPromise = runWatchMain({
       args: ["gateway", "--force"],
-      cwd: "/tmp/openclaw",
+      cwd: "/tmp/resonix",
       env: { PATH: "/usr/bin" },
       now: () => 1700000000000,
       process: fakeProcess,
@@ -41,13 +41,13 @@ describe("watch-node script", () => {
         "--force",
       ],
       expect.objectContaining({
-        cwd: "/tmp/openclaw",
+        cwd: "/tmp/resonix",
         stdio: "inherit",
         env: expect.objectContaining({
           PATH: "/usr/bin",
-          OPENCLAW_WATCH_MODE: "1",
-          OPENCLAW_WATCH_SESSION: "1700000000000-4242",
-          OPENCLAW_WATCH_COMMAND: "gateway --force",
+          RESONIX_WATCH_MODE: "1",
+          RESONIX_WATCH_SESSION: "1700000000000-4242",
+          RESONIX_WATCH_COMMAND: "gateway --force",
         }),
       }),
     );

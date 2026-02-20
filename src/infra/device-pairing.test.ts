@@ -34,7 +34,7 @@ function requireToken(token: string | undefined): string {
 
 describe("device pairing tokens", () => {
   test("reuses existing pending requests for the same device", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     const first = await requestDevicePairing(
       {
         deviceId: "device-1",
@@ -56,7 +56,7 @@ describe("device pairing tokens", () => {
   });
 
   test("generates base64url device tokens with 256-bit entropy output length", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
 
     const paired = await getPairedDevice("device-1", baseDir);
@@ -66,7 +66,7 @@ describe("device pairing tokens", () => {
   });
 
   test("preserves existing token scopes when rotating without scopes", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.admin"]);
 
     await rotateDeviceToken({
@@ -89,7 +89,7 @@ describe("device pairing tokens", () => {
   });
 
   test("verifies token and rejects mismatches", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.read"]);
     const paired = await getPairedDevice("device-1", baseDir);
     const token = requireToken(paired?.tokens?.operator?.token);
@@ -115,7 +115,7 @@ describe("device pairing tokens", () => {
   });
 
   test("treats multibyte same-length token input as mismatch without throwing", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.read"]);
     const paired = await getPairedDevice("device-1", baseDir);
     const token = requireToken(paired?.tokens?.operator?.token);
@@ -134,7 +134,7 @@ describe("device pairing tokens", () => {
   });
 
   test("removes paired devices by device id", async () => {
-    const baseDir = await mkdtemp(join(tmpdir(), "openclaw-device-pairing-"));
+    const baseDir = await mkdtemp(join(tmpdir(), "resonix-device-pairing-"));
     await setupPairedOperatorDevice(baseDir, ["operator.read"]);
 
     const removed = await removePairedDevice("device-1", baseDir);

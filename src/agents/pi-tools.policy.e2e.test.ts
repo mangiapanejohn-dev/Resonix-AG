@@ -1,7 +1,7 @@
 import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
 import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import {
   filterToolsByPolicy,
   isToolAllowedByPolicyName,
@@ -44,15 +44,15 @@ describe("pi-tools.policy", () => {
 describe("resolveSubagentToolPolicy depth awareness", () => {
   const baseCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 2 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ResonixConfig;
 
   const deepCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 3 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ResonixConfig;
 
   const leafCfg = {
     agents: { defaults: { subagents: { maxSpawnDepth: 1 } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ResonixConfig;
 
   it("depth-1 orchestrator (maxSpawnDepth=2) allows sessions_spawn", () => {
     const policy = resolveSubagentToolPolicy(baseCfg, 1);

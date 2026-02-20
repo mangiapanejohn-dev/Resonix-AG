@@ -9,8 +9,8 @@ import type { AuthProfileStore } from "./types.js";
 
 describe("resolveApiKeyForProfile fallback to main agent", () => {
   const envSnapshot = captureEnv([
-    "OPENCLAW_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "RESONIX_STATE_DIR",
+    "RESONIX_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
   ]);
   let tmpDir: string;
@@ -24,9 +24,9 @@ describe("resolveApiKeyForProfile fallback to main agent", () => {
     await fs.mkdir(mainAgentDir, { recursive: true });
     await fs.mkdir(secondaryAgentDir, { recursive: true });
 
-    // Set environment variables so resolveOpenClawAgentDir() returns mainAgentDir
-    process.env.OPENCLAW_STATE_DIR = tmpDir;
-    process.env.OPENCLAW_AGENT_DIR = mainAgentDir;
+    // Set environment variables so resolveResonixAgentDir() returns mainAgentDir
+    process.env.RESONIX_STATE_DIR = tmpDir;
+    process.env.RESONIX_AGENT_DIR = mainAgentDir;
     process.env.PI_CODING_AGENT_DIR = mainAgentDir;
   });
 

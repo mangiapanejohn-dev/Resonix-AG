@@ -1,19 +1,19 @@
 ---
-summary: "CLI reference for `openclaw configure` (interactive configuration prompts)"
+summary: "CLI reference for `resonix configure` (interactive configuration prompts)"
 read_when:
   - You want to tweak credentials, devices, or agent defaults interactively
 title: "configure"
 ---
 
-# `openclaw configure`
+# `resonix configure`
 
 Interactive prompt to set up credentials, devices, and agent defaults.
 
 Note: The **Model** section now includes a multi-select for the
 `agents.defaults.models` allowlist (what shows up in `/model` and the model picker).
 
-Tip: `openclaw config` without a subcommand opens the same wizard. Use
-`openclaw config get|set|unset` for non-interactive edits.
+Tip: `resonix config` without a subcommand opens the same wizard. Use
+`resonix config get|set|unset` for non-interactive edits.
 
 Related:
 
@@ -28,6 +28,6 @@ Notes:
 ## Examples
 
 ```bash
-openclaw configure
-openclaw configure --section models --section channels
+resonix configure
+resonix configure --section models --section channels
 ```

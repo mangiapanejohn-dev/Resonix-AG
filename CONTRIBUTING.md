@@ -1,20 +1,20 @@
-# Contributing to OpenClaw
+# Contributing to Resonix
 
-Welcome to the lobster tank! 🦞
+Welcome to the lobster tank! 👾
 
 ## Quick Links
 
-- **GitHub:** https://github.com/openclaw/openclaw
+- **GitHub:** https://github.com/resonix/resonix
 - **Vision:** [`VISION.md`](VISION.md)
 - **Discord:** https://discord.gg/qkhbAGHRBT
-- **X/Twitter:** [@steipete](https://x.com/steipete) / [@openclaw](https://x.com/openclaw)
+- **X/Twitter:** [@steipete](https://x.com/steipete) / [@resonix](https://x.com/resonix)
 
 ## Maintainers
 
 - **Peter Steinberger** - Benevolent Dictator
   - GitHub: [@steipete](https://github.com/steipete) · X: [@steipete](https://x.com/steipete)
 
-- **Shadow** - Discord subsystem, Discord admin, Clawhub, all community moderation
+- **Shadow** - Discord subsystem, Discord admin, Resonixhub, all community moderation
   - GitHub: [@thewilloftheshadow](https://github.com/thewilloftheshadow) · X: [@4shad0wed](https://x.com/4shad0wed)
 
 - **Vignesh** - Memory (QMD), formal modeling, TUI, IRC, and Lobster
@@ -47,12 +47,12 @@ Welcome to the lobster tank! 🦞
 ## How to Contribute
 
 1. **Bugs & small fixes** → Open a PR!
-2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/openclaw/openclaw/discussions) or ask in Discord first
+2. **New features / architecture** → Start a [GitHub Discussion](https://github.com/resonix/resonix/discussions) or ask in Discord first
 3. **Questions** → Discord #setup-help
 
 ## Before You PR
 
-- Test locally with your OpenClaw instance
+- Test locally with your Resonix instance
 - Run tests: `pnpm build && pnpm check && pnpm test`
 - Ensure CI checks pass
 - Keep PRs focused (one thing per PR; do not mix unrelated concerns)
@@ -92,21 +92,21 @@ We are currently prioritizing:
 
 - **Stability**: Fixing edge cases in channel connections (WhatsApp/Telegram).
 - **UX**: Improving the onboarding wizard and error messages.
-- **Skills**: For skill contributions, head to [ClawHub](https://clawhub.ai/) — the community hub for OpenClaw skills.
+- **Skills**: For skill contributions, head to [ResonixHub](https://clawhub.ai/) — the community hub for Resonix skills.
 - **Performance**: Optimizing token usage and compaction logic.
 
-Check the [GitHub Issues](https://github.com/openclaw/openclaw/issues) for "good first issue" labels!
+Check the [GitHub Issues](https://github.com/resonix/resonix/issues) for "good first issue" labels!
 
 ## Maintainers
 
 We're selectively expanding the maintainer team.
-If you're an experienced contributor who wants to help shape OpenClaw's direction — whether through code, docs, or community — we'd like to hear from you.
+If you're an experienced contributor who wants to help shape Resonix's direction — whether through code, docs, or community — we'd like to hear from you.
 
 Being a maintainer is a responsibility, not an honorary title. We expect active, consistent involvement — triaging issues, reviewing PRs, and helping move the project forward.
 
-Still interested? Email contributing@openclaw.ai with:
+Still interested? Email contributing@resonix.ai with:
 
-- Links to your PRs on OpenClaw (if you don't have any, start there first)
+- Links to your PRs on Resonix (if you don't have any, start there first)
 - Links to open source projects you maintain or actively contribute to
 - Your GitHub, Discord, and X/Twitter handles
 - A brief intro: background, experience, and areas of interest
@@ -121,14 +121,14 @@ Please allow a few weeks for a response.
 
 We take security reports seriously. Report vulnerabilities directly to the repository where the issue lives:
 
-- **Core CLI and gateway** — [openclaw/openclaw](https://github.com/openclaw/openclaw)
-- **macOS desktop app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/macos)
-- **iOS app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/ios)
-- **Android app** — [openclaw/openclaw](https://github.com/openclaw/openclaw) (apps/android)
-- **ClawHub** — [openclaw/clawhub](https://github.com/openclaw/clawhub)
-- **Trust and threat model** — [openclaw/trust](https://github.com/openclaw/trust)
+- **Core CLI and gateway** — [resonix/resonix](https://github.com/resonix/resonix)
+- **macOS desktop app** — [resonix/resonix](https://github.com/resonix/resonix) (apps/macos)
+- **iOS app** — [resonix/resonix](https://github.com/resonix/resonix) (apps/ios)
+- **Android app** — [resonix/resonix](https://github.com/resonix/resonix) (apps/android)
+- **ResonixHub** — [resonix/clawhub](https://github.com/resonix/clawhub)
+- **Trust and threat model** — [resonix/trust](https://github.com/resonix/trust)
 
-For issues that don't fit a specific repo, or if you're unsure, email **security@openclaw.ai** and we'll route it.
+For issues that don't fit a specific repo, or if you're unsure, email **security@resonix.ai** and we'll route it.
 
 ### Required in Reports
 

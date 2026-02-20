@@ -77,7 +77,7 @@ type ConnectedTarget = {
   targetInfo: TargetInfo;
 };
 
-const RELAY_AUTH_HEADER = "x-openclaw-relay-token";
+const RELAY_AUTH_HEADER = "x-resonix-relay-token";
 
 function headerValue(value: string | string[] | undefined): string | undefined {
   if (!value) {
@@ -158,7 +158,7 @@ const serversByPort = new Map<number, ChromeExtensionRelayServer>();
 
 function resolveGatewayAuthToken(): string | null {
   const envToken =
-    process.env.OPENCLAW_GATEWAY_TOKEN?.trim() || process.env.CLAWDBOT_GATEWAY_TOKEN?.trim();
+    process.env.RESONIX_GATEWAY_TOKEN?.trim() || process.env.RESONIXDBOT_GATEWAY_TOKEN?.trim();
   if (envToken) {
     return envToken;
   }
@@ -180,7 +180,7 @@ function resolveRelayAuthToken(): string {
     return gatewayToken;
   }
   throw new Error(
-    "extension relay requires gateway auth token (set gateway.auth.token or OPENCLAW_GATEWAY_TOKEN)",
+    "extension relay requires gateway auth token (set gateway.auth.token or RESONIX_GATEWAY_TOKEN)",
   );
 }
 
@@ -193,7 +193,7 @@ function isAddrInUseError(err: unknown): boolean {
   );
 }
 
-async function looksLikeOpenClawRelay(baseUrl: string): Promise<boolean> {
+async function looksLikeResonixRelay(baseUrl: string): Promise<boolean> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 500);
   try {
@@ -321,9 +321,9 @@ export async function ensureChromeExtensionRelayServer(opts: {
       case "Browser.getVersion":
         return {
           protocolVersion: "1.3",
-          product: "Chrome/OpenClaw-Extension-Relay",
+          product: "Chrome/Resonix-Extension-Relay",
           revision: "0",
-          userAgent: "OpenClaw-Extension-Relay",
+          userAgent: "Resonix-Extension-Relay",
           jsVersion: "V8",
         };
       case "Browser.setDownloadBehavior":
@@ -425,7 +425,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
       (req.method === "GET" || req.method === "PUT")
     ) {
       const payload: Record<string, unknown> = {
-        Browser: "OpenClaw/extension-relay",
+        Browser: "Resonix/extension-relay",
         "Protocol-Version": "1.3",
       };
       // Only advertise the WS URL if a real extension is connected.
@@ -771,7 +771,7 @@ export async function ensureChromeExtensionRelayServer(opts: {
       server.once("error", reject);
     });
   } catch (err) {
-    if (isAddrInUseError(err) && (await looksLikeOpenClawRelay(info.baseUrl))) {
+    if (isAddrInUseError(err) && (await looksLikeResonixRelay(info.baseUrl))) {
       const existingRelay: ChromeExtensionRelayServer = {
         host: info.host,
         port: info.port,

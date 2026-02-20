@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/copilot-proxy",
+  "name": "@resonix/copilot-proxy",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Copilot Proxy provider plugin",
+  "description": "Resonix Copilot Proxy provider plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ]

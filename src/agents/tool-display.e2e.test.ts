@@ -81,11 +81,11 @@ describe("tool display details", () => {
     const detail = formatToolDetail(
       resolveToolDisplay({
         name: "web_search",
-        args: { query: "OpenClaw docs", count: 3 },
+        args: { query: "Resonix docs", count: 3 },
       }),
     );
 
-    expect(detail).toBe('for "OpenClaw docs" (top 3)');
+    expect(detail).toBe('for "Resonix docs" (top 3)');
   });
 
   it("summarizes exec commands with context", () => {
@@ -94,14 +94,14 @@ describe("tool display details", () => {
         name: "exec",
         args: {
           command:
-            "set -euo pipefail\ngit -C /Users/adityasingh/.openclaw/workspace status --short | head -n 3",
-          workdir: "/Users/adityasingh/.openclaw/workspace",
+            "set -euo pipefail\ngit -C /Users/adityasingh/.resonix/workspace status --short | head -n 3",
+          workdir: "/Users/adityasingh/.resonix/workspace",
         },
       }),
     );
 
     expect(detail).toContain("check git status -> show first 3 lines");
-    expect(detail).toContain(".openclaw/workspace)");
+    expect(detail).toContain(".resonix/workspace)");
   });
 
   it("recognizes heredoc/inline script exec details", () => {
@@ -110,7 +110,7 @@ describe("tool display details", () => {
         name: "exec",
         args: {
           command: "python3 <<PY\nprint('x')\nPY",
-          workdir: "/Users/adityasingh/.openclaw/workspace",
+          workdir: "/Users/adityasingh/.resonix/workspace",
         },
       }),
     );
@@ -119,7 +119,7 @@ describe("tool display details", () => {
         name: "exec",
         args: {
           command: "node --check /tmp/test.js",
-          workdir: "/Users/adityasingh/.openclaw/workspace",
+          workdir: "/Users/adityasingh/.resonix/workspace",
         },
       }),
     );
@@ -128,7 +128,7 @@ describe("tool display details", () => {
         name: "exec",
         args: {
           command: "node -c /tmp/test.js",
-          workdir: "/Users/adityasingh/.openclaw/workspace",
+          workdir: "/Users/adityasingh/.resonix/workspace",
         },
       }),
     );

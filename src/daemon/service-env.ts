@@ -206,29 +206,29 @@ export function buildServiceEnvironment(params: {
   launchdLabel?: string;
 }): Record<string, string | undefined> {
   const { env, port, token, launchdLabel } = params;
-  const profile = env.OPENCLAW_PROFILE;
+  const profile = env.RESONIX_PROFILE;
   const resolvedLaunchdLabel =
     launchdLabel ||
     (process.platform === "darwin" ? resolveGatewayLaunchAgentLabel(profile) : undefined);
   const systemdUnit = `${resolveGatewaySystemdServiceName(profile)}.service`;
-  const stateDir = env.OPENCLAW_STATE_DIR;
-  const configPath = env.OPENCLAW_CONFIG_PATH;
+  const stateDir = env.RESONIX_STATE_DIR;
+  const configPath = env.RESONIX_CONFIG_PATH;
   // Keep a usable temp directory for supervised services even when the host env omits TMPDIR.
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
-    OPENCLAW_PROFILE: profile,
-    OPENCLAW_STATE_DIR: stateDir,
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_GATEWAY_PORT: String(port),
-    OPENCLAW_GATEWAY_TOKEN: token,
-    OPENCLAW_LAUNCHD_LABEL: resolvedLaunchdLabel,
-    OPENCLAW_SYSTEMD_UNIT: systemdUnit,
-    OPENCLAW_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
-    OPENCLAW_SERVICE_KIND: GATEWAY_SERVICE_KIND,
-    OPENCLAW_SERVICE_VERSION: VERSION,
+    RESONIX_PROFILE: profile,
+    RESONIX_STATE_DIR: stateDir,
+    RESONIX_CONFIG_PATH: configPath,
+    RESONIX_GATEWAY_PORT: String(port),
+    RESONIX_GATEWAY_TOKEN: token,
+    RESONIX_LAUNCHD_LABEL: resolvedLaunchdLabel,
+    RESONIX_SYSTEMD_UNIT: systemdUnit,
+    RESONIX_SERVICE_MARKER: GATEWAY_SERVICE_MARKER,
+    RESONIX_SERVICE_KIND: GATEWAY_SERVICE_KIND,
+    RESONIX_SERVICE_VERSION: VERSION,
   };
 }
 
@@ -236,22 +236,22 @@ export function buildNodeServiceEnvironment(params: {
   env: Record<string, string | undefined>;
 }): Record<string, string | undefined> {
   const { env } = params;
-  const stateDir = env.OPENCLAW_STATE_DIR;
-  const configPath = env.OPENCLAW_CONFIG_PATH;
+  const stateDir = env.RESONIX_STATE_DIR;
+  const configPath = env.RESONIX_CONFIG_PATH;
   const tmpDir = env.TMPDIR?.trim() || os.tmpdir();
   return {
     HOME: env.HOME,
     TMPDIR: tmpDir,
     PATH: buildMinimalServicePath({ env }),
-    OPENCLAW_STATE_DIR: stateDir,
-    OPENCLAW_CONFIG_PATH: configPath,
-    OPENCLAW_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
-    OPENCLAW_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
-    OPENCLAW_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
-    OPENCLAW_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
-    OPENCLAW_LOG_PREFIX: "node",
-    OPENCLAW_SERVICE_MARKER: NODE_SERVICE_MARKER,
-    OPENCLAW_SERVICE_KIND: NODE_SERVICE_KIND,
-    OPENCLAW_SERVICE_VERSION: VERSION,
+    RESONIX_STATE_DIR: stateDir,
+    RESONIX_CONFIG_PATH: configPath,
+    RESONIX_LAUNCHD_LABEL: resolveNodeLaunchAgentLabel(),
+    RESONIX_SYSTEMD_UNIT: resolveNodeSystemdServiceName(),
+    RESONIX_WINDOWS_TASK_NAME: resolveNodeWindowsTaskName(),
+    RESONIX_TASK_SCRIPT_NAME: NODE_WINDOWS_TASK_SCRIPT_NAME,
+    RESONIX_LOG_PREFIX: "node",
+    RESONIX_SERVICE_MARKER: NODE_SERVICE_MARKER,
+    RESONIX_SERVICE_KIND: NODE_SERVICE_KIND,
+    RESONIX_SERVICE_VERSION: VERSION,
   };
 }

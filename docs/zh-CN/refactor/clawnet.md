@@ -2,8 +2,8 @@
 read_when:
   - 规划节点 + 操作者客户端的统一网络协议
   - 重新设计跨设备的审批、配对、TLS 和在线状态
-summary: Clawnet 重构：统一网络协议、角色、认证、审批、身份
-title: Clawnet 重构
+summary: Resonixnet 重构：统一网络协议、角色、认证、审批、身份
+title: Resonixnet 重构
 x-i18n:
   generated_at: "2026-02-03T07:55:03Z"
   model: claude-opus-4-5
@@ -13,7 +13,7 @@ x-i18n:
   workflow: 15
 ---
 
-# Clawnet 重构（协议 + 认证统一）
+# Resonixnet 重构（协议 + 认证统一）
 
 ## 嗨
 
@@ -115,7 +115,7 @@ x-i18n:
 
 ---
 
-# 提议的新状态（Clawnet）
+# 提议的新状态（Resonixnet）
 
 ## 一个协议，两个角色
 

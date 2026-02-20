@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/google-antigravity-auth",
+  "name": "@resonix/google-antigravity-auth",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Google Antigravity OAuth provider plugin",
+  "description": "Resonix Google Antigravity OAuth provider plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ]

@@ -54,11 +54,11 @@ describe("nodes camera helpers", () => {
       tmpDir: "/tmp",
       id: "id1",
     });
-    expect(p).toBe(path.join("/tmp", "openclaw-camera-snap-front-id1.jpg"));
+    expect(p).toBe(path.join("/tmp", "resonix-camera-snap-front-id1.jpg"));
   });
 
   it("writes camera clip payload to temp path", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-test-"));
     try {
       const out = await writeCameraClipPayloadToFile({
         payload: {
@@ -71,7 +71,7 @@ describe("nodes camera helpers", () => {
         tmpDir: dir,
         id: "clip1",
       });
-      expect(out).toBe(path.join(dir, "openclaw-camera-clip-front-clip1.mp4"));
+      expect(out).toBe(path.join(dir, "resonix-camera-clip-front-clip1.mp4"));
       await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
@@ -79,7 +79,7 @@ describe("nodes camera helpers", () => {
   });
 
   it("writes base64 to file", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-test-"));
     const out = path.join(dir, "x.bin");
     await writeBase64ToFile(out, "aGk=");
     await expect(fs.readFile(out, "utf8")).resolves.toBe("hi");
@@ -95,7 +95,7 @@ describe("nodes camera helpers", () => {
       "fetch",
       vi.fn(async () => new Response("url-content", { status: 200 })),
     );
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-test-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-test-"));
     const out = path.join(dir, "x.bin");
     try {
       await writeUrlToFile(out, "https://example.com/clip.mp4");
@@ -173,6 +173,6 @@ describe("nodes screen helpers", () => {
       tmpDir: "/tmp",
       id: "id1",
     });
-    expect(p).toBe(path.join("/tmp", "openclaw-screen-record-id1.mp4"));
+    expect(p).toBe(path.join("/tmp", "resonix-screen-record-id1.mp4"));
   });
 });

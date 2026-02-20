@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 import { createAccountListHelpers } from "./account-helpers.js";
 
 const { listConfiguredAccountIds, listAccountIds, resolveDefaultAccountId } =
   createAccountListHelpers("testchannel");
 
-function cfg(accounts?: Record<string, unknown> | null): OpenClawConfig {
+function cfg(accounts?: Record<string, unknown> | null): ResonixConfig {
   if (accounts === null) {
-    return { channels: { testchannel: {} } } as unknown as OpenClawConfig;
+    return { channels: { testchannel: {} } } as unknown as ResonixConfig;
   }
   if (accounts === undefined) {
-    return {} as unknown as OpenClawConfig;
+    return {} as unknown as ResonixConfig;
   }
-  return { channels: { testchannel: { accounts } } } as unknown as OpenClawConfig;
+  return { channels: { testchannel: { accounts } } } as unknown as ResonixConfig;
 }
 
 describe("createAccountListHelpers", () => {
   describe("listConfiguredAccountIds", () => {
     it("returns empty for missing config", () => {
-      expect(listConfiguredAccountIds({} as OpenClawConfig)).toEqual([]);
+      expect(listConfiguredAccountIds({} as ResonixConfig)).toEqual([]);
     });
 
     it("returns empty when no accounts key", () => {
@@ -43,7 +43,7 @@ describe("createAccountListHelpers", () => {
 
   describe("listAccountIds", () => {
     it('returns ["default"] for empty config', () => {
-      expect(listAccountIds({} as OpenClawConfig)).toEqual(["default"]);
+      expect(listAccountIds({} as ResonixConfig)).toEqual(["default"]);
     });
 
     it('returns ["default"] for empty accounts', () => {
@@ -65,7 +65,7 @@ describe("createAccountListHelpers", () => {
     });
 
     it('returns "default" for empty config', () => {
-      expect(resolveDefaultAccountId({} as OpenClawConfig)).toBe("default");
+      expect(resolveDefaultAccountId({} as ResonixConfig)).toBe("default");
     });
   });
 });

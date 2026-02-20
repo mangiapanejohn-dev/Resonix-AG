@@ -15,7 +15,7 @@
     },
     "dbPath": {
       "label": "Database Path",
-      "placeholder": "~/.openclaw/memory/lancedb",
+      "placeholder": "~/.resonix/memory/lancedb",
       "advanced": true
     },
     "autoCapture": {

@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type FakeFsEntry = { kind: "file"; content: string } | { kind: "dir" };
 
-const VITEST_FS_BASE = path.join(path.parse(process.cwd()).root, "__openclaw_vitest__");
+const VITEST_FS_BASE = path.join(path.parse(process.cwd()).root, "__resonix_vitest__");
 const FIXTURE_BASE = path.join(VITEST_FS_BASE, "openclaw-root");
 
 const state = vi.hoisted(() => ({
@@ -89,13 +89,13 @@ vi.mock("node:fs/promises", async (importOriginal) => {
   return { ...wrapped, default: wrapped };
 });
 
-describe("resolveOpenClawPackageRoot", () => {
-  let resolveOpenClawPackageRoot: typeof import("./openclaw-root.js").resolveOpenClawPackageRoot;
-  let resolveOpenClawPackageRootSync: typeof import("./openclaw-root.js").resolveOpenClawPackageRootSync;
+describe("resolveResonixPackageRoot", () => {
+  let resolveResonixPackageRoot: typeof import("./resonix-root.js").resolveResonixPackageRoot;
+  let resolveResonixPackageRootSync: typeof import("./resonix-root.js").resolveResonixPackageRootSync;
 
   beforeAll(async () => {
-    ({ resolveOpenClawPackageRoot, resolveOpenClawPackageRootSync } =
-      await import("./openclaw-root.js"));
+    ({ resolveResonixPackageRoot, resolveResonixPackageRootSync } =
+      await import("./resonix-root.js"));
   });
 
   beforeEach(() => {
@@ -106,60 +106,60 @@ describe("resolveOpenClawPackageRoot", () => {
 
   it("resolves package root from .bin argv1", async () => {
     const project = fx("bin-scenario");
-    const argv1 = path.join(project, "node_modules", ".bin", "openclaw");
-    const pkgRoot = path.join(project, "node_modules", "openclaw");
-    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "openclaw" }));
+    const argv1 = path.join(project, "node_modules", ".bin", "resonix");
+    const pkgRoot = path.join(project, "node_modules", "resonix");
+    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "resonix" }));
 
-    expect(resolveOpenClawPackageRootSync({ argv1 })).toBe(pkgRoot);
+    expect(resolveResonixPackageRootSync({ argv1 })).toBe(pkgRoot);
   });
 
   it("resolves package root via symlinked argv1", async () => {
     const project = fx("symlink-scenario");
-    const bin = path.join(project, "bin", "openclaw");
+    const bin = path.join(project, "bin", "resonix");
     const realPkg = path.join(project, "real-pkg");
-    state.realpaths.set(abs(bin), abs(path.join(realPkg, "openclaw.mjs")));
-    setFile(path.join(realPkg, "package.json"), JSON.stringify({ name: "openclaw" }));
+    state.realpaths.set(abs(bin), abs(path.join(realPkg, "resonix.mjs")));
+    setFile(path.join(realPkg, "package.json"), JSON.stringify({ name: "resonix" }));
 
-    expect(resolveOpenClawPackageRootSync({ argv1: bin })).toBe(realPkg);
+    expect(resolveResonixPackageRootSync({ argv1: bin })).toBe(realPkg);
   });
 
   it("falls back when argv1 realpath throws", async () => {
-    const { resolveOpenClawPackageRootSync } = await import("./openclaw-root.js");
+    const { resolveResonixPackageRootSync } = await import("./resonix-root.js");
 
     const project = fx("realpath-throw-scenario");
-    const argv1 = path.join(project, "node_modules", ".bin", "openclaw");
-    const pkgRoot = path.join(project, "node_modules", "openclaw");
+    const argv1 = path.join(project, "node_modules", ".bin", "resonix");
+    const pkgRoot = path.join(project, "node_modules", "resonix");
     state.realpathErrors.add(abs(argv1));
-    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "openclaw" }));
+    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "resonix" }));
 
-    expect(resolveOpenClawPackageRootSync({ argv1 })).toBe(pkgRoot);
+    expect(resolveResonixPackageRootSync({ argv1 })).toBe(pkgRoot);
   });
 
   it("prefers moduleUrl candidates", async () => {
     const pkgRoot = fx("moduleurl");
-    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "openclaw" }));
+    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "resonix" }));
     const moduleUrl = pathToFileURL(path.join(pkgRoot, "dist", "index.js")).toString();
 
-    expect(resolveOpenClawPackageRootSync({ moduleUrl })).toBe(pkgRoot);
+    expect(resolveResonixPackageRootSync({ moduleUrl })).toBe(pkgRoot);
   });
 
-  it("returns null for non-openclaw package roots", async () => {
-    const pkgRoot = fx("not-openclaw");
-    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "not-openclaw" }));
+  it("returns null for non-resonix package roots", async () => {
+    const pkgRoot = fx("not-resonix");
+    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "not-resonix" }));
 
-    expect(resolveOpenClawPackageRootSync({ cwd: pkgRoot })).toBeNull();
+    expect(resolveResonixPackageRootSync({ cwd: pkgRoot })).toBeNull();
   });
 
   it("async resolver matches sync behavior", async () => {
     const pkgRoot = fx("async");
-    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "openclaw" }));
+    setFile(path.join(pkgRoot, "package.json"), JSON.stringify({ name: "resonix" }));
 
-    await expect(resolveOpenClawPackageRoot({ cwd: pkgRoot })).resolves.toBe(pkgRoot);
+    await expect(resolveResonixPackageRoot({ cwd: pkgRoot })).resolves.toBe(pkgRoot);
   });
 
   it("async resolver returns null when no package roots exist", async () => {
-    const { resolveOpenClawPackageRoot } = await import("./openclaw-root.js");
+    const { resolveResonixPackageRoot } = await import("./resonix-root.js");
 
-    await expect(resolveOpenClawPackageRoot({ cwd: fx("missing") })).resolves.toBeNull();
+    await expect(resolveResonixPackageRoot({ cwd: fx("missing") })).resolves.toBeNull();
   });
 });

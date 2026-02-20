@@ -141,7 +141,7 @@ describe("cli credentials", () => {
   });
 
   it("falls back to the file store when the keychain update fails", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-"));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-"));
     const credPath = path.join(tempDir, ".claude", ".credentials.json");
 
     fs.mkdirSync(path.dirname(credPath), { recursive: true, mode: 0o700 });
@@ -238,7 +238,7 @@ describe("cli credentials", () => {
   });
 
   it("reads Codex credentials from keychain when available", async () => {
-    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-codex-"));
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-codex-"));
     process.env.CODEX_HOME = tempHome;
 
     const accountHash = "cli|";
@@ -266,7 +266,7 @@ describe("cli credentials", () => {
   });
 
   it("falls back to Codex auth.json when keychain is unavailable", async () => {
-    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-codex-"));
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-codex-"));
     process.env.CODEX_HOME = tempHome;
     execSyncMock.mockImplementation(() => {
       throw new Error("not found");

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { expectInboundContextContract } from "../../../test/helpers/inbound-contract.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 import { defaultRuntime } from "../../runtime.js";
 import type { MsgContext } from "../templating.js";
 import { HEARTBEAT_TOKEN, SILENT_REPLY_TOKEN } from "../tokens.js";
@@ -619,7 +619,7 @@ function createRun(params: {
       sessionId: "sess",
       sessionFile: "/tmp/session.json",
       workspaceDir: "/tmp",
-      config: {} as OpenClawConfig,
+      config: {} as ResonixConfig,
       provider: "openai",
       model: "gpt-test",
       timeoutMs: 10_000,
@@ -1050,7 +1050,7 @@ describe("followup queue collect routing", () => {
   });
 });
 
-const emptyCfg = {} as OpenClawConfig;
+const emptyCfg = {} as ResonixConfig;
 
 describe("createReplyDispatcher", () => {
   it("drops empty payloads and silent tokens without media", async () => {
@@ -1225,7 +1225,7 @@ describe("resolveReplyToMode", () => {
         discord: { replyToMode: "first" },
         slack: { replyToMode: "all" },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     expect(resolveReplyToMode(cfg, "telegram")).toBe("all");
     expect(resolveReplyToMode(cfg, "discord")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack")).toBe("all");
@@ -1239,7 +1239,7 @@ describe("resolveReplyToMode", () => {
           replyToModeByChatType: { direct: "all", group: "first" },
         },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("all");
     expect(resolveReplyToMode(cfg, "slack", null, "group")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("off");
@@ -1253,7 +1253,7 @@ describe("resolveReplyToMode", () => {
           replyToMode: "first",
         },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("first");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("first");
   });
@@ -1266,7 +1266,7 @@ describe("resolveReplyToMode", () => {
           dm: { replyToMode: "all" },
         },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     expect(resolveReplyToMode(cfg, "slack", null, "direct")).toBe("all");
     expect(resolveReplyToMode(cfg, "slack", null, "channel")).toBe("off");
   });

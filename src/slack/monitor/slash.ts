@@ -28,14 +28,14 @@ import { resolveSlackRoomContextHints } from "./room-context.js";
 
 type SlackBlock = { type: string; [key: string]: unknown };
 
-const SLACK_COMMAND_ARG_ACTION_ID = "openclaw_cmdarg";
+const SLACK_COMMAND_ARG_ACTION_ID = "resonix_cmdarg";
 const SLACK_COMMAND_ARG_VALUE_PREFIX = "cmdarg";
 const SLACK_COMMAND_ARG_BUTTON_ROW_SIZE = 5;
 const SLACK_COMMAND_ARG_OVERFLOW_MIN = 3;
 const SLACK_COMMAND_ARG_OVERFLOW_MAX = 5;
 const SLACK_COMMAND_ARG_SELECT_OPTIONS_MAX = 100;
 const SLACK_COMMAND_ARG_SELECT_OPTION_VALUE_MAX = 75;
-const SLACK_COMMAND_ARG_EXTERNAL_PREFIX = "openclaw_cmdarg_ext:";
+const SLACK_COMMAND_ARG_EXTERNAL_PREFIX = "resonix_cmdarg_ext:";
 const SLACK_COMMAND_ARG_EXTERNAL_TTL_MS = 10 * 60 * 1000;
 const SLACK_HEADER_TEXT_MAX = 150;
 

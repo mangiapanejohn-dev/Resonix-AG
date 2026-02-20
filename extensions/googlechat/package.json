@@ -1,19 +1,19 @@
 {
-  "name": "@openclaw/googlechat",
+  "name": "@resonix/googlechat",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Google Chat channel plugin",
+  "description": "Resonix Google Chat channel plugin",
   "type": "module",
   "dependencies": {
     "google-auth-library": "^10.5.0"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.1.26"
+    "resonix": ">=2026.1.26"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ],
@@ -32,7 +32,7 @@
       "order": 55
     },
     "install": {
-      "npmSpec": "@openclaw/googlechat",
+      "npmSpec": "@resonix/googlechat",
       "localPath": "extensions/googlechat",
       "defaultChoice": "npm"
     }

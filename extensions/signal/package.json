@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/signal",
+  "name": "@resonix/signal",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Signal channel plugin",
+  "description": "Resonix Signal channel plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ]

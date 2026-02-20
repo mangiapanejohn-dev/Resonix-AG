@@ -55,7 +55,7 @@ function mockTarExtractionFlow(params: {
 async function withTempWorkspace(
   run: (params: { workspaceDir: string; stateDir: string }) => Promise<void>,
 ) {
-  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-skills-install-"));
+  const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-skills-install-"));
   try {
     const stateDir = setTempStateDir(workspaceDir);
     await run({ workspaceDir, stateDir });
@@ -85,18 +85,18 @@ async function writeTarBz2Skill(params: {
   });
 }
 
-function restoreOpenClawStateDir(originalValue: string | undefined): void {
+function restoreResonixStateDir(originalValue: string | undefined): void {
   if (originalValue === undefined) {
-    delete process.env.OPENCLAW_STATE_DIR;
+    delete process.env.RESONIX_STATE_DIR;
     return;
   }
-  process.env.OPENCLAW_STATE_DIR = originalValue;
+  process.env.RESONIX_STATE_DIR = originalValue;
 }
 
-const originalStateDir = process.env.OPENCLAW_STATE_DIR;
+const originalStateDir = process.env.RESONIX_STATE_DIR;
 
 afterEach(() => {
-  restoreOpenClawStateDir(originalStateDir);
+  restoreResonixStateDir(originalStateDir);
 });
 
 vi.mock("../process/exec.js", () => ({

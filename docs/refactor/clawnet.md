@@ -1,12 +1,12 @@
 ---
-summary: "Clawnet refactor: unify network protocol, roles, auth, approvals, identity"
+summary: "Resonixnet refactor: unify network protocol, roles, auth, approvals, identity"
 read_when:
   - Planning a unified network protocol for nodes + operator clients
   - Reworking approvals, pairing, TLS, and presence across devices
-title: "Clawnet Refactor"
+title: "Resonixnet Refactor"
 ---
 
-# Clawnet refactor (protocol + auth unification)
+# Resonixnet refactor (protocol + auth unification)
 
 ## Hi
 
@@ -108,7 +108,7 @@ Single, rigorous document for:
 
 ---
 
-# Proposed new state (Clawnet)
+# Proposed new state (Resonixnet)
 
 ## One protocol, two roles
 

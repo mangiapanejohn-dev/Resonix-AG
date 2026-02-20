@@ -32,7 +32,7 @@ import type { GatewayTlsRuntime } from "./server/tls.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
 
 export async function createGatewayRuntimeState(params: {
-  cfg: import("../config/config.js").OpenClawConfig;
+  cfg: import("../config/config.js").ResonixConfig;
   bindHost: string;
   port: number;
   controlUiEnabled: boolean;

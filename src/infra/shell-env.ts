@@ -92,7 +92,7 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
     stdout = execLoginShellEnvZero({ shell, env: opts.env, exec, timeoutMs });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    logger.warn(`[openclaw] shell env fallback failed: ${msg}`);
+    logger.warn(`[resonix] shell env fallback failed: ${msg}`);
     lastAppliedKeys = [];
     return { ok: false, error: msg, applied: [] };
   }
@@ -117,15 +117,15 @@ export function loadShellEnvFallback(opts: ShellEnvFallbackOptions): ShellEnvFal
 }
 
 export function shouldEnableShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.OPENCLAW_LOAD_SHELL_ENV);
+  return isTruthyEnvValue(env.RESONIX_LOAD_SHELL_ENV);
 }
 
 export function shouldDeferShellEnvFallback(env: NodeJS.ProcessEnv): boolean {
-  return isTruthyEnvValue(env.OPENCLAW_DEFER_SHELL_ENV_FALLBACK);
+  return isTruthyEnvValue(env.RESONIX_DEFER_SHELL_ENV_FALLBACK);
 }
 
 export function resolveShellEnvFallbackTimeoutMs(env: NodeJS.ProcessEnv): number {
-  const raw = env.OPENCLAW_SHELL_ENV_TIMEOUT_MS?.trim();
+  const raw = env.RESONIX_SHELL_ENV_TIMEOUT_MS?.trim();
   if (!raw) {
     return DEFAULT_TIMEOUT_MS;
   }

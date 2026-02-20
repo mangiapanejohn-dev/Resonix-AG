@@ -25,11 +25,11 @@ const makeMsg = (overrides: Partial<WebInboundMsg>): WebInboundMsg =>
   }) as WebInboundMsg;
 
 describe("isBotMentionedFromTargets", () => {
-  const mentionCfg = { mentionRegexes: [/\bopenclaw\b/i] };
+  const mentionCfg = { mentionRegexes: [/\bresonix\b/i] };
 
   it("ignores regex matches when other mentions are present", () => {
     const msg = makeMsg({
-      body: "@OpenClaw please help",
+      body: "@Resonix please help",
       mentionedJids: ["19998887777@s.whatsapp.net"],
       selfE164: "+15551234567",
       selfJid: "15551234567@s.whatsapp.net",
@@ -51,7 +51,7 @@ describe("isBotMentionedFromTargets", () => {
 
   it("falls back to regex when no mentions are present", () => {
     const msg = makeMsg({
-      body: "openclaw can you help?",
+      body: "resonix can you help?",
       selfE164: "+15551234567",
       selfJid: "15551234567@s.whatsapp.net",
     });
@@ -60,7 +60,7 @@ describe("isBotMentionedFromTargets", () => {
   });
 
   it("ignores JID mentions in self-chat mode", () => {
-    const cfg = { mentionRegexes: [/\bopenclaw\b/i], allowFrom: ["+999"] };
+    const cfg = { mentionRegexes: [/\bresonix\b/i], allowFrom: ["+999"] };
     const msg = makeMsg({
       body: "@owner ping",
       mentionedJids: ["999@s.whatsapp.net"],
@@ -71,7 +71,7 @@ describe("isBotMentionedFromTargets", () => {
     expect(isBotMentionedFromTargets(msg, cfg, targets)).toBe(false);
 
     const msgTextMention = makeMsg({
-      body: "openclaw ping",
+      body: "resonix ping",
       selfE164: "+999",
       selfJid: "999@s.whatsapp.net",
     });
@@ -84,7 +84,7 @@ describe("resolveMentionTargets with @lid mapping", () => {
   let authDir = "";
 
   beforeAll(async () => {
-    authDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-lid-mapping-"));
+    authDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-lid-mapping-"));
     await fs.writeFile(path.join(authDir, "lid-mapping-777_reverse.json"), JSON.stringify("+1777"));
   });
 
@@ -124,7 +124,7 @@ describe("getSessionSnapshot", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 18, 5, 0, 0));
     try {
-      const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-snapshot-"));
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-snapshot-"));
       const storePath = path.join(root, "sessions.json");
       const sessionKey = "agent:main:whatsapp:dm:s1";
 

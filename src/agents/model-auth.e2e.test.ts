@@ -89,16 +89,16 @@ async function withEnvUpdates<T>(
 describe("getApiKeyForModel", () => {
   it("migrates legacy oauth.json into auth-profiles.json", async () => {
     const envSnapshot = captureEnv([
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_AGENT_DIR",
+      "RESONIX_STATE_DIR",
+      "RESONIX_AGENT_DIR",
       "PI_CODING_AGENT_DIR",
     ]);
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-oauth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-oauth-"));
 
     try {
-      process.env.OPENCLAW_STATE_DIR = tempDir;
-      process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agent");
-      process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+      process.env.RESONIX_STATE_DIR = tempDir;
+      process.env.RESONIX_AGENT_DIR = path.join(tempDir, "agent");
+      process.env.PI_CODING_AGENT_DIR = process.env.RESONIX_AGENT_DIR;
 
       const oauthDir = path.join(tempDir, "credentials");
       await fs.mkdir(oauthDir, { recursive: true, mode: 0o700 });
@@ -114,7 +114,7 @@ describe("getApiKeyForModel", () => {
         api: "openai-codex-responses",
       } as Model<Api>;
 
-      const store = ensureAuthProfileStore(process.env.OPENCLAW_AGENT_DIR, {
+      const store = ensureAuthProfileStore(process.env.RESONIX_AGENT_DIR, {
         allowKeychainPrompt: false,
       });
       const apiKey = await getApiKeyForModel({
@@ -130,7 +130,7 @@ describe("getApiKeyForModel", () => {
           },
         },
         store,
-        agentDir: process.env.OPENCLAW_AGENT_DIR,
+        agentDir: process.env.RESONIX_AGENT_DIR,
       });
       expect(apiKey.apiKey).toBe(oauthFixture.access);
 
@@ -156,17 +156,17 @@ describe("getApiKeyForModel", () => {
   it("suggests openai-codex when only Codex OAuth is configured", async () => {
     const envSnapshot = captureEnv([
       "OPENAI_API_KEY",
-      "OPENCLAW_STATE_DIR",
-      "OPENCLAW_AGENT_DIR",
+      "RESONIX_STATE_DIR",
+      "RESONIX_AGENT_DIR",
       "PI_CODING_AGENT_DIR",
     ]);
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-auth-"));
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-auth-"));
 
     try {
       delete process.env.OPENAI_API_KEY;
-      process.env.OPENCLAW_STATE_DIR = tempDir;
-      process.env.OPENCLAW_AGENT_DIR = path.join(tempDir, "agent");
-      process.env.PI_CODING_AGENT_DIR = process.env.OPENCLAW_AGENT_DIR;
+      process.env.RESONIX_STATE_DIR = tempDir;
+      process.env.RESONIX_AGENT_DIR = path.join(tempDir, "agent");
+      process.env.PI_CODING_AGENT_DIR = process.env.RESONIX_AGENT_DIR;
 
       const authProfilesPath = path.join(tempDir, "agent", "auth-profiles.json");
       await fs.mkdir(path.dirname(authProfilesPath), {

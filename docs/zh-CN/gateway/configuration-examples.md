@@ -1,9 +1,9 @@
 ---
 read_when:
-  - 学习如何配置 OpenClaw
+  - 学习如何配置 Resonix
   - 寻找配置示例
-  - 首次设置 OpenClaw
-summary: 符合模式的常见 OpenClaw 设置配置示例
+  - 首次设置 Resonix
+summary: 符合模式的常见 Resonix 设置配置示例
 title: 配置示例
 x-i18n:
   generated_at: "2026-02-03T07:48:39Z"
@@ -24,24 +24,24 @@ x-i18n:
 
 ```json5
 {
-  agent: { workspace: "~/.openclaw/workspace" },
+  agent: { workspace: "~/.resonix/workspace" },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } },
 }
 ```
 
-保存到 `~/.openclaw/openclaw.json`，你就可以从该号码私信机器人了。
+保存到 `~/.resonix/resonix.json`，你就可以从该号码私信机器人了。
 
 ### 推荐的入门配置
 
 ```json5
 {
   identity: {
-    name: "Clawd",
+    name: "Resonixd",
     theme: "helpful assistant",
-    emoji: "🦞",
+    emoji: "👾",
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/.resonix/workspace",
     model: { primary: "anthropic/claude-sonnet-4-5" },
   },
   channels: {
@@ -96,7 +96,7 @@ x-i18n:
   // 日志
   logging: {
     level: "info",
-    file: "/tmp/openclaw/openclaw.log",
+    file: "/tmp/resonix/resonix.log",
     consoleLevel: "info",
     consoleStyle: "pretty",
     redactSensitive: "tools",
@@ -104,7 +104,7 @@ x-i18n:
 
   // 消息格式
   messages: {
-    messagePrefix: "[openclaw]",
+    messagePrefix: "[resonix]",
     responsePrefix: ">",
     ackReaction: "👀",
     ackReactionScope: "group-mentions",
@@ -113,7 +113,7 @@ x-i18n:
   // 路由 + 队列
   routing: {
     groupChat: {
-      mentionPatterns: ["@openclaw", "openclaw"],
+      mentionPatterns: ["@resonix", "resonix"],
       historyLimit: 50,
     },
     queue: {
@@ -166,7 +166,7 @@ x-i18n:
       discord: { mode: "idle", idleMinutes: 10080 },
     },
     resetTriggers: ["/new", "/reset"],
-    store: "~/.openclaw/agents/default/sessions/sessions.json",
+    store: "~/.resonix/agents/default/sessions/sessions.json",
     typingIntervalSeconds: 5,
     sendPolicy: {
       default: "allow",
@@ -199,7 +199,7 @@ x-i18n:
       dm: { enabled: true, allowFrom: ["steipete"] },
       guilds: {
         "123456789012345678": {
-          slug: "friends-of-openclaw",
+          slug: "friends-of-resonix",
           requireMention: false,
           channels: {
             general: { allow: true },
@@ -219,7 +219,7 @@ x-i18n:
       dm: { enabled: true, allowFrom: ["U123"] },
       slashCommand: {
         enabled: true,
-        name: "openclaw",
+        name: "resonix",
         sessionPrefix: "slack:slash",
         ephemeral: true,
       },
@@ -229,7 +229,7 @@ x-i18n:
   // 智能体运行时
   agents: {
     defaults: {
-      workspace: "~/.openclaw/workspace",
+      workspace: "~/.resonix/workspace",
       userTimezone: "America/Chicago",
       model: {
         primary: "anthropic/claude-sonnet-4-5",
@@ -282,9 +282,9 @@ x-i18n:
       sandbox: {
         mode: "non-main",
         perSession: true,
-        workspaceRoot: "~/.openclaw/sandboxes",
+        workspaceRoot: "~/.resonix/sandboxes",
         docker: {
-          image: "openclaw-sandbox:bookworm-slim",
+          image: "resonix-sandbox:bookworm-slim",
           workdir: "/workspace",
           readOnlyRoot: true,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
@@ -349,7 +349,7 @@ x-i18n:
   // Cron 作业
   cron: {
     enabled: true,
-    store: "~/.openclaw/cron/cron.json",
+    store: "~/.resonix/cron/cron.json",
     maxConcurrentRuns: 2,
   },
 
@@ -359,7 +359,7 @@ x-i18n:
     path: "/hooks",
     token: "shared-secret",
     presets: ["gmail"],
-    transformsDir: "~/.openclaw/hooks",
+    transformsDir: "~/.resonix/hooks",
     mappings: [
       {
         id: "gmail-hook",
@@ -379,7 +379,7 @@ x-i18n:
       },
     ],
     gmail: {
-      account: "openclaw@gmail.com",
+      account: "resonix@gmail.com",
       label: "INBOX",
       topic: "projects/<project-id>/topics/gog-gmail-watch",
       subscription: "gog-gmail-watch-push",
@@ -398,7 +398,7 @@ x-i18n:
     mode: "local",
     port: 18789,
     bind: "loopback",
-    controlUi: { enabled: true, basePath: "/openclaw" },
+    controlUi: { enabled: true, basePath: "/resonix" },
     auth: {
       mode: "token",
       token: "gateway-token",
@@ -436,7 +436,7 @@ x-i18n:
 
 ```json5
 {
-  agent: { workspace: "~/.openclaw/workspace" },
+  agent: { workspace: "~/.resonix/workspace" },
   channels: {
     whatsapp: { allowFrom: ["+15555550123"] },
     telegram: {
@@ -474,7 +474,7 @@ x-i18n:
     },
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/.resonix/workspace",
     model: {
       primary: "anthropic/claude-sonnet-4-5",
       fallbacks: ["anthropic/claude-opus-4-5"],
@@ -513,7 +513,7 @@ x-i18n:
     },
   },
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/.resonix/workspace",
     model: {
       primary: "anthropic/claude-opus-4-5",
       fallbacks: ["minimax/MiniMax-M2.1"],
@@ -531,7 +531,7 @@ x-i18n:
     theme: "professional assistant",
   },
   agent: {
-    workspace: "~/work-openclaw",
+    workspace: "~/work-resonix",
     elevated: { enabled: false },
   },
   channels: {
@@ -552,7 +552,7 @@ x-i18n:
 ```json5
 {
   agent: {
-    workspace: "~/.openclaw/workspace",
+    workspace: "~/.resonix/workspace",
     model: { primary: "lmstudio/minimax-m2.1-gs32" },
   },
   models: {

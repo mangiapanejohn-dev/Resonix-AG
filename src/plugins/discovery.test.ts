@@ -3,34 +3,34 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { discoverOpenClawPlugins } from "./discovery.js";
+import { discoverResonixPlugins } from "./discovery.js";
 
 const tempDirs: string[] = [];
 
 function makeTempDir() {
-  const dir = path.join(os.tmpdir(), `openclaw-plugins-${randomUUID()}`);
+  const dir = path.join(os.tmpdir(), `resonix-plugins-${randomUUID()}`);
   fs.mkdirSync(dir, { recursive: true });
   tempDirs.push(dir);
   return dir;
 }
 
 async function withStateDir<T>(stateDir: string, fn: () => Promise<T>) {
-  const prev = process.env.OPENCLAW_STATE_DIR;
-  const prevBundled = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
-  process.env.OPENCLAW_STATE_DIR = stateDir;
-  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
+  const prev = process.env.RESONIX_STATE_DIR;
+  const prevBundled = process.env.RESONIX_BUNDLED_PLUGINS_DIR;
+  process.env.RESONIX_STATE_DIR = stateDir;
+  process.env.RESONIX_BUNDLED_PLUGINS_DIR = "/nonexistent/bundled/plugins";
   try {
     return await fn();
   } finally {
     if (prev === undefined) {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.RESONIX_STATE_DIR;
     } else {
-      process.env.OPENCLAW_STATE_DIR = prev;
+      process.env.RESONIX_STATE_DIR = prev;
     }
     if (prevBundled === undefined) {
-      delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+      delete process.env.RESONIX_BUNDLED_PLUGINS_DIR;
     } else {
-      process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = prevBundled;
+      process.env.RESONIX_BUNDLED_PLUGINS_DIR = prevBundled;
     }
   }
 }
@@ -45,7 +45,7 @@ afterEach(() => {
   }
 });
 
-describe("discoverOpenClawPlugins", () => {
+describe("discoverResonixPlugins", () => {
   it("discovers global and workspace extensions", async () => {
     const stateDir = makeTempDir();
     const workspaceDir = path.join(stateDir, "workspace");
@@ -54,12 +54,12 @@ describe("discoverOpenClawPlugins", () => {
     fs.mkdirSync(globalExt, { recursive: true });
     fs.writeFileSync(path.join(globalExt, "alpha.ts"), "export default function () {}", "utf-8");
 
-    const workspaceExt = path.join(workspaceDir, ".openclaw", "extensions");
+    const workspaceExt = path.join(workspaceDir, ".resonix", "extensions");
     fs.mkdirSync(workspaceExt, { recursive: true });
     fs.writeFileSync(path.join(workspaceExt, "beta.ts"), "export default function () {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({ workspaceDir });
+      return discoverResonixPlugins({ workspaceDir });
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -76,7 +76,7 @@ describe("discoverOpenClawPlugins", () => {
       path.join(globalExt, "package.json"),
       JSON.stringify({
         name: "pack",
-        openclaw: { extensions: ["./src/one.ts", "./src/two.ts"] },
+        resonix: { extensions: ["./src/one.ts", "./src/two.ts"] },
       }),
       "utf-8",
     );
@@ -92,7 +92,7 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
+      return discoverResonixPlugins({});
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -108,8 +108,8 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(globalExt, "package.json"),
       JSON.stringify({
-        name: "@openclaw/voice-call",
-        openclaw: { extensions: ["./src/index.ts"] },
+        name: "@resonix/voice-call",
+        resonix: { extensions: ["./src/index.ts"] },
       }),
       "utf-8",
     );
@@ -120,7 +120,7 @@ describe("discoverOpenClawPlugins", () => {
     );
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
+      return discoverResonixPlugins({});
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -135,15 +135,15 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(packDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/demo-plugin-dir",
-        openclaw: { extensions: ["./index.js"] },
+        name: "@resonix/demo-plugin-dir",
+        resonix: { extensions: ["./index.js"] },
       }),
       "utf-8",
     );
     fs.writeFileSync(path.join(packDir, "index.js"), "module.exports = {}", "utf-8");
 
     const { candidates } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({ extraPaths: [packDir] });
+      return discoverResonixPlugins({ extraPaths: [packDir] });
     });
 
     const ids = candidates.map((c) => c.idHint);
@@ -158,15 +158,15 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(globalExt, "package.json"),
       JSON.stringify({
-        name: "@openclaw/escape-pack",
-        openclaw: { extensions: ["../../outside.js"] },
+        name: "@resonix/escape-pack",
+        resonix: { extensions: ["../../outside.js"] },
       }),
       "utf-8",
     );
     fs.writeFileSync(outside, "export default function () {}", "utf-8");
 
     const result = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
+      return discoverResonixPlugins({});
     });
 
     expect(result.candidates).toHaveLength(0);
@@ -192,14 +192,14 @@ describe("discoverOpenClawPlugins", () => {
     fs.writeFileSync(
       path.join(globalExt, "package.json"),
       JSON.stringify({
-        name: "@openclaw/pack",
-        openclaw: { extensions: ["./linked/escape.ts"] },
+        name: "@resonix/pack",
+        resonix: { extensions: ["./linked/escape.ts"] },
       }),
       "utf-8",
     );
 
     const { candidates, diagnostics } = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
+      return discoverResonixPlugins({});
     });
 
     expect(candidates.some((candidate) => candidate.idHint === "pack")).toBe(false);
@@ -217,7 +217,7 @@ describe("discoverOpenClawPlugins", () => {
     fs.chmodSync(pluginPath, 0o777);
 
     const result = await withStateDir(stateDir, async () => {
-      return discoverOpenClawPlugins({});
+      return discoverResonixPlugins({});
     });
 
     expect(result.candidates).toHaveLength(0);
@@ -240,7 +240,7 @@ describe("discoverOpenClawPlugins", () => {
 
       const actualUid = (process as NodeJS.Process & { getuid: () => number }).getuid();
       const result = await withStateDir(stateDir, async () => {
-        return discoverOpenClawPlugins({ ownershipUid: actualUid + 1 });
+        return discoverResonixPlugins({ ownershipUid: actualUid + 1 });
       });
       expect(result.candidates).toHaveLength(0);
       expect(result.diagnostics.some((diag) => diag.message.includes("suspicious ownership"))).toBe(

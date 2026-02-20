@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import {
   discoverAllSessions,
   loadCostUsageSummary,
@@ -13,7 +13,7 @@ import {
 
 describe("session cost usage", () => {
   it("aggregates daily totals with log cost and pricing fallback", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-cost-"));
     const sessionsDir = path.join(root, "agents", "main", "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
     const sessionFile = path.join(sessionsDir, "sess-1.jsonl");
@@ -96,10 +96,10 @@ describe("session cost usage", () => {
           },
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ResonixConfig;
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
+    const originalState = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = root;
     try {
       const summary = await loadCostUsageSummary({ days: 30, config });
       expect(summary.daily.length).toBe(1);
@@ -107,15 +107,15 @@ describe("session cost usage", () => {
       expect(summary.totals.totalCost).toBeCloseTo(0.03003, 5);
     } finally {
       if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
+        process.env.RESONIX_STATE_DIR = originalState;
       }
     }
   });
 
   it("summarizes a single session file", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-session-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-cost-session-"));
     const sessionFile = path.join(root, "session.jsonl");
     const now = new Date();
 
@@ -148,7 +148,7 @@ describe("session cost usage", () => {
   });
 
   it("captures message counts, tool usage, and model usage", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-session-meta-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-cost-session-meta-"));
     const sessionFile = path.join(root, "session.jsonl");
     const start = new Date("2026-02-01T10:00:00.000Z");
     const end = new Date("2026-02-01T10:05:00.000Z");
@@ -216,7 +216,7 @@ describe("session cost usage", () => {
   });
 
   it("does not exclude sessions with mtime after endMs during discovery", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-discover-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-discover-"));
     const sessionsDir = path.join(root, "agents", "main", "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
     const sessionFile = path.join(sessionsDir, "sess-late.jsonl");
@@ -225,8 +225,8 @@ describe("session cost usage", () => {
     const now = Date.now();
     await fs.utimes(sessionFile, now / 1000, now / 1000);
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
+    const originalState = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = root;
     try {
       const sessions = await discoverAllSessions({
         startMs: now - 7 * 24 * 60 * 60 * 1000,
@@ -236,15 +236,15 @@ describe("session cost usage", () => {
       expect(sessions[0]?.sessionId).toBe("sess-late");
     } finally {
       if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
+        process.env.RESONIX_STATE_DIR = originalState;
       }
     }
   });
 
   it("resolves non-main absolute sessionFile using explicit agentId for cost summary", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-cost-agent-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-cost-agent-"));
     const workerSessionsDir = path.join(root, "agents", "worker1", "sessions");
     await fs.mkdir(workerSessionsDir, { recursive: true });
     const workerSessionFile = path.join(workerSessionsDir, "sess-worker-1.jsonl");
@@ -270,8 +270,8 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
+    const originalState = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = root;
     try {
       const summary = await loadSessionCostSummary({
         sessionId: "sess-worker-1",
@@ -286,15 +286,15 @@ describe("session cost usage", () => {
       expect(summary?.totalCost).toBeCloseTo(0.01, 5);
     } finally {
       if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
+        process.env.RESONIX_STATE_DIR = originalState;
       }
     }
   });
 
   it("resolves non-main absolute sessionFile using explicit agentId for timeseries", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-timeseries-agent-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-timeseries-agent-"));
     const workerSessionsDir = path.join(root, "agents", "worker2", "sessions");
     await fs.mkdir(workerSessionsDir, { recursive: true });
     const workerSessionFile = path.join(workerSessionsDir, "sess-worker-2.jsonl");
@@ -316,8 +316,8 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
+    const originalState = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = root;
     try {
       const timeseries = await loadSessionUsageTimeSeries({
         sessionId: "sess-worker-2",
@@ -332,15 +332,15 @@ describe("session cost usage", () => {
       expect(timeseries?.points[0]?.totalTokens).toBe(8);
     } finally {
       if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
+        process.env.RESONIX_STATE_DIR = originalState;
       }
     }
   });
 
   it("resolves non-main absolute sessionFile using explicit agentId for logs", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-logs-agent-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-logs-agent-"));
     const workerSessionsDir = path.join(root, "agents", "worker3", "sessions");
     await fs.mkdir(workerSessionsDir, { recursive: true });
     const workerSessionFile = path.join(workerSessionsDir, "sess-worker-3.jsonl");
@@ -360,8 +360,8 @@ describe("session cost usage", () => {
       "utf-8",
     );
 
-    const originalState = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = root;
+    const originalState = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = root;
     try {
       const logs = await loadSessionLogs({
         sessionId: "sess-worker-3",
@@ -377,15 +377,15 @@ describe("session cost usage", () => {
       expect(logs?.[0]?.role).toBe("user");
     } finally {
       if (originalState === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = originalState;
+        process.env.RESONIX_STATE_DIR = originalState;
       }
     }
   });
 
   it("preserves totals and cumulative values when downsampling timeseries", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-timeseries-downsample-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-timeseries-downsample-"));
     const sessionsDir = path.join(root, "agents", "main", "sessions");
     await fs.mkdir(sessionsDir, { recursive: true });
     const sessionFile = path.join(sessionsDir, "sess-downsample.jsonl");

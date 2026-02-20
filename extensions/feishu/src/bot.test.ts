@@ -1,4 +1,4 @@
-import type { ClawdbotConfig, PluginRuntime, RuntimeEnv } from "openclaw/plugin-sdk";
+import type { ResonixdbotConfig, PluginRuntime, RuntimeEnv } from "resonix/plugin-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeishuMessageEvent } from "./bot.js";
 import { handleFeishuMessage } from "./bot.js";
@@ -71,7 +71,7 @@ describe("handleFeishuMessage command authorization", () => {
   });
 
   it("uses authorizer resolution instead of hardcoded CommandAuthorized=true", async () => {
-    const cfg: ClawdbotConfig = {
+    const cfg: ResonixdbotConfig = {
       commands: { useAccessGroups: true },
       channels: {
         feishu: {
@@ -79,7 +79,7 @@ describe("handleFeishuMessage command authorization", () => {
           allowFrom: ["ou-admin"],
         },
       },
-    } as ClawdbotConfig;
+    } as ResonixdbotConfig;
 
     const event: FeishuMessageEvent = {
       sender: {
@@ -126,7 +126,7 @@ describe("handleFeishuMessage command authorization", () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(false);
     mockReadAllowFromStore.mockResolvedValue(["ou-attacker"]);
 
-    const cfg: ClawdbotConfig = {
+    const cfg: ResonixdbotConfig = {
       commands: { useAccessGroups: true },
       channels: {
         feishu: {
@@ -134,7 +134,7 @@ describe("handleFeishuMessage command authorization", () => {
           allowFrom: [],
         },
       },
-    } as ClawdbotConfig;
+    } as ResonixdbotConfig;
 
     const event: FeishuMessageEvent = {
       sender: {
@@ -174,14 +174,14 @@ describe("handleFeishuMessage command authorization", () => {
     mockReadAllowFromStore.mockResolvedValue([]);
     mockUpsertPairingRequest.mockResolvedValue({ code: "ABCDEFGH", created: true });
 
-    const cfg: ClawdbotConfig = {
+    const cfg: ResonixdbotConfig = {
       channels: {
         feishu: {
           dmPolicy: "pairing",
           allowFrom: [],
         },
       },
-    } as ClawdbotConfig;
+    } as ResonixdbotConfig;
 
     const event: FeishuMessageEvent = {
       sender: {
@@ -234,7 +234,7 @@ describe("handleFeishuMessage command authorization", () => {
     mockShouldComputeCommandAuthorized.mockReturnValue(true);
     mockResolveCommandAuthorizedFromAuthorizers.mockReturnValue(false);
 
-    const cfg: ClawdbotConfig = {
+    const cfg: ResonixdbotConfig = {
       commands: { useAccessGroups: true },
       channels: {
         feishu: {
@@ -245,7 +245,7 @@ describe("handleFeishuMessage command authorization", () => {
           },
         },
       },
-    } as ClawdbotConfig;
+    } as ResonixdbotConfig;
 
     const event: FeishuMessageEvent = {
       sender: {

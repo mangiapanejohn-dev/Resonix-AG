@@ -1,6 +1,6 @@
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig, ConfigFileSnapshot } from "../config/types.openclaw.js";
+import type { ResonixConfig, ConfigFileSnapshot } from "../config/types.resonix.js";
 import type { UpdateRunResult } from "../infra/update-runner.js";
 import { captureEnv } from "../test-utils/env.js";
 
@@ -29,8 +29,8 @@ vi.mock("../infra/update-runner.js", () => ({
   runGatewayUpdate: vi.fn(),
 }));
 
-vi.mock("../infra/openclaw-root.js", () => ({
-  resolveOpenClawPackageRoot: vi.fn(),
+vi.mock("../infra/resonix-root.js", () => ({
+  resolveResonixPackageRoot: vi.fn(),
 }));
 
 vi.mock("../config/config.js", () => ({
@@ -108,7 +108,7 @@ vi.mock("../runtime.js", () => ({
 }));
 
 const { runGatewayUpdate } = await import("../infra/update-runner.js");
-const { resolveOpenClawPackageRoot } = await import("../infra/openclaw-root.js");
+const { resolveResonixPackageRoot } = await import("../infra/resonix-root.js");
 const { readConfigFileSnapshot, writeConfigFile } = await import("../config/config.js");
 const { checkUpdateStatus, fetchNpmTagVersion, resolveNpmChannelTag } =
   await import("../infra/update-check.js");
@@ -120,7 +120,7 @@ const { updateCommand, registerUpdateCli, updateStatusCommand, updateWizardComma
   await import("./update-cli.js");
 
 describe("update-cli", () => {
-  const fixtureRoot = "/tmp/openclaw-update-tests";
+  const fixtureRoot = "/tmp/resonix-update-tests";
   let fixtureCount = 0;
 
   const createCaseDir = (prefix: string) => {
@@ -129,9 +129,9 @@ describe("update-cli", () => {
     return dir;
   };
 
-  const baseConfig = {} as OpenClawConfig;
+  const baseConfig = {} as ResonixConfig;
   const baseSnapshot: ConfigFileSnapshot = {
-    path: "/tmp/openclaw-config.json",
+    path: "/tmp/resonix-config.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -158,7 +158,7 @@ describe("update-cli", () => {
   };
 
   const mockPackageInstallStatus = (root: string) => {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(root);
+    vi.mocked(resolveResonixPackageRoot).mockResolvedValue(root);
     vi.mocked(checkUpdateStatus).mockResolvedValue({
       root,
       installKind: "package",
@@ -188,7 +188,7 @@ describe("update-cli", () => {
     }) as UpdateRunResult;
 
   const setupNonInteractiveDowngrade = async () => {
-    const tempDir = createCaseDir("openclaw-update");
+    const tempDir = createCaseDir("resonix-update");
     setTty(false);
     readPackageVersion.mockResolvedValue("2.0.0");
 
@@ -213,7 +213,7 @@ describe("update-cli", () => {
     confirm.mockReset();
     select.mockReset();
     vi.mocked(runGatewayUpdate).mockReset();
-    vi.mocked(resolveOpenClawPackageRoot).mockReset();
+    vi.mocked(resolveResonixPackageRoot).mockReset();
     vi.mocked(readConfigFileSnapshot).mockReset();
     vi.mocked(writeConfigFile).mockReset();
     vi.mocked(checkUpdateStatus).mockReset();
@@ -232,7 +232,7 @@ describe("update-cli", () => {
     serviceLoaded.mockReset();
     prepareRestartScript.mockReset();
     runRestartScript.mockReset();
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(process.cwd());
+    vi.mocked(resolveResonixPackageRoot).mockResolvedValue(process.cwd());
     vi.mocked(readConfigFileSnapshot).mockResolvedValue(baseSnapshot);
     vi.mocked(fetchNpmTagVersion).mockResolvedValue({
       tag: "latest",
@@ -275,11 +275,11 @@ describe("update-cli", () => {
       killed: false,
       termination: "exit",
     });
-    readPackageName.mockResolvedValue("openclaw");
+    readPackageName.mockResolvedValue("resonix");
     readPackageVersion.mockResolvedValue("1.0.0");
     resolveGlobalManager.mockResolvedValue("npm");
     serviceLoaded.mockResolvedValue(false);
-    prepareRestartScript.mockResolvedValue("/tmp/openclaw-restart-test.sh");
+    prepareRestartScript.mockResolvedValue("/tmp/resonix-restart-test.sh");
     runRestartScript.mockResolvedValue(undefined);
     vi.mocked(runDaemonInstall).mockResolvedValue(undefined);
     setTty(false);
@@ -323,7 +323,7 @@ describe("update-cli", () => {
     await updateStatusCommand({ json: false });
 
     const logs = vi.mocked(defaultRuntime.log).mock.calls.map((call) => call[0]);
-    expect(logs.join("\n")).toContain("OpenClaw update status");
+    expect(logs.join("\n")).toContain("Resonix update status");
   });
 
   it("updateStatusCommand emits JSON", async () => {
@@ -349,7 +349,7 @@ describe("update-cli", () => {
       mode: "npm" as const,
       options: { yes: true },
       prepare: async () => {
-        const tempDir = createCaseDir("openclaw-update");
+        const tempDir = createCaseDir("resonix-update");
         mockPackageInstallStatus(tempDir);
       },
       expectedChannel: "stable" as const,
@@ -362,7 +362,7 @@ describe("update-cli", () => {
       prepare: async () => {
         vi.mocked(readConfigFileSnapshot).mockResolvedValue({
           ...baseSnapshot,
-          config: { update: { channel: "beta" } } as OpenClawConfig,
+          config: { update: { channel: "beta" } } as ResonixConfig,
         });
       },
       expectedChannel: "beta" as const,
@@ -381,12 +381,12 @@ describe("update-cli", () => {
   });
 
   it("falls back to latest when beta tag is older than release", async () => {
-    const tempDir = createCaseDir("openclaw-update");
+    const tempDir = createCaseDir("resonix-update");
 
     mockPackageInstallStatus(tempDir);
     vi.mocked(readConfigFileSnapshot).mockResolvedValue({
       ...baseSnapshot,
-      config: { update: { channel: "beta" } } as OpenClawConfig,
+      config: { update: { channel: "beta" } } as ResonixConfig,
     });
     vi.mocked(resolveNpmChannelTag).mockResolvedValue({
       tag: "latest",
@@ -405,9 +405,9 @@ describe("update-cli", () => {
   });
 
   it("honors --tag override", async () => {
-    const tempDir = createCaseDir("openclaw-update");
+    const tempDir = createCaseDir("resonix-update");
 
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue(tempDir);
+    vi.mocked(resolveResonixPackageRoot).mockResolvedValue(tempDir);
     vi.mocked(runGatewayUpdate).mockResolvedValue(
       makeOkUpdateResult({
         mode: "npm",
@@ -544,10 +544,10 @@ describe("update-cli", () => {
   });
 
   it("updateCommand continues after doctor sub-step and clears update flag", async () => {
-    const envSnapshot = captureEnv(["OPENCLAW_UPDATE_IN_PROGRESS"]);
+    const envSnapshot = captureEnv(["RESONIX_UPDATE_IN_PROGRESS"]);
     const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
     try {
-      delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
+      delete process.env.RESONIX_UPDATE_IN_PROGRESS;
       vi.mocked(runGatewayUpdate).mockResolvedValue(makeOkUpdateResult());
       vi.mocked(runDaemonRestart).mockResolvedValue(true);
       vi.mocked(doctorCommand).mockResolvedValue(undefined);
@@ -559,7 +559,7 @@ describe("update-cli", () => {
         defaultRuntime,
         expect.objectContaining({ nonInteractive: true }),
       );
-      expect(process.env.OPENCLAW_UPDATE_IN_PROGRESS).toBeUndefined();
+      expect(process.env.RESONIX_UPDATE_IN_PROGRESS).toBeUndefined();
 
       const logLines = vi.mocked(defaultRuntime.log).mock.calls.map((call) => String(call[0]));
       expect(
@@ -670,11 +670,11 @@ describe("update-cli", () => {
   });
 
   it("updateWizardCommand offers dev checkout and forwards selections", async () => {
-    const tempDir = createCaseDir("openclaw-update-wizard");
-    const envSnapshot = captureEnv(["OPENCLAW_GIT_DIR"]);
+    const tempDir = createCaseDir("resonix-update-wizard");
+    const envSnapshot = captureEnv(["RESONIX_GIT_DIR"]);
     try {
       setTty(true);
-      process.env.OPENCLAW_GIT_DIR = tempDir;
+      process.env.RESONIX_GIT_DIR = tempDir;
 
       vi.mocked(checkUpdateStatus).mockResolvedValue({
         root: "/test/path",

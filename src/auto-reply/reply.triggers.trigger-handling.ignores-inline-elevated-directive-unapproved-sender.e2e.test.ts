@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import {
   getRunEmbeddedPiAgentMock,
   installTriggerHandlingE2eTestHooks,
@@ -54,12 +54,12 @@ describe("trigger handling", () => {
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
-            workspace: join(home, "openclaw"),
+            workspace: join(home, "resonix"),
           },
         },
         tools: { elevated: { allowFrom: { discord: ["steipete"] } } },
         session: { store: join(home, "sessions.json") },
-      } as OpenClawConfig;
+      } as ResonixConfig;
 
       const res = await getReplyFromConfig(
         {
@@ -89,7 +89,7 @@ describe("trigger handling", () => {
         agents: {
           defaults: {
             model: "anthropic/claude-opus-4-5",
-            workspace: join(home, "openclaw"),
+            workspace: join(home, "resonix"),
           },
         },
         tools: {
@@ -98,7 +98,7 @@ describe("trigger handling", () => {
           },
         },
         session: { store: join(home, "sessions.json") },
-      } as OpenClawConfig;
+      } as ResonixConfig;
 
       const res = await getReplyFromConfig(
         {

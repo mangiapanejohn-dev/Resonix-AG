@@ -1,7 +1,7 @@
 ---
 summary: "LINE Messaging API plugin setup, config, and usage"
 read_when:
-  - You want to connect OpenClaw to LINE
+  - You want to connect Resonix to LINE
   - You need LINE webhook + credential setup
   - You want LINE-specific message options
 title: LINE
@@ -9,7 +9,7 @@ title: LINE
 
 # LINE (plugin)
 
-LINE connects to OpenClaw via the LINE Messaging API. The plugin runs as a webhook
+LINE connects to Resonix via the LINE Messaging API. The plugin runs as a webhook
 receiver on the gateway and uses your channel access token + channel secret for
 authentication.
 
@@ -22,13 +22,13 @@ are not supported.
 Install the LINE plugin:
 
 ```bash
-openclaw plugins install @openclaw/line
+resonix plugins install @resonix/line
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-openclaw plugins install ./extensions/line
+resonix plugins install ./extensions/line
 ```
 
 ## Setup
@@ -107,8 +107,8 @@ Direct messages default to pairing. Unknown senders get a pairing code and their
 messages are ignored until approved.
 
 ```bash
-openclaw pairing list line
-openclaw pairing approve line <CODE>
+resonix pairing list line
+resonix pairing approve line <CODE>
 ```
 
 Allowlists and policies:

@@ -1,9 +1,9 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 
 export function applyOnboardingLocalWorkspaceConfig(
-  baseConfig: OpenClawConfig,
+  baseConfig: ResonixConfig,
   workspaceDir: string,
-): OpenClawConfig {
+): ResonixConfig {
   return {
     ...baseConfig,
     agents: {

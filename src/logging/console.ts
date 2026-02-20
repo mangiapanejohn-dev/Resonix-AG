@@ -1,5 +1,5 @@
 import util from "node:util";
-import type { OpenClawConfig } from "../config/types.js";
+import type { ResonixConfig } from "../config/types.js";
 import { isVerbose } from "../globals.js";
 import { stripAnsi } from "../terminal/ansi.js";
 import { readLoggingConfig } from "./config.js";
@@ -37,12 +37,12 @@ function resolveNodeRequire(): ((id: string) => NodeJS.Require) | null {
 }
 
 const requireConfig = resolveNodeRequire()?.(import.meta.url) ?? null;
-type ConsoleConfigLoader = () => OpenClawConfig["logging"] | undefined;
+type ConsoleConfigLoader = () => ResonixConfig["logging"] | undefined;
 const loadConfigFallbackDefault: ConsoleConfigLoader = () => {
   try {
     const loaded = requireConfig?.("../config/config.js") as
       | {
-          loadConfig?: () => OpenClawConfig;
+          loadConfig?: () => ResonixConfig;
         }
       | undefined;
     return loaded?.loadConfig?.().logging;
@@ -60,7 +60,7 @@ function normalizeConsoleLevel(level?: string): LogLevel {
   if (isVerbose()) {
     return "debug";
   }
-  if (!level && process.env.VITEST === "true" && process.env.OPENCLAW_TEST_CONSOLE !== "1") {
+  if (!level && process.env.VITEST === "true" && process.env.RESONIX_TEST_CONSOLE !== "1") {
     return "silent";
   }
   return normalizeLogLevel(level, "info");
@@ -77,7 +77,7 @@ function normalizeConsoleStyle(style?: string): ConsoleStyle {
 }
 
 function resolveConsoleSettings(): ConsoleSettings {
-  let cfg: OpenClawConfig["logging"] | undefined =
+  let cfg: ResonixConfig["logging"] | undefined =
     (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
   if (!cfg) {
     if (loggingState.resolvingConsoleSettings) {

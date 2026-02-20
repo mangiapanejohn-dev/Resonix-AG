@@ -10,7 +10,7 @@ import {
 let tempRoot: string | null = null;
 
 async function makeTempRoot() {
-  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "openclaw-state-dir-"));
+  const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), "resonix-state-dir-"));
   tempRoot = root;
   return root;
 }
@@ -44,7 +44,7 @@ describe("legacy state dir auto-migration", () => {
     expect(result.migrated).toBe(true);
     expect(result.warnings).toEqual([]);
 
-    const targetMarker = path.join(root, ".openclaw", "marker.txt");
+    const targetMarker = path.join(root, ".resonix", "marker.txt");
     expect(fs.readFileSync(targetMarker, "utf-8")).toBe("ok");
     expect(fs.readFileSync(path.join(root, ".moltbot", "marker.txt"), "utf-8")).toBe("ok");
     expect(fs.readFileSync(path.join(root, ".clawdbot", "marker.txt"), "utf-8")).toBe("ok");

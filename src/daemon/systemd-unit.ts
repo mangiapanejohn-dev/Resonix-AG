@@ -30,7 +30,7 @@ export function buildSystemdUnit({
   environment,
 }: GatewayServiceRenderArgs): string {
   const execStart = programArguments.map(systemdEscapeArg).join(" ");
-  const descriptionLine = `Description=${description?.trim() || "OpenClaw Gateway"}`;
+  const descriptionLine = `Description=${description?.trim() || "Resonix Gateway"}`;
   const workingDirLine = workingDirectory
     ? `WorkingDirectory=${systemdEscapeArg(workingDirectory)}`
     : null;

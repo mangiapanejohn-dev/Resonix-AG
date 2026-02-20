@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../../../config/config.js";
+import type { ResonixConfig } from "../../../config/config.js";
 import type { DmPolicy } from "../../../config/types.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
@@ -16,7 +16,7 @@ import { addWildcardAllowFrom, promptAccountId, promptResolvedAllowFrom } from "
 
 const channel = "slack" as const;
 
-function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
+function setSlackDmPolicy(cfg: ResonixConfig, dmPolicy: DmPolicy) {
   const existingAllowFrom = cfg.channels?.slack?.allowFrom ?? cfg.channels?.slack?.dm?.allowFrom;
   const allowFrom = dmPolicy === "open" ? addWildcardAllowFrom(existingAllowFrom) : undefined;
   return {
@@ -37,11 +37,11 @@ function setSlackDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
 }
 
 function buildSlackManifest(botName: string) {
-  const safeName = botName.trim() || "OpenClaw";
+  const safeName = botName.trim() || "Resonix";
   const manifest = {
     display_information: {
       name: safeName,
-      description: `${safeName} connector for OpenClaw`,
+      description: `${safeName} connector for Resonix`,
     },
     features: {
       bot_user: {
@@ -54,8 +54,8 @@ function buildSlackManifest(botName: string) {
       },
       slash_commands: [
         {
-          command: "/openclaw",
-          description: "Send a message to OpenClaw",
+          command: "/resonix",
+          description: "Send a message to Resonix",
           should_escape: false,
         },
       ],
@@ -144,10 +144,10 @@ async function promptSlackTokens(prompter: WizardPrompter): Promise<{
 }
 
 function patchSlackConfigForAccount(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   accountId: string,
   patch: Record<string, unknown>,
-): OpenClawConfig {
+): ResonixConfig {
   if (accountId === DEFAULT_ACCOUNT_ID) {
     return {
       ...cfg,
@@ -182,23 +182,23 @@ function patchSlackConfigForAccount(
 }
 
 function setSlackGroupPolicy(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   accountId: string,
   groupPolicy: "open" | "allowlist" | "disabled",
-): OpenClawConfig {
+): ResonixConfig {
   return patchSlackConfigForAccount(cfg, accountId, { groupPolicy });
 }
 
 function setSlackChannelAllowlist(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   accountId: string,
   channelKeys: string[],
-): OpenClawConfig {
+): ResonixConfig {
   const channels = Object.fromEntries(channelKeys.map((key) => [key, { allow: true }]));
   return patchSlackConfigForAccount(cfg, accountId, { channels });
 }
 
-function setSlackAllowFrom(cfg: OpenClawConfig, allowFrom: string[]): OpenClawConfig {
+function setSlackAllowFrom(cfg: ResonixConfig, allowFrom: string[]): ResonixConfig {
   return {
     ...cfg,
     channels: {
@@ -223,10 +223,10 @@ function parseSlackAllowFromInput(raw: string): string[] {
 }
 
 async function promptSlackAllowFrom(params: {
-  cfg: OpenClawConfig;
+  cfg: ResonixConfig;
   prompter: WizardPrompter;
   accountId?: string;
-}): Promise<OpenClawConfig> {
+}): Promise<ResonixConfig> {
   const accountId =
     params.accountId && normalizeAccountId(params.accountId)
       ? (normalizeAccountId(params.accountId) ?? DEFAULT_ACCOUNT_ID)
@@ -343,7 +343,7 @@ export const slackOnboardingAdapter: ChannelOnboardingAdapter = {
     const slackBotName = String(
       await prompter.text({
         message: "Slack bot display name (used for manifest)",
-        initialValue: "OpenClaw",
+        initialValue: "Resonix",
       }),
     ).trim();
     if (!accountConfigured) {

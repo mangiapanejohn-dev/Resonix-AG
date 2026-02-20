@@ -1,4 +1,4 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
 import {
   applyAgentDefaultModelPrimary,
@@ -18,7 +18,7 @@ import {
   MINIMAX_LM_STUDIO_COST,
 } from "./onboard-auth.models.js";
 
-export function applyMinimaxProviderConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMinimaxProviderConfig(cfg: ResonixConfig): ResonixConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models["anthropic/claude-opus-4-6"] = {
     ...models["anthropic/claude-opus-4-6"],
@@ -52,9 +52,9 @@ export function applyMinimaxProviderConfig(cfg: OpenClawConfig): OpenClawConfig 
 }
 
 export function applyMinimaxHostedProviderConfig(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   params?: { baseUrl?: string },
-): OpenClawConfig {
+): ResonixConfig {
   const models = { ...cfg.agents?.defaults?.models };
   models[MINIMAX_HOSTED_MODEL_REF] = {
     ...models[MINIMAX_HOSTED_MODEL_REF],
@@ -83,15 +83,15 @@ export function applyMinimaxHostedProviderConfig(
   return applyOnboardAuthAgentModelsAndProviders(cfg, { agentModels: models, providers });
 }
 
-export function applyMinimaxConfig(cfg: OpenClawConfig): OpenClawConfig {
+export function applyMinimaxConfig(cfg: ResonixConfig): ResonixConfig {
   const next = applyMinimaxProviderConfig(cfg);
   return applyAgentDefaultModelPrimary(next, "lmstudio/minimax-m2.1-gs32");
 }
 
 export function applyMinimaxHostedConfig(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   params?: { baseUrl?: string },
-): OpenClawConfig {
+): ResonixConfig {
   const next = applyMinimaxHostedProviderConfig(cfg, params);
   return {
     ...next,
@@ -110,9 +110,9 @@ export function applyMinimaxHostedConfig(
 
 // MiniMax Anthropic-compatible API (platform.minimax.io/anthropic)
 export function applyMinimaxApiProviderConfig(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
+): ResonixConfig {
   return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,
@@ -121,9 +121,9 @@ export function applyMinimaxApiProviderConfig(
 }
 
 export function applyMinimaxApiConfig(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
+): ResonixConfig {
   return applyMinimaxApiConfigWithBaseUrl(cfg, {
     providerId: "minimax",
     modelId,
@@ -133,9 +133,9 @@ export function applyMinimaxApiConfig(
 
 // MiniMax China API (api.minimaxi.com)
 export function applyMinimaxApiProviderConfigCn(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
+): ResonixConfig {
   return applyMinimaxApiProviderConfigWithBaseUrl(cfg, {
     providerId: "minimax-cn",
     modelId,
@@ -144,9 +144,9 @@ export function applyMinimaxApiProviderConfigCn(
 }
 
 export function applyMinimaxApiConfigCn(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   modelId: string = "MiniMax-M2.5",
-): OpenClawConfig {
+): ResonixConfig {
   return applyMinimaxApiConfigWithBaseUrl(cfg, {
     providerId: "minimax-cn",
     modelId,
@@ -161,9 +161,9 @@ type MinimaxApiProviderConfigParams = {
 };
 
 function applyMinimaxApiProviderConfigWithBaseUrl(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   params: MinimaxApiProviderConfigParams,
-): OpenClawConfig {
+): ResonixConfig {
   const providers = { ...cfg.models?.providers } as Record<string, ModelProviderConfig>;
   const existingProvider = providers[params.providerId];
   const existingModels = existingProvider?.models ?? [];
@@ -205,9 +205,9 @@ function applyMinimaxApiProviderConfigWithBaseUrl(
 }
 
 function applyMinimaxApiConfigWithBaseUrl(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   params: MinimaxApiProviderConfigParams,
-): OpenClawConfig {
+): ResonixConfig {
   const next = applyMinimaxApiProviderConfigWithBaseUrl(cfg, params);
   return applyAgentDefaultModelPrimary(next, `${params.providerId}/${params.modelId}`);
 }

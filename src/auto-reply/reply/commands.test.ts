@@ -8,7 +8,7 @@ import {
   listSubagentRunsForRequester,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 import { updateSessionStore } from "../../config/sessions.js";
 import * as internalHooks from "../../hooks/internal-hooks.js";
 import { clearPluginCommands, registerPluginCommand } from "../../plugins/commands.js";
@@ -123,7 +123,7 @@ vi.mock("./commands-context-report.js", () => ({
 let testWorkspaceDir = os.tmpdir();
 
 beforeAll(async () => {
-  testWorkspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-commands-"));
+  testWorkspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-commands-"));
   await fs.writeFile(path.join(testWorkspaceDir, "AGENTS.md"), "# Agents\n", "utf-8");
 });
 
@@ -131,7 +131,7 @@ afterAll(async () => {
   await fs.rm(testWorkspaceDir, { recursive: true, force: true });
 });
 
-function buildParams(commandBody: string, cfg: OpenClawConfig, ctxOverrides?: Partial<MsgContext>) {
+function buildParams(commandBody: string, cfg: ResonixConfig, ctxOverrides?: Partial<MsgContext>) {
   return buildCommandTestParams(commandBody, cfg, ctxOverrides, { workspaceDir: testWorkspaceDir });
 }
 
@@ -141,7 +141,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { bash: false, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/bash echo hi", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -153,7 +153,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/bash echo hi", cfg);
     params.elevated = {
       enabled: true,
@@ -169,7 +169,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/config show", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -180,7 +180,7 @@ describe("handleCommands gating", () => {
     const cfg = {
       commands: { config: false, debug: false, text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/debug show", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -197,7 +197,7 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/approve", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -208,7 +208,7 @@ describe("/approve command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/approve abc allow-once", cfg, { SenderId: "123" });
 
     callGatewayMock.mockResolvedValueOnce({ ok: true });
@@ -227,7 +227,7 @@ describe("/approve command", () => {
   it("rejects gateway clients without approvals scope", async () => {
     const cfg = {
       commands: { text: true },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/approve abc allow-once", cfg, {
       Provider: "webchat",
       Surface: "webchat",
@@ -245,7 +245,7 @@ describe("/approve command", () => {
   it("allows gateway clients with approvals scope", async () => {
     const cfg = {
       commands: { text: true },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/approve abc allow-once", cfg, {
       Provider: "webchat",
       Surface: "webchat",
@@ -268,7 +268,7 @@ describe("/approve command", () => {
   it("allows gateway clients with admin scope", async () => {
     const cfg = {
       commands: { text: true },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/approve abc allow-once", cfg, {
       Provider: "webchat",
       Surface: "webchat",
@@ -298,7 +298,7 @@ describe("/compact command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/status", cfg);
 
     const result = await handleCompactCommand(
@@ -316,7 +316,7 @@ describe("/compact command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/compact", cfg);
 
     const result = await handleCompactCommand(
@@ -339,8 +339,8 @@ describe("/compact command", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-      session: { store: "/tmp/openclaw-session-store.json" },
-    } as OpenClawConfig;
+      session: { store: "/tmp/resonix-session-store.json" },
+    } as ResonixConfig;
     const params = buildParams("/compact: focus on decisions", cfg, {
       From: "+15550001",
       To: "+15550002",
@@ -465,7 +465,7 @@ describe("handleCommands /config configWrites gating", () => {
     const cfg = {
       commands: { config: true, text: true },
       channels: { whatsapp: { allowFrom: ["*"], configWrites: false } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams('/config set messages.ackReaction=":)"', cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -479,7 +479,7 @@ describe("handleCommands bash alias", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("!poll", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -491,7 +491,7 @@ describe("handleCommands bash alias", () => {
     const cfg = {
       commands: { bash: true, text: true },
       whatsapp: { allowFrom: ["*"] },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("!stop", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -501,7 +501,7 @@ describe("handleCommands bash alias", () => {
 
 function buildPolicyParams(
   commandBody: string,
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   ctxOverrides?: Partial<MsgContext>,
 ): HandleCommandsParams {
   const ctx = {
@@ -553,7 +553,7 @@ describe("handleCommands /allowlist", () => {
     const cfg = {
       commands: { text: true },
       channels: { telegram: { allowFrom: ["123", "@Alice"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildPolicyParams("/allowlist list dm", cfg);
     const result = await handleCommands(params);
 
@@ -582,7 +582,7 @@ describe("handleCommands /allowlist", () => {
     const cfg = {
       commands: { text: true, config: true },
       channels: { telegram: { allowFrom: ["123"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildPolicyParams("/allowlist add dm 789", cfg);
     const result = await handleCommands(params);
 
@@ -626,7 +626,7 @@ describe("handleCommands /allowlist", () => {
           configWrites: true,
         },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
 
     const params = buildPolicyParams("/allowlist remove dm U111", cfg, {
       Provider: "slack",
@@ -636,7 +636,7 @@ describe("handleCommands /allowlist", () => {
 
     expect(result.shouldContinue).toBe(false);
     expect(writeConfigFileMock).toHaveBeenCalledTimes(1);
-    const written = writeConfigFileMock.mock.calls[0]?.[0] as OpenClawConfig;
+    const written = writeConfigFileMock.mock.calls[0]?.[0] as ResonixConfig;
     expect(written.channels?.slack?.allowFrom).toEqual(["U222"]);
     expect(written.channels?.slack?.dm?.allowFrom).toBeUndefined();
     expect(result.reply?.text).toContain("channels.slack.allowFrom");
@@ -669,7 +669,7 @@ describe("handleCommands /allowlist", () => {
           configWrites: true,
         },
       },
-    } as OpenClawConfig;
+    } as ResonixConfig;
 
     const params = buildPolicyParams("/allowlist remove dm 111", cfg, {
       Provider: "discord",
@@ -679,7 +679,7 @@ describe("handleCommands /allowlist", () => {
 
     expect(result.shouldContinue).toBe(false);
     expect(writeConfigFileMock).toHaveBeenCalledTimes(1);
-    const written = writeConfigFileMock.mock.calls[0]?.[0] as OpenClawConfig;
+    const written = writeConfigFileMock.mock.calls[0]?.[0] as ResonixConfig;
     expect(written.channels?.discord?.allowFrom).toEqual(["222"]);
     expect(written.channels?.discord?.dm?.allowFrom).toBeUndefined();
     expect(result.reply?.text).toContain("channels.discord.allowFrom");
@@ -690,7 +690,7 @@ describe("/models command", () => {
   const cfg = {
     commands: { text: true },
     agents: { defaults: { model: { primary: "anthropic/claude-opus-4-5" } } },
-  } as unknown as OpenClawConfig;
+  } as unknown as ResonixConfig;
 
   it.each(["discord", "whatsapp"])("lists providers on %s (text)", async (surface) => {
     const params = buildPolicyParams("/models", cfg, { Provider: surface, Surface: surface });
@@ -764,7 +764,7 @@ describe("/models command", () => {
           imageModel: "visionpro/studio-v1",
         },
       },
-    } as unknown as OpenClawConfig;
+    } as unknown as ResonixConfig;
 
     // Use discord surface for text-based output tests
     const providerList = await handleCommands(
@@ -796,7 +796,7 @@ describe("handleCommands plugin commands", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/card", cfg);
     const commandResult = await handleCommands(params);
 
@@ -811,7 +811,7 @@ describe("handleCommands identity", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/whoami", cfg, {
       SenderId: "12345",
       SenderUsername: "TestUser",
@@ -831,7 +831,7 @@ describe("handleCommands hooks", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/new take notes", cfg);
     const spy = vi.spyOn(internalHooks, "triggerInternalHook").mockResolvedValue();
 
@@ -847,7 +847,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/context", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -859,7 +859,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/context list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -871,7 +871,7 @@ describe("handleCommands context", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/context detail", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -887,7 +887,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -914,7 +914,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -951,7 +951,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents list", cfg, {
       CommandSource: "native",
       CommandTargetSessionKey: "agent:main:main",
@@ -992,7 +992,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { store: storePath },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents list", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1007,7 +1007,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/status", cfg);
     params.resolvedVerboseLevel = "on";
     const result = await handleCommands(params);
@@ -1021,7 +1021,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents foo", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1034,7 +1034,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents info", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1058,7 +1058,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/status", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1094,7 +1094,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/status", cfg);
     params.resolvedVerboseLevel = "on";
     const result = await handleCommands(params);
@@ -1123,7 +1123,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { mainKey: "main", scope: "per-sender" },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents info 1", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1148,7 +1148,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/kill 1", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1184,7 +1184,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/kill 1", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1223,7 +1223,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/subagents send 1 continue with follow-up details", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1281,7 +1281,7 @@ describe("handleCommands subagents", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       session: { store: storePath },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/steer 1 check timer.ts instead", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1342,7 +1342,7 @@ describe("handleCommands subagents", () => {
     const cfg = {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/steer 1 check timer.ts instead", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);
@@ -1361,7 +1361,7 @@ describe("handleCommands /tts", () => {
       commands: { text: true },
       channels: { whatsapp: { allowFrom: ["*"] } },
       messages: { tts: { prefsPath: path.join(testWorkspaceDir, "tts.json") } },
-    } as OpenClawConfig;
+    } as ResonixConfig;
     const params = buildParams("/tts", cfg);
     const result = await handleCommands(params);
     expect(result.shouldContinue).toBe(false);

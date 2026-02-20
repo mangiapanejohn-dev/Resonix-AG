@@ -246,7 +246,7 @@ function createArgMenusHarness() {
     channelsConfig: undefined,
     slashCommand: {
       enabled: true,
-      name: "openclaw",
+      name: "resonix",
       ephemeral: true,
       sessionPrefix: "slack:slash",
     },
@@ -362,8 +362,8 @@ describe("Slack native command argument menus", () => {
     reportExternalHandler = requireHandler(harness.commands, "/reportexternal", "/reportexternal");
     reportLongHandler = requireHandler(harness.commands, "/reportlong", "/reportlong");
     unsafeConfirmHandler = requireHandler(harness.commands, "/unsafeconfirm", "/unsafeconfirm");
-    argMenuHandler = requireHandler(harness.actions, "openclaw_cmdarg", "arg-menu action");
-    argMenuOptionsHandler = requireHandler(harness.options, "openclaw_cmdarg", "arg-menu options");
+    argMenuHandler = requireHandler(harness.actions, "resonix_cmdarg", "arg-menu action");
+    argMenuOptionsHandler = requireHandler(harness.options, "resonix_cmdarg", "arg-menu options");
   });
 
   beforeEach(() => {
@@ -383,7 +383,7 @@ describe("Slack native command argument menus", () => {
     const actions = expectArgMenuLayout(respond);
     const element = actions?.elements?.[0];
     expect(element?.type).toBe("static_select");
-    expect(element?.action_id).toBe("openclaw_cmdarg");
+    expect(element?.action_id).toBe("resonix_cmdarg");
     expect(element?.confirm).toBeTruthy();
   });
 
@@ -406,7 +406,7 @@ describe("Slack native command argument menus", () => {
     const actions = findFirstActionsBlock(payload);
     const element = actions?.elements?.[0];
     expect(element?.type).toBe("overflow");
-    expect(element?.action_id).toBe("openclaw_cmdarg");
+    expect(element?.action_id).toBe("resonix_cmdarg");
     expect(element?.confirm).toBeTruthy();
   });
 
@@ -479,9 +479,9 @@ describe("Slack native command argument menus", () => {
     const actions = findFirstActionsBlock(payload);
     const element = actions?.elements?.[0];
     expect(element?.type).toBe("external_select");
-    expect(element?.action_id).toBe("openclaw_cmdarg");
+    expect(element?.action_id).toBe("resonix_cmdarg");
     expect(payload.blocks?.find((block) => block.type === "actions")?.block_id).toContain(
-      "openclaw_cmdarg_ext:",
+      "resonix_cmdarg_ext:",
     );
   });
 
@@ -492,7 +492,7 @@ describe("Slack native command argument menus", () => {
       blocks?: Array<{ type: string; block_id?: string }>;
     };
     const blockId = payload.blocks?.find((block) => block.type === "actions")?.block_id;
-    expect(blockId).toContain("openclaw_cmdarg_ext:");
+    expect(blockId).toContain("resonix_cmdarg_ext:");
 
     const ackOptions = vi.fn().mockResolvedValue(undefined);
     await argMenuOptionsHandler({
@@ -598,7 +598,7 @@ function createPolicyHarness(overrides?: {
     channelsConfig: overrides?.channelsConfig,
     slashCommand: {
       enabled: true,
-      name: "openclaw",
+      name: "resonix",
       ephemeral: true,
       sessionPrefix: "slack:slash",
     },

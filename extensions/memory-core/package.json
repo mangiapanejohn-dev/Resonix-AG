@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/memory-core",
+  "name": "@resonix/memory-core",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw core memory search plugin",
+  "description": "Resonix core memory search plugin",
   "type": "module",
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.1.26"
+    "resonix": ">=2026.1.26"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ]

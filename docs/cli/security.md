@@ -1,12 +1,12 @@
 ---
-summary: "CLI reference for `openclaw security` (audit and fix common security footguns)"
+summary: "CLI reference for `resonix security` (audit and fix common security footguns)"
 read_when:
   - You want to run a quick security audit on config/state
   - You want to apply safe “fix” suggestions (chmod, tighten defaults)
 title: "security"
 ---
 
-# `openclaw security`
+# `resonix security`
 
 Security tools (audit + optional fixes).
 
@@ -17,10 +17,10 @@ Related:
 ## Audit
 
 ```bash
-openclaw security audit
-openclaw security audit --deep
-openclaw security audit --fix
-openclaw security audit --json
+resonix security audit
+resonix security audit --deep
+resonix security audit --fix
+resonix security audit --json
 ```
 
 The audit warns when multiple DM senders share the main session and recommends **secure DM mode**: `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
@@ -35,14 +35,14 @@ It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable with
 Use `--json` for CI/policy checks:
 
 ```bash
-openclaw security audit --json | jq '.summary'
-openclaw security audit --deep --json | jq '.findings[] | select(.severity=="critical") | .checkId'
+resonix security audit --json | jq '.summary'
+resonix security audit --deep --json | jq '.findings[] | select(.severity=="critical") | .checkId'
 ```
 
 If `--fix` and `--json` are combined, output includes both fix actions and final report:
 
 ```bash
-openclaw security audit --fix --json | jq '{fix: .fix.ok, summary: .report.summary}'
+resonix security audit --fix --json | jq '{fix: .fix.ok, summary: .report.summary}'
 ```
 
 ## What `--fix` changes

@@ -1,4 +1,4 @@
-# OpenClaw Codebase Patterns
+# Resonix Codebase Patterns
 
 **Always reuse existing code - no redundancy!**
 
@@ -55,7 +55,7 @@
 ## Stack & Commands
 
 - **Package manager**: pnpm (`pnpm install`)
-- **Dev**: `pnpm openclaw ...` or `pnpm dev`
+- **Dev**: `pnpm resonix ...` or `pnpm dev`
 - **Type-check**: `pnpm tsgo`
 - **Lint/format**: `pnpm check`
 - **Tests**: `pnpm test`

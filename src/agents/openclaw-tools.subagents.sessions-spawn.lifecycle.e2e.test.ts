@@ -4,7 +4,7 @@ import "./test-helpers/fast-core-tools.js";
 import {
   getCallGatewayMock,
   resetSessionsSpawnConfigOverride,
-} from "./openclaw-tools.subagents.sessions-spawn.test-harness.js";
+} from "./resonix-tools.subagents.sessions-spawn.test-harness.js";
 import { resetSubagentRegistryForTests } from "./subagent-registry.js";
 
 vi.mock("./pi-embedded.js", () => ({
@@ -16,13 +16,13 @@ vi.mock("./pi-embedded.js", () => ({
 
 const callGatewayMock = getCallGatewayMock();
 
-type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
-type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+type CreateResonixTools = (typeof import("./resonix-tools.js"))["createResonixTools"];
+type CreateResonixToolsOpts = Parameters<CreateResonixTools>[0];
 
-async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
+async function getSessionsSpawnTool(opts: CreateResonixToolsOpts) {
   // Dynamic import: ensure harness mocks are installed before tool modules load.
-  const { createOpenClawTools } = await import("./openclaw-tools.js");
-  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
+  const { createResonixTools } = await import("./resonix-tools.js");
+  const tool = createResonixTools(opts).find((candidate) => candidate.name === "sessions_spawn");
   if (!tool) {
     throw new Error("missing sessions_spawn tool");
   }
@@ -162,7 +162,7 @@ function createDeleteCleanupHooks(setDeletedKey: (key: string | undefined) => vo
   };
 }
 
-describe("openclaw-tools: subagents (sessions_spawn lifecycle)", () => {
+describe("resonix-tools: subagents (sessions_spawn lifecycle)", () => {
   beforeEach(() => {
     resetSessionsSpawnConfigOverride();
   });

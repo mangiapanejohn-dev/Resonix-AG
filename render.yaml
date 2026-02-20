@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: openclaw
+    name: resonix
     runtime: docker
     plan: starter
     healthCheckPath: /health
@@ -9,13 +9,13 @@ services:
         value: "8080"
       - key: SETUP_PASSWORD
         sync: false
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
+      - key: RESONIX_STATE_DIR
+        value: /data/.resonix
+      - key: RESONIX_WORKSPACE_DIR
         value: /data/workspace
-      - key: OPENCLAW_GATEWAY_TOKEN
+      - key: RESONIX_GATEWAY_TOKEN
         generateValue: true
     disk:
-      name: openclaw-data
+      name: resonix-data
       mountPath: /data
       sizeGB: 1

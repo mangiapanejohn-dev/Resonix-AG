@@ -39,7 +39,7 @@ exit 0
 }
 
 async function createDockerSetupSandbox(): Promise<DockerSetupSandbox> {
-  const rootDir = await mkdtemp(join(tmpdir(), "openclaw-docker-setup-"));
+  const rootDir = await mkdtemp(join(tmpdir(), "resonix-docker-setup-"));
   const scriptPath = join(rootDir, "docker-setup.sh");
   const dockerfilePath = join(rootDir, "Dockerfile");
   const composePath = join(rootDir, "docker-compose.yml");
@@ -51,7 +51,7 @@ async function createDockerSetupSandbox(): Promise<DockerSetupSandbox> {
   await writeFile(dockerfilePath, "FROM scratch\n");
   await writeFile(
     composePath,
-    "services:\n  openclaw-gateway:\n    image: noop\n  openclaw-cli:\n    image: noop\n",
+    "services:\n  resonix-gateway:\n    image: noop\n  resonix-cli:\n    image: noop\n",
   );
   await writeDockerStub(binDir, logPath);
 
@@ -69,9 +69,9 @@ function createEnv(
     LC_ALL: process.env.LC_ALL,
     TMPDIR: process.env.TMPDIR,
     DOCKER_STUB_LOG: sandbox.logPath,
-    OPENCLAW_GATEWAY_TOKEN: "test-token",
-    OPENCLAW_CONFIG_DIR: join(sandbox.rootDir, "config"),
-    OPENCLAW_WORKSPACE_DIR: join(sandbox.rootDir, "openclaw"),
+    RESONIX_GATEWAY_TOKEN: "test-token",
+    RESONIX_CONFIG_DIR: join(sandbox.rootDir, "config"),
+    RESONIX_WORKSPACE_DIR: join(sandbox.rootDir, "resonix"),
   };
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -118,26 +118,26 @@ describe("docker-setup.sh", () => {
     const result = spawnSync("bash", [sandbox.scriptPath], {
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
-        OPENCLAW_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
-        OPENCLAW_EXTRA_MOUNTS: undefined,
-        OPENCLAW_HOME_VOLUME: "openclaw-home",
+        RESONIX_DOCKER_APT_PACKAGES: "ffmpeg build-essential",
+        RESONIX_EXTRA_MOUNTS: undefined,
+        RESONIX_HOME_VOLUME: "resonix-home",
       }),
       stdio: ["ignore", "ignore", "pipe"],
     });
     expect(result.status).toBe(0);
     const envFile = await readFile(join(sandbox.rootDir, ".env"), "utf8");
-    expect(envFile).toContain("OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
-    expect(envFile).toContain("OPENCLAW_EXTRA_MOUNTS=");
-    expect(envFile).toContain("OPENCLAW_HOME_VOLUME=openclaw-home");
+    expect(envFile).toContain("RESONIX_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(envFile).toContain("RESONIX_EXTRA_MOUNTS=");
+    expect(envFile).toContain("RESONIX_HOME_VOLUME=resonix-home");
     const extraCompose = await readFile(join(sandbox.rootDir, "docker-compose.extra.yml"), "utf8");
-    expect(extraCompose).toContain("openclaw-home:/home/node");
+    expect(extraCompose).toContain("resonix-home:/home/node");
     expect(extraCompose).toContain("volumes:");
-    expect(extraCompose).toContain("openclaw-home:");
+    expect(extraCompose).toContain("resonix-home:");
     const log = await readFile(sandbox.logPath, "utf8");
-    expect(log).toContain("--build-arg OPENCLAW_DOCKER_APT_PACKAGES=ffmpeg build-essential");
+    expect(log).toContain("--build-arg RESONIX_DOCKER_APT_PACKAGES=ffmpeg build-essential");
   });
 
-  it("rejects injected multiline OPENCLAW_EXTRA_MOUNTS values", async () => {
+  it("rejects injected multiline RESONIX_EXTRA_MOUNTS values", async () => {
     if (!sandbox) {
       throw new Error("sandbox missing");
     }
@@ -145,17 +145,17 @@ describe("docker-setup.sh", () => {
     const result = spawnSync("bash", [sandbox.scriptPath], {
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
-        OPENCLAW_EXTRA_MOUNTS: "/tmp:/tmp\n  evil-service:\n    image: alpine",
+        RESONIX_EXTRA_MOUNTS: "/tmp:/tmp\n  evil-service:\n    image: alpine",
       }),
       encoding: "utf8",
       stdio: ["ignore", "ignore", "pipe"],
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("OPENCLAW_EXTRA_MOUNTS cannot contain control characters");
+    expect(result.stderr).toContain("RESONIX_EXTRA_MOUNTS cannot contain control characters");
   });
 
-  it("rejects invalid OPENCLAW_EXTRA_MOUNTS mount format", async () => {
+  it("rejects invalid RESONIX_EXTRA_MOUNTS mount format", async () => {
     if (!sandbox) {
       throw new Error("sandbox missing");
     }
@@ -163,7 +163,7 @@ describe("docker-setup.sh", () => {
     const result = spawnSync("bash", [sandbox.scriptPath], {
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
-        OPENCLAW_EXTRA_MOUNTS: "bad mount spec",
+        RESONIX_EXTRA_MOUNTS: "bad mount spec",
       }),
       encoding: "utf8",
       stdio: ["ignore", "ignore", "pipe"],
@@ -173,7 +173,7 @@ describe("docker-setup.sh", () => {
     expect(result.stderr).toContain("Invalid mount format");
   });
 
-  it("rejects invalid OPENCLAW_HOME_VOLUME names", async () => {
+  it("rejects invalid RESONIX_HOME_VOLUME names", async () => {
     if (!sandbox) {
       throw new Error("sandbox missing");
     }
@@ -181,14 +181,14 @@ describe("docker-setup.sh", () => {
     const result = spawnSync("bash", [sandbox.scriptPath], {
       cwd: sandbox.rootDir,
       env: createEnv(sandbox, {
-        OPENCLAW_HOME_VOLUME: "bad name",
+        RESONIX_HOME_VOLUME: "bad name",
       }),
       encoding: "utf8",
       stdio: ["ignore", "ignore", "pipe"],
     });
 
     expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain("OPENCLAW_HOME_VOLUME must match");
+    expect(result.stderr).toContain("RESONIX_HOME_VOLUME must match");
   });
 
   it("avoids associative arrays so the script remains Bash 3.2-compatible", async () => {

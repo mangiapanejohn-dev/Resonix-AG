@@ -1,7 +1,7 @@
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 
 export type ResolveSenderCommandAuthorizationParams = {
-  cfg: OpenClawConfig;
+  cfg: ResonixConfig;
   rawBody: string;
   isGroup: boolean;
   dmPolicy: string;
@@ -9,7 +9,7 @@ export type ResolveSenderCommandAuthorizationParams = {
   senderId: string;
   isSenderAllowed: (senderId: string, allowFrom: string[]) => boolean;
   readAllowFromStore: () => Promise<string[]>;
-  shouldComputeCommandAuthorized: (rawBody: string, cfg: OpenClawConfig) => boolean;
+  shouldComputeCommandAuthorized: (rawBody: string, cfg: ResonixConfig) => boolean;
   resolveCommandAuthorizedFromAuthorizers: (params: {
     useAccessGroups: boolean;
     authorizers: Array<{ configured: boolean; allowed: boolean }>;

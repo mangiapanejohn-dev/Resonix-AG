@@ -16,10 +16,10 @@ import { loadAndMaybeMigrateDoctorConfig } from "./doctor-config-flow.js";
 describe("doctor include warning", () => {
   it("surfaces include confinement hint for escaped include paths", async () => {
     await withTempHome(async (home) => {
-      const configDir = path.join(home, ".openclaw");
+      const configDir = path.join(home, ".resonix");
       await fs.mkdir(configDir, { recursive: true });
       await fs.writeFile(
-        path.join(configDir, "openclaw.json"),
+        path.join(configDir, "resonix.json"),
         JSON.stringify({ $include: "/etc/passwd" }, null, 2),
         "utf-8",
       );

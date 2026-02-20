@@ -12,7 +12,7 @@ describe("exec script preflight", () => {
       return;
     }
 
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-exec-preflight-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-exec-preflight-"));
     const pyPath = path.join(tmp, "bad.py");
 
     await fs.writeFile(
@@ -41,7 +41,7 @@ describe("exec script preflight", () => {
       return;
     }
 
-    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-exec-preflight-"));
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-exec-preflight-"));
     const jsPath = path.join(tmp, "bad.js");
 
     await fs.writeFile(
@@ -67,7 +67,7 @@ describe("exec script preflight", () => {
       return;
     }
 
-    const parent = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-exec-preflight-parent-"));
+    const parent = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-exec-preflight-parent-"));
     const outsidePath = path.join(parent, "outside.js");
     const workdir = path.join(parent, "workdir");
     await fs.mkdir(workdir, { recursive: true });

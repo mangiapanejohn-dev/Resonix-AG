@@ -24,11 +24,11 @@ Use this page for day-1 startup and day-2 operations of the Gateway service.
   <Step title="Start the Gateway">
 
 ```bash
-openclaw gateway --port 18789
+resonix gateway --port 18789
 # debug/trace mirrored to stdio
-openclaw gateway --port 18789 --verbose
+resonix gateway --port 18789 --verbose
 # force-kill listener on selected port, then start
-openclaw gateway --force
+resonix gateway --force
 ```
 
   </Step>
@@ -36,9 +36,9 @@ openclaw gateway --force
   <Step title="Verify service health">
 
 ```bash
-openclaw gateway status
-openclaw status
-openclaw logs --follow
+resonix gateway status
+resonix status
+resonix logs --follow
 ```
 
 Healthy baseline: `Runtime: running` and `RPC probe: ok`.
@@ -48,14 +48,14 @@ Healthy baseline: `Runtime: running` and `RPC probe: ok`.
   <Step title="Validate channel readiness">
 
 ```bash
-openclaw channels status --probe
+resonix channels status --probe
 ```
 
   </Step>
 </Steps>
 
 <Note>
-Gateway config reload watches the active config file path (resolved from profile/state defaults, or `OPENCLAW_CONFIG_PATH` when set).
+Gateway config reload watches the active config file path (resolved from profile/state defaults, or `RESONIX_CONFIG_PATH` when set).
 Default mode is `gateway.reload.mode="hybrid"`.
 </Note>
 
@@ -67,13 +67,13 @@ Default mode is `gateway.reload.mode="hybrid"`.
   - HTTP APIs (OpenAI-compatible, Responses, tools invoke)
   - Control UI and hooks
 - Default bind mode: `loopback`.
-- Auth is required by default (`gateway.auth.token` / `gateway.auth.password`, or `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD`).
+- Auth is required by default (`gateway.auth.token` / `gateway.auth.password`, or `RESONIX_GATEWAY_TOKEN` / `RESONIX_GATEWAY_PASSWORD`).
 
 ### Port and bind precedence
 
 | Setting      | Resolution order                                              |
 | ------------ | ------------------------------------------------------------- |
-| Gateway port | `--port` → `OPENCLAW_GATEWAY_PORT` → `gateway.port` → `18789` |
+| Gateway port | `--port` → `RESONIX_GATEWAY_PORT` → `gateway.port` → `18789` |
 | Bind mode    | CLI/override → `gateway.bind` → `loopback`                    |
 
 ### Hot reload modes
@@ -88,14 +88,14 @@ Default mode is `gateway.reload.mode="hybrid"`.
 ## Operator command set
 
 ```bash
-openclaw gateway status
-openclaw gateway status --deep
-openclaw gateway status --json
-openclaw gateway install
-openclaw gateway restart
-openclaw gateway stop
-openclaw logs --follow
-openclaw doctor
+resonix gateway status
+resonix gateway status --deep
+resonix gateway status --json
+resonix gateway install
+resonix gateway restart
+resonix gateway stop
+resonix logs --follow
+resonix doctor
 ```
 
 ## Remote access
@@ -123,22 +123,22 @@ Use supervised runs for production-like reliability.
   <Tab title="macOS (launchd)">
 
 ```bash
-openclaw gateway install
-openclaw gateway status
-openclaw gateway restart
-openclaw gateway stop
+resonix gateway install
+resonix gateway status
+resonix gateway restart
+resonix gateway stop
 ```
 
-LaunchAgent labels are `ai.openclaw.gateway` (default) or `ai.openclaw.<profile>` (named profile). `openclaw doctor` audits and repairs service config drift.
+LaunchAgent labels are `ai.resonix.gateway` (default) or `ai.resonix.<profile>` (named profile). `resonix doctor` audits and repairs service config drift.
 
   </Tab>
 
   <Tab title="Linux (systemd user)">
 
 ```bash
-openclaw gateway install
-systemctl --user enable --now openclaw-gateway[-<profile>].service
-openclaw gateway status
+resonix gateway install
+systemctl --user enable --now resonix-gateway[-<profile>].service
+resonix gateway status
 ```
 
 For persistence after logout, enable lingering:
@@ -155,7 +155,7 @@ Use a system unit for multi-user/always-on hosts.
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now openclaw-gateway[-<profile>].service
+sudo systemctl enable --now resonix-gateway[-<profile>].service
 ```
 
   </Tab>
@@ -169,15 +169,15 @@ Use multiple only for strict isolation/redundancy (for example a rescue profile)
 Checklist per instance:
 
 - Unique `gateway.port`
-- Unique `OPENCLAW_CONFIG_PATH`
-- Unique `OPENCLAW_STATE_DIR`
+- Unique `RESONIX_CONFIG_PATH`
+- Unique `RESONIX_STATE_DIR`
 - Unique `agents.defaults.workspace`
 
 Example:
 
 ```bash
-OPENCLAW_CONFIG_PATH=~/.openclaw/a.json OPENCLAW_STATE_DIR=~/.openclaw-a openclaw gateway --port 19001
-OPENCLAW_CONFIG_PATH=~/.openclaw/b.json OPENCLAW_STATE_DIR=~/.openclaw-b openclaw gateway --port 19002
+RESONIX_CONFIG_PATH=~/.resonix/a.json RESONIX_STATE_DIR=~/.resonix-a resonix gateway --port 19001
+RESONIX_CONFIG_PATH=~/.resonix/b.json RESONIX_STATE_DIR=~/.resonix-b resonix gateway --port 19002
 ```
 
 See: [Multiple gateways](/gateway/multiple-gateways).
@@ -185,9 +185,9 @@ See: [Multiple gateways](/gateway/multiple-gateways).
 ### Dev profile quick path
 
 ```bash
-openclaw --dev setup
-openclaw --dev gateway --allow-unconfigured
-openclaw --dev status
+resonix --dev setup
+resonix --dev gateway --allow-unconfigured
+resonix --dev status
 ```
 
 Defaults include isolated state/config and base gateway port `19001`.
@@ -216,9 +216,9 @@ See full protocol docs: [Gateway Protocol](/gateway/protocol).
 ### Readiness
 
 ```bash
-openclaw gateway status
-openclaw channels status --probe
-openclaw health
+resonix gateway status
+resonix channels status --probe
+resonix health
 ```
 
 ### Gap recovery

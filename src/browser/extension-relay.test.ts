@@ -127,8 +127,8 @@ describe("chrome extension relay server", () => {
   let previousGatewayToken: string | undefined;
 
   beforeEach(() => {
-    previousGatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = TEST_GATEWAY_TOKEN;
+    previousGatewayToken = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = TEST_GATEWAY_TOKEN;
   });
 
   afterEach(async () => {
@@ -137,9 +137,9 @@ describe("chrome extension relay server", () => {
       cdpUrl = "";
     }
     if (previousGatewayToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.RESONIX_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = previousGatewayToken;
+      process.env.RESONIX_GATEWAY_TOKEN = previousGatewayToken;
     }
   });
 
@@ -173,8 +173,8 @@ describe("chrome extension relay server", () => {
   it("uses gateway token for relay auth headers on loopback URLs", async () => {
     const port = await getFreePort();
     const headers = getChromeExtensionRelayAuthHeaders(`http://127.0.0.1:${port}`);
-    expect(Object.keys(headers)).toContain("x-openclaw-relay-token");
-    expect(headers["x-openclaw-relay-token"]).toBe(TEST_GATEWAY_TOKEN);
+    expect(Object.keys(headers)).toContain("x-resonix-relay-token");
+    expect(headers["x-resonix-relay-token"]).toBe(TEST_GATEWAY_TOKEN);
   });
 
   it("rejects CDP access without relay auth token", async () => {
@@ -417,8 +417,8 @@ describe("chrome extension relay server", () => {
       fakeRelay.once("error", reject);
     });
 
-    const prev = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "test-gateway-token";
+    const prev = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = "test-gateway-token";
     try {
       cdpUrl = `http://127.0.0.1:${port}`;
       const relay = await ensureChromeExtensionRelayServer({ cdpUrl });
@@ -429,15 +429,15 @@ describe("chrome extension relay server", () => {
       expect(status.connected).toBe(false);
     } finally {
       if (prev === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.RESONIX_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prev;
+        process.env.RESONIX_GATEWAY_TOKEN = prev;
       }
       await new Promise<void>((resolve) => fakeRelay.close(() => resolve()));
     }
   });
 
-  it("does not swallow EADDRINUSE when occupied port is not an openclaw relay", async () => {
+  it("does not swallow EADDRINUSE when occupied port is not an resonix relay", async () => {
     const port = await getFreePort();
     const blocker = createServer((_, res) => {
       res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });

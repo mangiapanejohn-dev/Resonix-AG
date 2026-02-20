@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 
 const mocks = vi.hoisted(() => ({
   readCommand: vi.fn(),
@@ -67,13 +67,13 @@ function makeDoctorPrompts() {
   };
 }
 
-async function runRepair(cfg: OpenClawConfig) {
+async function runRepair(cfg: ResonixConfig) {
   await maybeRepairGatewayServiceConfig(cfg, "local", makeDoctorIo(), makeDoctorPrompts());
 }
 
 const gatewayProgramArguments = [
   "/usr/bin/node",
-  "/usr/local/bin/openclaw",
+  "/usr/local/bin/resonix",
   "gateway",
   "--port",
   "18789",
@@ -83,7 +83,7 @@ function setupGatewayTokenRepairScenario(expectedToken: string) {
   mocks.readCommand.mockResolvedValue({
     programArguments: gatewayProgramArguments,
     environment: {
-      OPENCLAW_GATEWAY_TOKEN: "stale-token",
+      RESONIX_GATEWAY_TOKEN: "stale-token",
     },
   });
   mocks.auditGatewayServiceConfig.mockResolvedValue({
@@ -91,7 +91,7 @@ function setupGatewayTokenRepairScenario(expectedToken: string) {
     issues: [
       {
         code: "gateway-token-mismatch",
-        message: "Gateway service OPENCLAW_GATEWAY_TOKEN does not match gateway.auth.token",
+        message: "Gateway service RESONIX_GATEWAY_TOKEN does not match gateway.auth.token",
         level: "recommended",
       },
     ],
@@ -100,7 +100,7 @@ function setupGatewayTokenRepairScenario(expectedToken: string) {
     programArguments: gatewayProgramArguments,
     workingDirectory: "/tmp",
     environment: {
-      OPENCLAW_GATEWAY_TOKEN: expectedToken,
+      RESONIX_GATEWAY_TOKEN: expectedToken,
     },
   });
   mocks.install.mockResolvedValue(undefined);
@@ -114,7 +114,7 @@ describe("maybeRepairGatewayServiceConfig", () => {
   it("treats gateway.auth.token as source of truth for service token repairs", async () => {
     setupGatewayTokenRepairScenario("config-token");
 
-    const cfg: OpenClawConfig = {
+    const cfg: ResonixConfig = {
       gateway: {
         auth: {
           mode: "token",
@@ -138,13 +138,13 @@ describe("maybeRepairGatewayServiceConfig", () => {
     expect(mocks.install).toHaveBeenCalledTimes(1);
   });
 
-  it("uses OPENCLAW_GATEWAY_TOKEN when config token is missing", async () => {
-    const previousToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "env-token";
+  it("uses RESONIX_GATEWAY_TOKEN when config token is missing", async () => {
+    const previousToken = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = "env-token";
     try {
       setupGatewayTokenRepairScenario("env-token");
 
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         gateway: {},
       };
 
@@ -163,9 +163,9 @@ describe("maybeRepairGatewayServiceConfig", () => {
       expect(mocks.install).toHaveBeenCalledTimes(1);
     } finally {
       if (previousToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.RESONIX_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = previousToken;
+        process.env.RESONIX_GATEWAY_TOKEN = previousToken;
       }
     }
   });

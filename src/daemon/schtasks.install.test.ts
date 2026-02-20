@@ -20,11 +20,11 @@ beforeEach(() => {
 
 describe("installScheduledTask", () => {
   it("writes quoted set assignments and escapes metacharacters", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-schtasks-install-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-schtasks-install-"));
     try {
       const env = {
         USERPROFILE: tmpDir,
-        OPENCLAW_PROFILE: "default",
+        RESONIX_PROFILE: "default",
       };
       const { scriptPath } = await installScheduledTask({
         env,
@@ -85,17 +85,17 @@ describe("installScheduledTask", () => {
 
       expect(schtasksCalls[0]).toEqual(["/Query"]);
       expect(schtasksCalls[1]?.[0]).toBe("/Create");
-      expect(schtasksCalls[2]).toEqual(["/Run", "/TN", "OpenClaw Gateway"]);
+      expect(schtasksCalls[2]).toEqual(["/Run", "/TN", "Resonix Gateway"]);
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
   });
 
   it("rejects line breaks in command arguments, env vars, and descriptions", async () => {
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-schtasks-install-"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-schtasks-install-"));
     const env = {
       USERPROFILE: tmpDir,
-      OPENCLAW_PROFILE: "default",
+      RESONIX_PROFILE: "default",
     };
     try {
       await expect(

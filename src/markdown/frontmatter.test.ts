@@ -21,7 +21,7 @@ description: |
 name: session-memory
 metadata:
   {
-    "openclaw":
+    "resonix":
       {
         "emoji": "disk",
         "events": ["command:new"],
@@ -33,17 +33,17 @@ metadata:
     expect(result.metadata).toBeDefined();
 
     const parsed = JSON5.parse(result.metadata ?? "");
-    expect(parsed.openclaw?.emoji).toBe("disk");
+    expect(parsed.resonix?.emoji).toBe("disk");
   });
 
   it("preserves inline JSON values", () => {
     const content = `---
 name: inline-json
-metadata: {"openclaw": {"events": ["test"]}}
+metadata: {"resonix": {"events": ["test"]}}
 ---
 `;
     const result = parseFrontmatterBlock(content);
-    expect(result.metadata).toBe('{"openclaw": {"events": ["test"]}}');
+    expect(result.metadata).toBe('{"resonix": {"events": ["test"]}}');
   });
 
   it("stringifies YAML objects and arrays", () => {
@@ -55,7 +55,7 @@ tags:
   - alpha
   - beta
 metadata:
-  openclaw:
+  resonix:
     events:
       - command:new
 ---
@@ -65,7 +65,7 @@ metadata:
     expect(result.retries).toBe("3");
     expect(JSON.parse(result.tags ?? "[]")).toEqual(["alpha", "beta"]);
     const parsed = JSON5.parse(result.metadata ?? "");
-    expect(parsed.openclaw?.events).toEqual(["command:new"]);
+    expect(parsed.resonix?.events).toEqual(["command:new"]);
   });
 
   it("returns empty when frontmatter is missing", () => {

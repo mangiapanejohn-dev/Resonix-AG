@@ -1,11 +1,11 @@
 ---
-summary: "CLI reference for `openclaw agents` (list/add/delete/set identity)"
+summary: "CLI reference for `resonix agents` (list/add/delete/set identity)"
 read_when:
   - You want multiple isolated agents (workspaces + routing + auth)
 title: "agents"
 ---
 
-# `openclaw agents`
+# `resonix agents`
 
 Manage isolated agents (workspaces + auth + routing).
 
@@ -17,18 +17,18 @@ Related:
 ## Examples
 
 ```bash
-openclaw agents list
-openclaw agents add work --workspace ~/.openclaw/workspace-work
-openclaw agents set-identity --workspace ~/.openclaw/workspace --from-identity
-openclaw agents set-identity --agent main --avatar avatars/openclaw.png
-openclaw agents delete work
+resonix agents list
+resonix agents add work --workspace ~/.resonix/workspace-work
+resonix agents set-identity --workspace ~/.resonix/workspace --from-identity
+resonix agents set-identity --agent main --avatar avatars/resonix.png
+resonix agents delete work
 ```
 
 ## Identity files
 
 Each agent workspace can include an `IDENTITY.md` at the workspace root:
 
-- Example path: `~/.openclaw/workspace/IDENTITY.md`
+- Example path: `~/.resonix/workspace/IDENTITY.md`
 - `set-identity --from-identity` reads from the workspace root (or an explicit `--identity-file`)
 
 Avatar paths resolve relative to the workspace root.
@@ -45,13 +45,13 @@ Avatar paths resolve relative to the workspace root.
 Load from `IDENTITY.md`:
 
 ```bash
-openclaw agents set-identity --workspace ~/.openclaw/workspace --from-identity
+resonix agents set-identity --workspace ~/.resonix/workspace --from-identity
 ```
 
 Override fields explicitly:
 
 ```bash
-openclaw agents set-identity --agent main --name "OpenClaw" --emoji "🦞" --avatar avatars/openclaw.png
+resonix agents set-identity --agent main --name "Resonix" --emoji "👾" --avatar avatars/resonix.png
 ```
 
 Config sample:
@@ -63,10 +63,10 @@ Config sample:
       {
         id: "main",
         identity: {
-          name: "OpenClaw",
+          name: "Resonix",
           theme: "space lobster",
-          emoji: "🦞",
-          avatar: "avatars/openclaw.png",
+          emoji: "👾",
+          avatar: "avatars/resonix.png",
         },
       },
     ],

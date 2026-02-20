@@ -63,8 +63,8 @@ describe("profile CRUD endpoints", () => {
 
     state.testPort = await getFreePort();
     state.cdpBaseUrl = `http://127.0.0.1:${state.testPort + 1}`;
-    state.prevGatewayPort = process.env.OPENCLAW_GATEWAY_PORT;
-    process.env.OPENCLAW_GATEWAY_PORT = String(state.testPort - 2);
+    state.prevGatewayPort = process.env.RESONIX_GATEWAY_PORT;
+    process.env.RESONIX_GATEWAY_PORT = String(state.testPort - 2);
 
     vi.stubGlobal(
       "fetch",
@@ -110,7 +110,7 @@ describe("profile CRUD endpoints", () => {
     const createDuplicate = await realFetch(`${base}/profiles/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "openclaw" }),
+      body: JSON.stringify({ name: "resonix" }),
     });
     expect(createDuplicate.status).toBe(409);
     const createDuplicateBody = (await createDuplicate.json()) as { error: string };
@@ -147,7 +147,7 @@ describe("profile CRUD endpoints", () => {
     const deleteMissingBody = (await deleteMissing.json()) as { error: string };
     expect(deleteMissingBody.error).toContain("not found");
 
-    const deleteDefault = await realFetch(`${base}/profiles/openclaw`, {
+    const deleteDefault = await realFetch(`${base}/profiles/resonix`, {
       method: "DELETE",
     });
     expect(deleteDefault.status).toBe(400);

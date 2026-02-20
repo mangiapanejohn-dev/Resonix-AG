@@ -1,4 +1,4 @@
-const DEFAULT_TAGLINE = "All your chats, one OpenClaw.";
+const DEFAULT_TAGLINE = "All your chats, one Resonix.";
 
 const HOLIDAY_TAGLINES = {
   newYear:
@@ -59,14 +59,14 @@ const TAGLINES: string[] = [
   "Your config is valid, your assumptions are not.",
   "I don't just autocomplete—I auto-commit (emotionally), then ask you to review (logically).",
   'Less clicking, more shipping, fewer "where did that file go" moments.',
-  "Claws out, commit in—let's ship something mildly responsible.",
+  "Resonixs out, commit in—let's ship something mildly responsible.",
   "I'll butter your workflow like a lobster roll: messy, delicious, effective.",
   "Shell yeah—I'm here to pinch the toil and leave you the glory.",
   "If it's repetitive, I'll automate it; if it's hard, I'll bring jokes and a rollback plan.",
   "Because texting yourself reminders is so 2024.",
   "Your inbox, your infra, your rules.",
   'Turning "I\'ll reply later" into "my bot replied instantly".',
-  "The only crab in your contacts you actually want to hear from. 🦞",
+  "The only crab in your contacts you actually want to hear from. 👾",
   "Chat automation for people who peaked at IRC.",
   "Because Siri wasn't answering at 3AM.",
   "IPC, but it's your phone.",
@@ -253,7 +253,7 @@ export function activeTaglines(options: TaglineOptions = {}): string[] {
 
 export function pickTagline(options: TaglineOptions = {}): string {
   const env = options.env ?? process.env;
-  const override = env?.OPENCLAW_TAGLINE_INDEX;
+  const override = env?.RESONIX_TAGLINE_INDEX;
   if (override !== undefined) {
     const parsed = Number.parseInt(override, 10);
     if (!Number.isNaN(parsed) && parsed >= 0) {

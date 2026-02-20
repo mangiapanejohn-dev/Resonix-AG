@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import {
   loadConfig,
   resolveConfigPath,
@@ -29,7 +29,7 @@ type CallGatewayBaseOptions = {
   token?: string;
   password?: string;
   tlsFingerprint?: string;
-  config?: OpenClawConfig;
+  config?: ResonixConfig;
   method: string;
   params?: unknown;
   expectFinal?: boolean;
@@ -107,7 +107,7 @@ export function ensureExplicitGatewayAuth(params: {
 }
 
 export function buildGatewayConnectionDetails(
-  options: { config?: OpenClawConfig; url?: string; configPath?: string } = {},
+  options: { config?: ResonixConfig; url?: string; configPath?: string } = {},
 ): GatewayConnectionDetails {
   const config = options.config ?? loadConfig();
   const configPath =
@@ -194,7 +194,7 @@ type GatewayRemoteSettings = {
 };
 
 type ResolvedGatewayCallContext = {
-  config: OpenClawConfig;
+  config: ResonixConfig;
   configPath: string;
   isRemoteMode: boolean;
   remote?: GatewayRemoteSettings;
@@ -259,15 +259,15 @@ function resolveGatewayCredentials(context: ResolvedGatewayCallContext): {
     (!context.urlOverride
       ? context.isRemoteMode
         ? trimToUndefined(context.remote?.token)
-        : trimToUndefined(process.env.OPENCLAW_GATEWAY_TOKEN) ||
-          trimToUndefined(process.env.CLAWDBOT_GATEWAY_TOKEN) ||
+        : trimToUndefined(process.env.RESONIX_GATEWAY_TOKEN) ||
+          trimToUndefined(process.env.RESONIXDBOT_GATEWAY_TOKEN) ||
           trimToUndefined(authToken)
       : undefined);
   const password =
     context.explicitAuth.password ||
     (!context.urlOverride
-      ? trimToUndefined(process.env.OPENCLAW_GATEWAY_PASSWORD) ||
-        trimToUndefined(process.env.CLAWDBOT_GATEWAY_PASSWORD) ||
+      ? trimToUndefined(process.env.RESONIX_GATEWAY_PASSWORD) ||
+        trimToUndefined(process.env.RESONIXDBOT_GATEWAY_PASSWORD) ||
         (context.isRemoteMode
           ? trimToUndefined(context.remote?.password)
           : trimToUndefined(authPassword))

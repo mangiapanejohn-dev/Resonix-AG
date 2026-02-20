@@ -2,8 +2,8 @@ import type {
   ChannelAccountSnapshot,
   ChannelDock,
   ChannelPlugin,
-  OpenClawConfig,
-} from "openclaw/plugin-sdk";
+  ResonixConfig,
+} from "resonix/plugin-sdk";
 import {
   applyAccountNameToChannelSection,
   buildChannelConfigSchema,
@@ -17,7 +17,7 @@ import {
   PAIRING_APPROVED_MESSAGE,
   resolveChannelAccountConfigBasePath,
   setAccountEnabledInConfigSection,
-} from "openclaw/plugin-sdk";
+} from "resonix/plugin-sdk";
 import {
   listZaloAccountIds,
   resolveDefaultZaloAccountId,
@@ -232,7 +232,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
                     : {}),
             },
           },
-        } as OpenClawConfig;
+        } as ResonixConfig;
       }
       return {
         ...next,
@@ -255,7 +255,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount> = {
             },
           },
         },
-      } as OpenClawConfig;
+      } as ResonixConfig;
     },
   },
   pairing: {

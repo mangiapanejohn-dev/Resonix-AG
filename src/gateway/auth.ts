@@ -213,8 +213,8 @@ export function resolveGatewayAuth(params: {
     }
   }
   const env = params.env ?? process.env;
-  const token = authConfig.token ?? env.OPENCLAW_GATEWAY_TOKEN ?? undefined;
-  const password = authConfig.password ?? env.OPENCLAW_GATEWAY_PASSWORD ?? undefined;
+  const token = authConfig.token ?? env.RESONIX_GATEWAY_TOKEN ?? undefined;
+  const password = authConfig.password ?? env.RESONIX_GATEWAY_PASSWORD ?? undefined;
   const trustedProxy = authConfig.trustedProxy;
 
   let mode: ResolvedGatewayAuth["mode"];
@@ -256,7 +256,7 @@ export function assertGatewayAuthConfigured(auth: ResolvedGatewayAuth): void {
       return;
     }
     throw new Error(
-      "gateway auth mode is token, but no token was configured (set gateway.auth.token or OPENCLAW_GATEWAY_TOKEN)",
+      "gateway auth mode is token, but no token was configured (set gateway.auth.token or RESONIX_GATEWAY_TOKEN)",
     );
   }
   if (auth.mode === "password" && !auth.password) {

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_CHAT_CHANNEL } from "../../channels/registry.js";
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 
 vi.mock("../../config/sessions.js", () => ({
   loadSessionStore: vi.fn().mockReturnValue({}),
@@ -26,12 +26,12 @@ import { readChannelAllowFromStoreSync } from "../../pairing/pairing-store.js";
 import { resolveWhatsAppAccount } from "../../web/accounts.js";
 import { resolveDeliveryTarget } from "./delivery-target.js";
 
-function makeCfg(overrides?: Partial<OpenClawConfig>): OpenClawConfig {
+function makeCfg(overrides?: Partial<ResonixConfig>): ResonixConfig {
   return {
     bindings: [],
     channels: {},
     ...overrides,
-  } as OpenClawConfig;
+  } as ResonixConfig;
 }
 
 const AGENT_ID = "agent-b";
@@ -48,7 +48,7 @@ function setMainSessionEntry(entry?: SessionStore[string]) {
 }
 
 async function resolveForAgent(params: {
-  cfg: OpenClawConfig;
+  cfg: ResonixConfig;
   target?: { channel?: "last" | "telegram"; to?: string };
 }) {
   const channel = params.target ? params.target.channel : DEFAULT_TARGET.channel;

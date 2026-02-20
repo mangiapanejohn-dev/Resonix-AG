@@ -169,7 +169,7 @@ describe("cli program (nodes media)", () => {
     );
 
     await expectLoggedSingleMediaFile({
-      expectedPathPattern: /openclaw-camera-clip-front-.*\.mp4$/,
+      expectedPathPattern: /resonix-camera-clip-front-.*\.mp4$/,
     });
   });
 
@@ -284,7 +284,7 @@ describe("cli program (nodes media)", () => {
     await runNodesCommand(["nodes", "canvas", "snapshot", "--node", "ios-node", "--format", "png"]);
 
     await expectLoggedSingleMediaFile({
-      expectedPathPattern: /openclaw-canvas-snapshot-.*\.png$/,
+      expectedPathPattern: /resonix-canvas-snapshot-.*\.png$/,
     });
   });
 
@@ -334,7 +334,7 @@ describe("cli program (nodes media)", () => {
           height: 480,
         },
         argv: ["nodes", "camera", "snap", "--node", "ios-node", "--facing", "front"],
-        expectedPathPattern: /openclaw-camera-snap-front-.*\.jpg$/,
+        expectedPathPattern: /resonix-camera-snap-front-.*\.jpg$/,
       },
       {
         label: "runs nodes camera clip with url payload",
@@ -346,7 +346,7 @@ describe("cli program (nodes media)", () => {
           hasAudio: true,
         },
         argv: ["nodes", "camera", "clip", "--node", "ios-node", "--duration", "5000"],
-        expectedPathPattern: /openclaw-camera-clip-front-.*\.mp4$/,
+        expectedPathPattern: /resonix-camera-clip-front-.*\.mp4$/,
       },
     ])("$label", async ({ command, payload, argv, expectedPathPattern }) => {
       await runAndExpectUrlPayloadMediaFile({

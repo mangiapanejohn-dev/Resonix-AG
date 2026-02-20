@@ -9,7 +9,7 @@ import {
   withUnsetCopilotTokenEnv,
   withModelsTempHome as withTempHome,
 } from "./models-config.e2e-harness.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
+import { ensureResonixModelsJson } from "./models-config.js";
 
 installModelsConfigTestHooks({ restoreFetch: true });
 
@@ -26,9 +26,9 @@ describe("models-config", () => {
       globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       try {
-        await ensureOpenClawModelsJson({ models: { providers: {} } });
+        await ensureResonixModelsJson({ models: { providers: {} } });
 
-        const agentDir = path.join(process.env.HOME ?? "", ".openclaw", "agents", "main", "agent");
+        const agentDir = path.join(process.env.HOME ?? "", ".resonix", "agents", "main", "agent");
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
           providers: Record<string, { baseUrl?: string }>;
@@ -65,7 +65,7 @@ describe("models-config", () => {
           ),
         );
 
-        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureResonixModelsJson({ models: { providers: {} } }, agentDir);
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {

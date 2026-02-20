@@ -1,16 +1,16 @@
 {
-  "name": "@openclaw/tlon",
+  "name": "@resonix/tlon",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Tlon/Urbit channel plugin",
+  "description": "Resonix Tlon/Urbit channel plugin",
   "type": "module",
   "dependencies": {
     "@urbit/aura": "^3.0.0"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ],
@@ -25,7 +25,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/tlon",
+      "npmSpec": "@resonix/tlon",
       "localPath": "extensions/tlon",
       "defaultChoice": "npm"
     }

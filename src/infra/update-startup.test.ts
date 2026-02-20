@@ -4,8 +4,8 @@ import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { UpdateCheckResult } from "./update-check.js";
 
-vi.mock("./openclaw-root.js", () => ({
-  resolveOpenClawPackageRoot: vi.fn(),
+vi.mock("./resonix-root.js", () => ({
+  resolveResonixPackageRoot: vi.fn(),
 }));
 
 vi.mock("./update-check.js", async () => {
@@ -45,7 +45,7 @@ describe("update-startup", () => {
   let hadNodeEnv = false;
   let hadVitest = false;
 
-  let resolveOpenClawPackageRoot: (typeof import("./openclaw-root.js"))["resolveOpenClawPackageRoot"];
+  let resolveResonixPackageRoot: (typeof import("./resonix-root.js"))["resolveResonixPackageRoot"];
   let checkUpdateStatus: (typeof import("./update-check.js"))["checkUpdateStatus"];
   let resolveNpmChannelTag: (typeof import("./update-check.js"))["resolveNpmChannelTag"];
   let runGatewayUpdateCheck: (typeof import("./update-startup.js"))["runGatewayUpdateCheck"];
@@ -54,7 +54,7 @@ describe("update-startup", () => {
   let loaded = false;
 
   beforeAll(async () => {
-    suiteRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-check-suite-"));
+    suiteRoot = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-update-check-suite-"));
   });
 
   beforeEach(async () => {
@@ -62,9 +62,9 @@ describe("update-startup", () => {
     vi.setSystemTime(new Date("2026-01-17T10:00:00Z"));
     tempDir = path.join(suiteRoot, `case-${++suiteCase}`);
     await fs.mkdir(tempDir);
-    hadStateDir = Object.prototype.hasOwnProperty.call(process.env, "OPENCLAW_STATE_DIR");
-    prevStateDir = process.env.OPENCLAW_STATE_DIR;
-    process.env.OPENCLAW_STATE_DIR = tempDir;
+    hadStateDir = Object.prototype.hasOwnProperty.call(process.env, "RESONIX_STATE_DIR");
+    prevStateDir = process.env.RESONIX_STATE_DIR;
+    process.env.RESONIX_STATE_DIR = tempDir;
 
     hadNodeEnv = Object.prototype.hasOwnProperty.call(process.env, "NODE_ENV");
     prevNodeEnv = process.env.NODE_ENV;
@@ -77,13 +77,13 @@ describe("update-startup", () => {
 
     // Perf: load mocked modules once (after timers/env are set up).
     if (!loaded) {
-      ({ resolveOpenClawPackageRoot } = await import("./openclaw-root.js"));
+      ({ resolveResonixPackageRoot } = await import("./resonix-root.js"));
       ({ checkUpdateStatus, resolveNpmChannelTag } = await import("./update-check.js"));
       ({ runGatewayUpdateCheck, getUpdateAvailable, resetUpdateAvailableStateForTest } =
         await import("./update-startup.js"));
       loaded = true;
     }
-    vi.mocked(resolveOpenClawPackageRoot).mockReset();
+    vi.mocked(resolveResonixPackageRoot).mockReset();
     vi.mocked(checkUpdateStatus).mockReset();
     vi.mocked(resolveNpmChannelTag).mockReset();
     resetUpdateAvailableStateForTest();
@@ -92,9 +92,9 @@ describe("update-startup", () => {
   afterEach(async () => {
     vi.useRealTimers();
     if (hadStateDir) {
-      process.env.OPENCLAW_STATE_DIR = prevStateDir;
+      process.env.RESONIX_STATE_DIR = prevStateDir;
     } else {
-      delete process.env.OPENCLAW_STATE_DIR;
+      delete process.env.RESONIX_STATE_DIR;
     }
     if (hadNodeEnv) {
       process.env.NODE_ENV = prevNodeEnv;
@@ -118,9 +118,9 @@ describe("update-startup", () => {
   });
 
   async function runUpdateCheckAndReadState(channel: "stable" | "beta") {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
+    vi.mocked(resolveResonixPackageRoot).mockResolvedValue("/opt/resonix");
     vi.mocked(checkUpdateStatus).mockResolvedValue({
-      root: "/opt/openclaw",
+      root: "/opt/resonix",
       installKind: "package",
       packageManager: "npm",
     } satisfies UpdateCheckResult);
@@ -206,9 +206,9 @@ describe("update-startup", () => {
   });
 
   it("emits update change callback when update state clears", async () => {
-    vi.mocked(resolveOpenClawPackageRoot).mockResolvedValue("/opt/openclaw");
+    vi.mocked(resolveResonixPackageRoot).mockResolvedValue("/opt/resonix");
     vi.mocked(checkUpdateStatus).mockResolvedValue({
-      root: "/opt/openclaw",
+      root: "/opt/resonix",
       installKind: "package",
       packageManager: "npm",
     } satisfies UpdateCheckResult);

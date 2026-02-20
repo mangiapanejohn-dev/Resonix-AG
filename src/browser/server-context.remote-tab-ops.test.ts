@@ -14,7 +14,7 @@ afterEach(() => {
 });
 
 function makeState(
-  profile: "remote" | "openclaw",
+  profile: "remote" | "resonix",
 ): BrowserServerState & { profiles: Map<string, { lastTargetId?: string | null }> } {
   return {
     // oxlint-disable-next-line typescript/no-explicit-any
@@ -42,7 +42,7 @@ function makeState(
           cdpPort: 443,
           color: "#00AA00",
         },
-        openclaw: { cdpPort: 18800, color: "#FF4500" },
+        resonix: { cdpPort: 18800, color: "#FF4500" },
       },
     },
     profiles: new Map(),
@@ -245,13 +245,13 @@ describe("browser server-context tab selection state", () => {
 
     global.fetch = withFetchPreconnect(fetchMock);
 
-    const state = makeState("openclaw");
+    const state = makeState("resonix");
     const ctx = createBrowserRouteContext({ getState: () => state });
-    const openclaw = ctx.forProfile("openclaw");
+    const resonix = ctx.forProfile("resonix");
 
-    const opened = await openclaw.openTab("http://127.0.0.1:8080");
+    const opened = await resonix.openTab("http://127.0.0.1:8080");
     expect(opened.targetId).toBe("CREATED");
-    expect(state.profiles.get("openclaw")?.lastTargetId).toBe("CREATED");
+    expect(state.profiles.get("resonix")?.lastTargetId).toBe("CREATED");
     expect(createTargetViaCdp).toHaveBeenCalledWith({
       cdpUrl: "http://127.0.0.1:18800",
       url: "http://127.0.0.1:8080",

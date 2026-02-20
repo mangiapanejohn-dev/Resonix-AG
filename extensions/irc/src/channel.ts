@@ -7,7 +7,7 @@ import {
   setAccountEnabledInConfigSection,
   deleteAccountFromConfigSection,
   type ChannelPlugin,
-} from "openclaw/plugin-sdk";
+} from "resonix/plugin-sdk";
 import {
   listIrcAccountIds,
   resolveDefaultIrcAccountId,

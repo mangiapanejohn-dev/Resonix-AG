@@ -6,8 +6,8 @@
     {
       "layers" : [
         {
-          "image-name" : "openclaw-mac.png",
-          "name" : "openclaw-mac",
+          "image-name" : "resonix-mac.png",
+          "name" : "resonix-mac",
           "position" : {
             "scale" : 1.07,
             "translation-in-points" : [

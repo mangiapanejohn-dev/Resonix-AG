@@ -54,7 +54,7 @@ describe("CallManager", () => {
       fromNumber: "+15550000000",
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const manager = new CallManager(config, storePath);
     manager.initialize(new FakeProvider(), "https://example.com/voice/webhook");
 
@@ -87,7 +87,7 @@ describe("CallManager", () => {
       fromNumber: "+15550000000",
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -121,7 +121,7 @@ describe("CallManager", () => {
       allowFrom: ["+15550001234"],
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -150,7 +150,7 @@ describe("CallManager", () => {
       allowFrom: ["+15550001234"],
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -180,7 +180,7 @@ describe("CallManager", () => {
       allowFrom: ["+15550001234"],
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -209,7 +209,7 @@ describe("CallManager", () => {
       inboundPolicy: "disabled",
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -250,7 +250,7 @@ describe("CallManager", () => {
       allowFrom: ["+15550001234"],
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const manager = new CallManager(config, storePath);
     manager.initialize(new FakeProvider(), "https://example.com/voice/webhook");
 
@@ -276,7 +276,7 @@ describe("CallManager", () => {
       transcriptTimeoutMs: 5000,
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -330,7 +330,7 @@ describe("CallManager", () => {
       transcriptTimeoutMs: 5000,
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -376,7 +376,7 @@ describe("CallManager", () => {
       transcriptTimeoutMs: 5000,
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");
@@ -443,7 +443,7 @@ describe("CallManager", () => {
       transcriptTimeoutMs: 5000,
     });
 
-    const storePath = path.join(os.tmpdir(), `openclaw-voice-call-test-${Date.now()}`);
+    const storePath = path.join(os.tmpdir(), `resonix-voice-call-test-${Date.now()}`);
     const provider = new FakeProvider();
     const manager = new CallManager(config, storePath);
     manager.initialize(provider, "https://example.com/voice/webhook");

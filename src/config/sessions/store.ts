@@ -45,7 +45,7 @@ function isSessionStoreRecord(value: unknown): value is Record<string, SessionEn
 
 function getSessionStoreTtl(): number {
   return resolveCacheTtlMs({
-    envValue: process.env.OPENCLAW_SESSION_CACHE_TTL_MS,
+    envValue: process.env.RESONIX_SESSION_CACHE_TTL_MS,
     defaultTtlMs: DEFAULT_SESSION_STORE_TTL_MS,
   });
 }
@@ -296,7 +296,7 @@ function resolveRotateBytes(maintenance?: SessionMaintenanceConfig): number {
 }
 
 /**
- * Resolve maintenance settings from openclaw.json (`session.maintenance`).
+ * Resolve maintenance settings from resonix.json (`session.maintenance`).
  * Falls back to built-in defaults when config is missing or unset.
  */
 export function resolveMaintenanceConfig(): ResolvedSessionMaintenanceConfig {

@@ -58,9 +58,9 @@ const originForPort = (port: number) => `http://127.0.0.1:${port}`;
 
 function restoreGatewayToken(prevToken: string | undefined) {
   if (prevToken === undefined) {
-    delete process.env.OPENCLAW_GATEWAY_TOKEN;
+    delete process.env.RESONIX_GATEWAY_TOKEN;
   } else {
-    process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+    process.env.RESONIX_GATEWAY_TOKEN = prevToken;
   }
 }
 
@@ -161,7 +161,7 @@ function resolveGatewayTokenOrEnv(): string {
   const token =
     typeof (testState.gatewayAuth as { token?: unknown } | undefined)?.token === "string"
       ? ((testState.gatewayAuth as { token?: string }).token ?? undefined)
-      : process.env.OPENCLAW_GATEWAY_TOKEN;
+      : process.env.RESONIX_GATEWAY_TOKEN;
   expect(typeof token).toBe("string");
   return String(token ?? "");
 }
@@ -287,8 +287,8 @@ describe("gateway server auth/connect", () => {
 
     test("closes silent handshakes after timeout", { timeout: 60_000 }, async () => {
       vi.useRealTimers();
-      const prevHandshakeTimeout = process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS;
-      process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS = "50";
+      const prevHandshakeTimeout = process.env.RESONIX_TEST_HANDSHAKE_TIMEOUT_MS;
+      process.env.RESONIX_TEST_HANDSHAKE_TIMEOUT_MS = "50";
       try {
         const ws = await openWs(port);
         const handshakeTimeoutMs = getHandshakeTimeoutMs();
@@ -296,9 +296,9 @@ describe("gateway server auth/connect", () => {
         expect(closed).toBe(true);
       } finally {
         if (prevHandshakeTimeout === undefined) {
-          delete process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS;
+          delete process.env.RESONIX_TEST_HANDSHAKE_TIMEOUT_MS;
         } else {
-          process.env.OPENCLAW_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
+          process.env.RESONIX_TEST_HANDSHAKE_TIMEOUT_MS = prevHandshakeTimeout;
         }
       }
     });
@@ -325,19 +325,19 @@ describe("gateway server auth/connect", () => {
     test("connect (req) handshake prefers service version fallback in hello-ok payload", async () => {
       await withRuntimeVersionEnv(
         {
-          OPENCLAW_VERSION: " ",
-          OPENCLAW_SERVICE_VERSION: "2.4.6-service",
+          RESONIX_VERSION: " ",
+          RESONIX_SERVICE_VERSION: "2.4.6-service",
           npm_package_version: "1.0.0-package",
         },
         async () => expectHelloOkServerVersion(port, "2.4.6-service"),
       );
     });
 
-    test("connect (req) handshake prefers OPENCLAW_VERSION over service version", async () => {
+    test("connect (req) handshake prefers RESONIX_VERSION over service version", async () => {
       await withRuntimeVersionEnv(
         {
-          OPENCLAW_VERSION: "9.9.9-cli",
-          OPENCLAW_SERVICE_VERSION: "2.4.6-service",
+          RESONIX_VERSION: "9.9.9-cli",
+          RESONIX_SERVICE_VERSION: "2.4.6-service",
           npm_package_version: "1.0.0-package",
         },
         async () => expectHelloOkServerVersion(port, "9.9.9-cli"),
@@ -347,8 +347,8 @@ describe("gateway server auth/connect", () => {
     test("connect (req) handshake falls back to npm_package_version when higher-precedence env values are blank", async () => {
       await withRuntimeVersionEnv(
         {
-          OPENCLAW_VERSION: " ",
-          OPENCLAW_SERVICE_VERSION: "\t",
+          RESONIX_VERSION: " ",
+          RESONIX_SERVICE_VERSION: "\t",
           npm_package_version: "1.0.0-package",
         },
         async () => expectHelloOkServerVersion(port, "1.0.0-package"),
@@ -376,7 +376,7 @@ describe("gateway server auth/connect", () => {
         scopes: [],
         clientId: GATEWAY_CLIENT_NAMES.TEST,
         clientMode: GATEWAY_CLIENT_MODES.TEST,
-        identityPath: path.join(os.tmpdir(), `openclaw-test-device-${randomUUID()}.json`),
+        identityPath: path.join(os.tmpdir(), `resonix-test-device-${randomUUID()}.json`),
       });
 
       const connectRes = await sendRawConnectReq(ws, {
@@ -565,8 +565,8 @@ describe("gateway server auth/connect", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-      process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+      prevToken = process.env.RESONIX_GATEWAY_TOKEN;
+      process.env.RESONIX_GATEWAY_TOKEN = "secret";
       port = await getFreePort();
       server = await startGatewayServer(port);
     });
@@ -574,9 +574,9 @@ describe("gateway server auth/connect", () => {
     afterAll(async () => {
       await server.close();
       if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.RESONIX_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+        process.env.RESONIX_GATEWAY_TOKEN = prevToken;
       }
     });
 
@@ -622,8 +622,8 @@ describe("gateway server auth/connect", () => {
     let prevToken: string | undefined;
 
     beforeAll(async () => {
-      prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      prevToken = process.env.RESONIX_GATEWAY_TOKEN;
+      delete process.env.RESONIX_GATEWAY_TOKEN;
       testState.gatewayAuth = { mode: "none" };
       port = await getFreePort();
       server = await startGatewayServer(port);
@@ -632,9 +632,9 @@ describe("gateway server auth/connect", () => {
     afterAll(async () => {
       await server.close();
       if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.RESONIX_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+        process.env.RESONIX_GATEWAY_TOKEN = prevToken;
       }
     });
 
@@ -718,8 +718,8 @@ describe("gateway server auth/connect", () => {
       },
       // oxlint-disable-next-line typescript/no-explicit-any
     } as any);
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    const prevToken = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = "secret";
     try {
       await withGatewayServer(async ({ port }) => {
         const ws = new WebSocket(`ws://127.0.0.1:${port}`, {
@@ -764,8 +764,8 @@ describe("gateway server auth/connect", () => {
   test("allows control ui with stale device identity when device auth is disabled", async () => {
     testState.gatewayControlUi = { dangerouslyDisableDeviceAuth: true };
     testState.gatewayAuth = { mode: "token", token: "secret" };
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+    const prevToken = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = "secret";
     try {
       await withGatewayServer(async ({ port }) => {
         const ws = await openWs(port, { origin: originForPort(port) });
@@ -876,7 +876,7 @@ describe("gateway server auth/connect", () => {
       await import("../infra/device-identity.js");
     const { getPairedDevice } = await import("../infra/device-pairing.js");
     const { server, ws, port, prevToken } = await startServerWithClient("secret");
-    const identityDir = await mkdtemp(join(tmpdir(), "openclaw-device-scope-"));
+    const identityDir = await mkdtemp(join(tmpdir(), "resonix-device-scope-"));
     const identity = loadOrCreateDeviceIdentity(join(identityDir, "device.json"));
     const client = {
       id: GATEWAY_CLIENT_NAMES.TEST,
@@ -1030,9 +1030,9 @@ describe("gateway server auth/connect", () => {
     ws2.close();
     await server.close();
     if (prevToken === undefined) {
-      delete process.env.OPENCLAW_GATEWAY_TOKEN;
+      delete process.env.RESONIX_GATEWAY_TOKEN;
     } else {
-      process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+      process.env.RESONIX_GATEWAY_TOKEN = prevToken;
     }
   });
 

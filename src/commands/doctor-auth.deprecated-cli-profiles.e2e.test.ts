@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import { maybeRemoveDeprecatedCliAuthProfiles } from "./doctor-auth.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 
@@ -23,18 +23,18 @@ function makePrompter(confirmValue: boolean): DoctorPrompter {
 }
 
 beforeEach(() => {
-  originalAgentDir = process.env.OPENCLAW_AGENT_DIR;
+  originalAgentDir = process.env.RESONIX_AGENT_DIR;
   originalPiAgentDir = process.env.PI_CODING_AGENT_DIR;
-  tempAgentDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-auth-"));
-  process.env.OPENCLAW_AGENT_DIR = tempAgentDir;
+  tempAgentDir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-auth-"));
+  process.env.RESONIX_AGENT_DIR = tempAgentDir;
   process.env.PI_CODING_AGENT_DIR = tempAgentDir;
 });
 
 afterEach(() => {
   if (originalAgentDir === undefined) {
-    delete process.env.OPENCLAW_AGENT_DIR;
+    delete process.env.RESONIX_AGENT_DIR;
   } else {
-    process.env.OPENCLAW_AGENT_DIR = originalAgentDir;
+    process.env.RESONIX_AGENT_DIR = originalAgentDir;
   }
   if (originalPiAgentDir === undefined) {
     delete process.env.PI_CODING_AGENT_DIR;
@@ -95,7 +95,7 @@ describe("maybeRemoveDeprecatedCliAuthProfiles", () => {
     } as const;
 
     const next = await maybeRemoveDeprecatedCliAuthProfiles(
-      cfg as unknown as OpenClawConfig,
+      cfg as unknown as ResonixConfig,
       makePrompter(true),
     );
 

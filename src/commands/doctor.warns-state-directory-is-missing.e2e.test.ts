@@ -8,9 +8,9 @@ describe("doctor command", () => {
   it("warns when the state directory is missing", async () => {
     mockDoctorConfigSnapshot();
 
-    const missingDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-missing-state-"));
+    const missingDir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-missing-state-"));
     fs.rmSync(missingDir, { recursive: true, force: true });
-    process.env.OPENCLAW_STATE_DIR = missingDir;
+    process.env.RESONIX_STATE_DIR = missingDir;
     note.mockClear();
 
     const { doctorCommand } = await import("./doctor.js");
@@ -51,15 +51,15 @@ describe("doctor command", () => {
     expect(warned).toBe(true);
   });
 
-  it("skips gateway auth warning when OPENCLAW_GATEWAY_TOKEN is set", async () => {
+  it("skips gateway auth warning when RESONIX_GATEWAY_TOKEN is set", async () => {
     mockDoctorConfigSnapshot({
       config: {
         gateway: { mode: "local" },
       },
     });
 
-    const prevToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-    process.env.OPENCLAW_GATEWAY_TOKEN = "env-token-1234567890";
+    const prevToken = process.env.RESONIX_GATEWAY_TOKEN;
+    process.env.RESONIX_GATEWAY_TOKEN = "env-token-1234567890";
     note.mockClear();
 
     try {
@@ -70,9 +70,9 @@ describe("doctor command", () => {
       });
     } finally {
       if (prevToken === undefined) {
-        delete process.env.OPENCLAW_GATEWAY_TOKEN;
+        delete process.env.RESONIX_GATEWAY_TOKEN;
       } else {
-        process.env.OPENCLAW_GATEWAY_TOKEN = prevToken;
+        process.env.RESONIX_GATEWAY_TOKEN = prevToken;
       }
     }
 

@@ -44,7 +44,7 @@ describe("media understanding attachments SSRF", () => {
   });
 
   it("reads local attachments inside configured roots", async () => {
-    const base = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-cache-allowed-"));
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-media-cache-allowed-"));
     try {
       const allowedRoot = path.join(base, "allowed");
       const attachmentPath = path.join(allowedRoot, "voice-note.m4a");
@@ -79,7 +79,7 @@ describe("media understanding attachments SSRF", () => {
     if (process.platform === "win32") {
       return;
     }
-    const base = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-media-cache-symlink-"));
+    const base = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-media-cache-symlink-"));
     try {
       const allowedRoot = path.join(base, "allowed");
       const outsidePath = "/etc/passwd";

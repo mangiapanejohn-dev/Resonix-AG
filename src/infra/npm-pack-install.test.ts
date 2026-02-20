@@ -7,7 +7,7 @@ vi.mock("./install-source-utils.js", async (importOriginal) => {
   return {
     ...actual,
     withTempDir: vi.fn(async (_prefix: string, fn: (tmpDir: string) => Promise<unknown>) => {
-      return await fn("/tmp/openclaw-npm-pack-install-test");
+      return await fn("/tmp/resonix-npm-pack-install-test");
     }),
     packNpmSpecToArchive: vi.fn(),
   };
@@ -24,33 +24,33 @@ describe("installFromNpmSpecArchive", () => {
     const installFromArchive = vi.fn(async () => ({ ok: true as const }));
 
     const result = await installFromNpmSpecArchive({
-      tempDirPrefix: "openclaw-test-",
-      spec: "@openclaw/test@1.0.0",
+      tempDirPrefix: "resonix-test-",
+      spec: "@resonix/test@1.0.0",
       timeoutMs: 1000,
       installFromArchive,
     });
 
     expect(result).toEqual({ ok: false, error: "pack failed" });
     expect(installFromArchive).not.toHaveBeenCalled();
-    expect(withTempDir).toHaveBeenCalledWith("openclaw-test-", expect.any(Function));
+    expect(withTempDir).toHaveBeenCalledWith("resonix-test-", expect.any(Function));
   });
 
   it("returns resolution metadata and installer result on success", async () => {
     vi.mocked(packNpmSpecToArchive).mockResolvedValue({
       ok: true,
-      archivePath: "/tmp/openclaw-test.tgz",
+      archivePath: "/tmp/resonix-test.tgz",
       metadata: {
-        name: "@openclaw/test",
+        name: "@resonix/test",
         version: "1.0.0",
-        resolvedSpec: "@openclaw/test@1.0.0",
+        resolvedSpec: "@resonix/test@1.0.0",
         integrity: "sha512-same",
       },
     });
     const installFromArchive = vi.fn(async () => ({ ok: true as const, target: "done" }));
 
     const result = await installFromNpmSpecArchive({
-      tempDirPrefix: "openclaw-test-",
-      spec: "@openclaw/test@1.0.0",
+      tempDirPrefix: "resonix-test-",
+      spec: "@resonix/test@1.0.0",
       timeoutMs: 1000,
       expectedIntegrity: "sha512-same",
       installFromArchive,
@@ -62,25 +62,25 @@ describe("installFromNpmSpecArchive", () => {
     }
     expect(result.installResult).toEqual({ ok: true, target: "done" });
     expect(result.integrityDrift).toBeUndefined();
-    expect(result.npmResolution.resolvedSpec).toBe("@openclaw/test@1.0.0");
+    expect(result.npmResolution.resolvedSpec).toBe("@resonix/test@1.0.0");
     expect(result.npmResolution.resolvedAt).toBeTruthy();
-    expect(installFromArchive).toHaveBeenCalledWith({ archivePath: "/tmp/openclaw-test.tgz" });
+    expect(installFromArchive).toHaveBeenCalledWith({ archivePath: "/tmp/resonix-test.tgz" });
   });
 
   it("aborts when integrity drift callback rejects drift", async () => {
     vi.mocked(packNpmSpecToArchive).mockResolvedValue({
       ok: true,
-      archivePath: "/tmp/openclaw-test.tgz",
+      archivePath: "/tmp/resonix-test.tgz",
       metadata: {
-        resolvedSpec: "@openclaw/test@1.0.0",
+        resolvedSpec: "@resonix/test@1.0.0",
         integrity: "sha512-new",
       },
     });
     const installFromArchive = vi.fn(async () => ({ ok: true as const }));
 
     const result = await installFromNpmSpecArchive({
-      tempDirPrefix: "openclaw-test-",
-      spec: "@openclaw/test@1.0.0",
+      tempDirPrefix: "resonix-test-",
+      spec: "@resonix/test@1.0.0",
       timeoutMs: 1000,
       expectedIntegrity: "sha512-old",
       onIntegrityDrift: async () => false,
@@ -89,7 +89,7 @@ describe("installFromNpmSpecArchive", () => {
 
     expect(result).toEqual({
       ok: false,
-      error: "aborted: npm package integrity drift detected for @openclaw/test@1.0.0",
+      error: "aborted: npm package integrity drift detected for @resonix/test@1.0.0",
     });
     expect(installFromArchive).not.toHaveBeenCalled();
   });
@@ -97,9 +97,9 @@ describe("installFromNpmSpecArchive", () => {
   it("warns and proceeds on drift when no callback is configured", async () => {
     vi.mocked(packNpmSpecToArchive).mockResolvedValue({
       ok: true,
-      archivePath: "/tmp/openclaw-test.tgz",
+      archivePath: "/tmp/resonix-test.tgz",
       metadata: {
-        resolvedSpec: "@openclaw/test@1.0.0",
+        resolvedSpec: "@resonix/test@1.0.0",
         integrity: "sha512-new",
       },
     });
@@ -107,8 +107,8 @@ describe("installFromNpmSpecArchive", () => {
     const installFromArchive = vi.fn(async () => ({ ok: true as const, id: "plugin-1" }));
 
     const result = await installFromNpmSpecArchive({
-      tempDirPrefix: "openclaw-test-",
-      spec: "@openclaw/test@1.0.0",
+      tempDirPrefix: "resonix-test-",
+      spec: "@resonix/test@1.0.0",
       timeoutMs: 1000,
       expectedIntegrity: "sha512-old",
       warn,
@@ -125,21 +125,21 @@ describe("installFromNpmSpecArchive", () => {
       actualIntegrity: "sha512-new",
     });
     expect(warn).toHaveBeenCalledWith(
-      "Integrity drift detected for @openclaw/test@1.0.0: expected sha512-old, got sha512-new",
+      "Integrity drift detected for @resonix/test@1.0.0: expected sha512-old, got sha512-new",
     );
   });
 
   it("returns installer failures to callers for domain-specific handling", async () => {
     vi.mocked(packNpmSpecToArchive).mockResolvedValue({
       ok: true,
-      archivePath: "/tmp/openclaw-test.tgz",
-      metadata: { resolvedSpec: "@openclaw/test@1.0.0", integrity: "sha512-same" },
+      archivePath: "/tmp/resonix-test.tgz",
+      metadata: { resolvedSpec: "@resonix/test@1.0.0", integrity: "sha512-same" },
     });
     const installFromArchive = vi.fn(async () => ({ ok: false as const, error: "install failed" }));
 
     const result = await installFromNpmSpecArchive({
-      tempDirPrefix: "openclaw-test-",
-      spec: "@openclaw/test@1.0.0",
+      tempDirPrefix: "resonix-test-",
+      spec: "@resonix/test@1.0.0",
       timeoutMs: 1000,
       expectedIntegrity: "sha512-same",
       installFromArchive,

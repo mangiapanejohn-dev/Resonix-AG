@@ -1,8 +1,8 @@
 {
-  "name": "@openclaw/twitch",
+  "name": "@resonix/twitch",
   "version": "2026.2.20",
   "private": true,
-  "description": "OpenClaw Twitch channel plugin",
+  "description": "Resonix Twitch channel plugin",
   "type": "module",
   "dependencies": {
     "@twurple/api": "^8.0.3",
@@ -11,9 +11,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ]

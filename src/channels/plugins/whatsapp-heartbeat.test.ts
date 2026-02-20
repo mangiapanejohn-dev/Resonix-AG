@@ -9,17 +9,17 @@ vi.mock("../../pairing/pairing-store.js", () => ({
   readChannelAllowFromStoreSync: vi.fn(() => []),
 }));
 
-import type { OpenClawConfig } from "../../config/config.js";
+import type { ResonixConfig } from "../../config/config.js";
 import { loadSessionStore } from "../../config/sessions.js";
 import { readChannelAllowFromStoreSync } from "../../pairing/pairing-store.js";
 import { resolveWhatsAppHeartbeatRecipients } from "./whatsapp-heartbeat.js";
 
-function makeCfg(overrides?: Partial<OpenClawConfig>): OpenClawConfig {
+function makeCfg(overrides?: Partial<ResonixConfig>): ResonixConfig {
   return {
     bindings: [],
     channels: {},
     ...overrides,
-  } as OpenClawConfig;
+  } as ResonixConfig;
 }
 
 describe("resolveWhatsAppHeartbeatRecipients", () => {

@@ -82,12 +82,12 @@ describe("provider timeouts (e2e)", () => {
     async () => {
       const prev = {
         home: process.env.HOME,
-        configPath: process.env.OPENCLAW_CONFIG_PATH,
-        token: process.env.OPENCLAW_GATEWAY_TOKEN,
-        skipChannels: process.env.OPENCLAW_SKIP_CHANNELS,
-        skipGmail: process.env.OPENCLAW_SKIP_GMAIL_WATCHER,
-        skipCron: process.env.OPENCLAW_SKIP_CRON,
-        skipCanvas: process.env.OPENCLAW_SKIP_CANVAS_HOST,
+        configPath: process.env.RESONIX_CONFIG_PATH,
+        token: process.env.RESONIX_GATEWAY_TOKEN,
+        skipChannels: process.env.RESONIX_SKIP_CHANNELS,
+        skipGmail: process.env.RESONIX_SKIP_GMAIL_WATCHER,
+        skipCron: process.env.RESONIX_SKIP_CRON,
+        skipCanvas: process.env.RESONIX_SKIP_CANVAS_HOST,
       };
 
       const originalFetch = globalThis.fetch;
@@ -117,19 +117,19 @@ describe("provider timeouts (e2e)", () => {
       };
       (globalThis as unknown as { fetch: unknown }).fetch = fetchImpl;
 
-      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-timeout-e2e-"));
+      const tempHome = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-timeout-e2e-"));
       process.env.HOME = tempHome;
-      process.env.OPENCLAW_SKIP_CHANNELS = "1";
-      process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
-      process.env.OPENCLAW_SKIP_CRON = "1";
-      process.env.OPENCLAW_SKIP_CANVAS_HOST = "1";
+      process.env.RESONIX_SKIP_CHANNELS = "1";
+      process.env.RESONIX_SKIP_GMAIL_WATCHER = "1";
+      process.env.RESONIX_SKIP_CRON = "1";
+      process.env.RESONIX_SKIP_CANVAS_HOST = "1";
 
       const token = `test-${randomUUID()}`;
-      process.env.OPENCLAW_GATEWAY_TOKEN = token;
+      process.env.RESONIX_GATEWAY_TOKEN = token;
 
-      const configDir = path.join(tempHome, ".openclaw");
+      const configDir = path.join(tempHome, ".resonix");
       await fs.mkdir(configDir, { recursive: true });
-      const configPath = path.join(configDir, "openclaw.json");
+      const configPath = path.join(configDir, "resonix.json");
 
       const cfg = {
         agents: {
@@ -195,34 +195,34 @@ describe("provider timeouts (e2e)", () => {
           process.env.HOME = prev.home;
         }
         if (prev.configPath === undefined) {
-          delete process.env.OPENCLAW_CONFIG_PATH;
+          delete process.env.RESONIX_CONFIG_PATH;
         } else {
-          process.env.OPENCLAW_CONFIG_PATH = prev.configPath;
+          process.env.RESONIX_CONFIG_PATH = prev.configPath;
         }
         if (prev.token === undefined) {
-          delete process.env.OPENCLAW_GATEWAY_TOKEN;
+          delete process.env.RESONIX_GATEWAY_TOKEN;
         } else {
-          process.env.OPENCLAW_GATEWAY_TOKEN = prev.token;
+          process.env.RESONIX_GATEWAY_TOKEN = prev.token;
         }
         if (prev.skipChannels === undefined) {
-          delete process.env.OPENCLAW_SKIP_CHANNELS;
+          delete process.env.RESONIX_SKIP_CHANNELS;
         } else {
-          process.env.OPENCLAW_SKIP_CHANNELS = prev.skipChannels;
+          process.env.RESONIX_SKIP_CHANNELS = prev.skipChannels;
         }
         if (prev.skipGmail === undefined) {
-          delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+          delete process.env.RESONIX_SKIP_GMAIL_WATCHER;
         } else {
-          process.env.OPENCLAW_SKIP_GMAIL_WATCHER = prev.skipGmail;
+          process.env.RESONIX_SKIP_GMAIL_WATCHER = prev.skipGmail;
         }
         if (prev.skipCron === undefined) {
-          delete process.env.OPENCLAW_SKIP_CRON;
+          delete process.env.RESONIX_SKIP_CRON;
         } else {
-          process.env.OPENCLAW_SKIP_CRON = prev.skipCron;
+          process.env.RESONIX_SKIP_CRON = prev.skipCron;
         }
         if (prev.skipCanvas === undefined) {
-          delete process.env.OPENCLAW_SKIP_CANVAS_HOST;
+          delete process.env.RESONIX_SKIP_CANVAS_HOST;
         } else {
-          process.env.OPENCLAW_SKIP_CANVAS_HOST = prev.skipCanvas;
+          process.env.RESONIX_SKIP_CANVAS_HOST = prev.skipCanvas;
         }
       }
     },

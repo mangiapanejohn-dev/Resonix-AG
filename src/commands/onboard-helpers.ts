@@ -4,7 +4,7 @@ import path from "node:path";
 import { inspect } from "node:util";
 import { cancel, isCancel } from "@clack/prompts";
 import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../agents/workspace.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import { CONFIG_PATH } from "../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions.js";
 import { callGateway } from "../gateway/call.js";
@@ -36,7 +36,7 @@ export function guardCancel<T>(value: T | symbol, runtime: RuntimeEnv): T {
   return value;
 }
 
-export function summarizeExistingConfig(config: OpenClawConfig): string {
+export function summarizeExistingConfig(config: ResonixConfig): string {
   const rows: string[] = [];
   const defaults = config.agents?.defaults;
   if (defaults?.workspace) {
@@ -100,20 +100,21 @@ export function validateGatewayPasswordInput(value: unknown): string | undefined
 export function printWizardHeader(runtime: RuntimeEnv) {
   const header = [
     "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄",
-    "██░▄▄▄░██░▄▄░██░▄▄▄██░▀██░██░▄▄▀██░████░▄▄▀██░███░██",
-    "██░███░██░▀▀░██░▄▄▄██░█░█░██░█████░████░▀▀░██░█░█░██",
-    "██░▀▀▀░██░█████░▀▀▀██░██▄░██░▀▀▄██░▀▀░█░██░██▄▀▄▀▄██",
+    "██▄▄▄▄██▄▄▄███▄▄▄███▄▄▄██▄▄███▄▄▄▄██▄▄▄▄███▄▄▄███",
+    "██▀▀▀▀██▀▀▀████▀▀▀████▀▀▀██▀▀▀███▀▀▀▀██▀▀▀████▀▀▀███",
+    "██▄▄▄▄██▄▄▄████▄▄▄████▄▄▄██▄▄▄▄███▄▄▄▄██▄▄▄████▄▄▄███",
     "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀",
-    "                  🦞 OPENCLAW 🦞                    ",
+    "                  👾 RESONIX 👾                    ",
+    "   Autonomous AI Agent - Created by MarkEllington   ",
     " ",
   ].join("\n");
   runtime.log(header);
 }
 
 export function applyWizardMetadata(
-  cfg: OpenClawConfig,
+  cfg: ResonixConfig,
   params: { command: string; mode: OnboardMode },
-): OpenClawConfig {
+): ResonixConfig {
   const commit = process.env.GIT_COMMIT?.trim() || process.env.GIT_SHA?.trim() || undefined;
   return {
     ...cfg,
@@ -220,8 +221,8 @@ export function formatControlUiSshHint(params: {
     localUrl,
     authedUrl,
     "Docs:",
-    "https://docs.openclaw.ai/gateway/remote",
-    "https://docs.openclaw.ai/web/control-ui",
+    "https://docs.resonix.ai/gateway/remote",
+    "https://docs.resonix.ai/web/control-ui",
   ]
     .filter(Boolean)
     .join("\n");

@@ -36,7 +36,7 @@ function makePathEnv(binDir: string): NodeJS.ProcessEnv {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-exec-approvals-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "resonix-exec-approvals-"));
 }
 
 describe("exec approvals allowlist matching", () => {
@@ -118,20 +118,20 @@ describe("mergeExecApprovalsSocketDefaults", () => {
 describe("resolve exec approvals defaults", () => {
   it("expands home-prefixed default file and socket paths", () => {
     const dir = makeTempDir();
-    const prevOpenClawHome = process.env.OPENCLAW_HOME;
+    const prevResonixHome = process.env.RESONIX_HOME;
     try {
-      process.env.OPENCLAW_HOME = dir;
+      process.env.RESONIX_HOME = dir;
       expect(path.normalize(resolveExecApprovalsPath())).toBe(
-        path.normalize(path.join(dir, ".openclaw", "exec-approvals.json")),
+        path.normalize(path.join(dir, ".resonix", "exec-approvals.json")),
       );
       expect(path.normalize(resolveExecApprovalsSocketPath())).toBe(
-        path.normalize(path.join(dir, ".openclaw", "exec-approvals.sock")),
+        path.normalize(path.join(dir, ".resonix", "exec-approvals.sock")),
       );
     } finally {
-      if (prevOpenClawHome === undefined) {
-        delete process.env.OPENCLAW_HOME;
+      if (prevResonixHome === undefined) {
+        delete process.env.RESONIX_HOME;
       } else {
-        process.env.OPENCLAW_HOME = prevOpenClawHome;
+        process.env.RESONIX_HOME = prevResonixHome;
       }
     }
   });
@@ -813,11 +813,11 @@ describe("exec approvals policy helpers", () => {
 describe("exec approvals wildcard agent", () => {
   it("merges wildcard allowlist entries with agent entries", () => {
     const dir = makeTempDir();
-    const prevOpenClawHome = process.env.OPENCLAW_HOME;
+    const prevResonixHome = process.env.RESONIX_HOME;
 
     try {
-      process.env.OPENCLAW_HOME = dir;
-      const approvalsPath = path.join(dir, ".openclaw", "exec-approvals.json");
+      process.env.RESONIX_HOME = dir;
+      const approvalsPath = path.join(dir, ".resonix", "exec-approvals.json");
       fs.mkdirSync(path.dirname(approvalsPath), { recursive: true });
       fs.writeFileSync(
         approvalsPath,
@@ -840,10 +840,10 @@ describe("exec approvals wildcard agent", () => {
         "/usr/bin/uname",
       ]);
     } finally {
-      if (prevOpenClawHome === undefined) {
-        delete process.env.OPENCLAW_HOME;
+      if (prevResonixHome === undefined) {
+        delete process.env.RESONIX_HOME;
       } else {
-        process.env.OPENCLAW_HOME = prevOpenClawHome;
+        process.env.RESONIX_HOME = prevResonixHome;
       }
     }
   });

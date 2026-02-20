@@ -1,5 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk";
-import { createReplyPrefixOptions } from "openclaw/plugin-sdk";
+import type { ResonixConfig } from "resonix/plugin-sdk";
+import { createReplyPrefixOptions } from "resonix/plugin-sdk";
 import { beforeEach, describe, expect, it } from "vitest";
 import { mattermostPlugin } from "./channel.js";
 import { resetMattermostReactionBotUserCacheForTests } from "./mattermost/reactions.js";
@@ -55,7 +55,7 @@ describe("mattermostPlugin", () => {
     });
 
     it("exposes react when mattermost is configured", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             enabled: true,
@@ -72,7 +72,7 @@ describe("mattermostPlugin", () => {
     });
 
     it("hides react when mattermost is not configured", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             enabled: true,
@@ -85,7 +85,7 @@ describe("mattermostPlugin", () => {
     });
 
     it("hides react when actions.reactions is false", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             enabled: true,
@@ -102,7 +102,7 @@ describe("mattermostPlugin", () => {
     });
 
     it("respects per-account actions.reactions in listActions", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             enabled: true,
@@ -124,7 +124,7 @@ describe("mattermostPlugin", () => {
     });
 
     it("blocks react when default account disables reactions and accountId is omitted", async () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             enabled: true,
@@ -204,14 +204,14 @@ describe("mattermostPlugin", () => {
       const formatAllowFrom = mattermostPlugin.config.formatAllowFrom!;
 
       const formatted = formatAllowFrom({
-        cfg: {} as OpenClawConfig,
+        cfg: {} as ResonixConfig,
         allowFrom: ["@Alice", "user:USER123", "mattermost:BOT999"],
       });
       expect(formatted).toEqual(["@alice", "user123", "bot999"]);
     });
 
     it("uses account responsePrefix overrides", () => {
-      const cfg: OpenClawConfig = {
+      const cfg: ResonixConfig = {
         channels: {
           mattermost: {
             responsePrefix: "[Channel]",

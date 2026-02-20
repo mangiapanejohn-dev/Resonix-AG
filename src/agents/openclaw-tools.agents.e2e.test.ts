@@ -17,7 +17,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 import "./test-helpers/fast-core-tools.js";
-import { createOpenClawTools } from "./openclaw-tools.js";
+import { createResonixTools } from "./resonix-tools.js";
 
 describe("agents_list", () => {
   beforeEach(() => {
@@ -30,7 +30,7 @@ describe("agents_list", () => {
   });
 
   it("defaults to the requester agent only", async () => {
-    const tool = createOpenClawTools({
+    const tool = createResonixTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -69,7 +69,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createOpenClawTools({
+    const tool = createResonixTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -111,7 +111,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createOpenClawTools({
+    const tool = createResonixTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {
@@ -148,7 +148,7 @@ describe("agents_list", () => {
       },
     };
 
-    const tool = createOpenClawTools({
+    const tool = createResonixTools({
       agentSessionKey: "main",
     }).find((candidate) => candidate.name === "agents_list");
     if (!tool) {

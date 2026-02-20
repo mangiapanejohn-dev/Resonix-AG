@@ -1,8 +1,8 @@
 import { vi } from "vitest";
 
 type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
-type CreateOpenClawTools = (typeof import("./openclaw-tools.js"))["createOpenClawTools"];
-export type CreateOpenClawToolsOpts = Parameters<CreateOpenClawTools>[0];
+type CreateResonixTools = (typeof import("./resonix-tools.js"))["createResonixTools"];
+export type CreateResonixToolsOpts = Parameters<CreateResonixTools>[0];
 
 // Avoid exporting vitest mock types (TS2742 under pnpm + d.ts emit).
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -32,10 +32,10 @@ export function setSessionsSpawnConfigOverride(next: SessionsSpawnTestConfig): v
   hoisted.state.configOverride = next;
 }
 
-export async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
+export async function getSessionsSpawnTool(opts: CreateResonixToolsOpts) {
   // Dynamic import: ensure harness mocks are installed before tool modules load.
-  const { createOpenClawTools } = await import("./openclaw-tools.js");
-  const tool = createOpenClawTools(opts).find((candidate) => candidate.name === "sessions_spawn");
+  const { createResonixTools } = await import("./resonix-tools.js");
+  const tool = createResonixTools(opts).find((candidate) => candidate.name === "sessions_spawn");
   if (!tool) {
     throw new Error("missing sessions_spawn tool");
   }

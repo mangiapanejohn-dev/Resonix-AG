@@ -83,12 +83,12 @@ const emptyRegistry = createRegistry([]);
 describe("gateway server models + voicewake", () => {
   const setTempHome = (homeDir: string) => {
     const prevHome = process.env.HOME;
-    const prevStateDir = process.env.OPENCLAW_STATE_DIR;
+    const prevStateDir = process.env.RESONIX_STATE_DIR;
     const prevUserProfile = process.env.USERPROFILE;
     const prevHomeDrive = process.env.HOMEDRIVE;
     const prevHomePath = process.env.HOMEPATH;
     process.env.HOME = homeDir;
-    process.env.OPENCLAW_STATE_DIR = path.join(homeDir, ".openclaw");
+    process.env.RESONIX_STATE_DIR = path.join(homeDir, ".resonix");
     process.env.USERPROFILE = homeDir;
     if (process.platform === "win32") {
       const parsed = path.parse(homeDir);
@@ -102,9 +102,9 @@ describe("gateway server models + voicewake", () => {
         process.env.HOME = prevHome;
       }
       if (prevStateDir === undefined) {
-        delete process.env.OPENCLAW_STATE_DIR;
+        delete process.env.RESONIX_STATE_DIR;
       } else {
-        process.env.OPENCLAW_STATE_DIR = prevStateDir;
+        process.env.RESONIX_STATE_DIR = prevStateDir;
       }
       if (prevUserProfile === undefined) {
         delete process.env.USERPROFILE;
@@ -130,12 +130,12 @@ describe("gateway server models + voicewake", () => {
     "voicewake.get returns defaults and voicewake.set broadcasts",
     { timeout: 60_000 },
     async () => {
-      const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-home-"));
+      const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-home-"));
       const restoreHome = setTempHome(homeDir);
 
       const initial = await rpcReq<{ triggers: string[] }>(ws, "voicewake.get");
       expect(initial.ok).toBe(true);
-      expect(initial.payload?.triggers).toEqual(["openclaw", "claude", "computer"]);
+      expect(initial.payload?.triggers).toEqual(["resonix", "claude", "computer"]);
 
       const changedP = onceMessage(
         ws,
@@ -160,7 +160,7 @@ describe("gateway server models + voicewake", () => {
       expect(after.payload?.triggers).toEqual(["hi", "there"]);
 
       const onDisk = JSON.parse(
-        await fs.readFile(path.join(homeDir, ".openclaw", "settings", "voicewake.json"), "utf8"),
+        await fs.readFile(path.join(homeDir, ".resonix", "settings", "voicewake.json"), "utf8"),
       ) as { triggers?: unknown; updatedAtMs?: unknown };
       expect(onDisk.triggers).toEqual(["hi", "there"]);
       expect(typeof onDisk.updatedAtMs).toBe("number");
@@ -170,7 +170,7 @@ describe("gateway server models + voicewake", () => {
   );
 
   test("pushes voicewake.changed to nodes on connect and on updates", async () => {
-    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-home-"));
+    const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-home-"));
     const restoreHome = setTempHome(homeDir);
 
     const nodeWs = new WebSocket(`ws://127.0.0.1:${port}`);
@@ -192,7 +192,7 @@ describe("gateway server models + voicewake", () => {
     const first = (await firstEventP) as { event?: string; payload?: unknown };
     expect(first.event).toBe("voicewake.changed");
     expect((first.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
-      "openclaw",
+      "resonix",
       "claude",
       "computer",
     ]);
@@ -202,14 +202,14 @@ describe("gateway server models + voicewake", () => {
       (o) => o.type === "event" && o.event === "voicewake.changed",
     );
     const setRes = await rpcReq<{ triggers: string[] }>(ws, "voicewake.set", {
-      triggers: ["openclaw", "computer"],
+      triggers: ["resonix", "computer"],
     });
     expect(setRes.ok).toBe(true);
 
     const broadcast = (await broadcastP) as { event?: string; payload?: unknown };
     expect(broadcast.event).toBe("voicewake.changed");
     expect((broadcast.payload as { triggers?: unknown } | undefined)?.triggers).toEqual([
-      "openclaw",
+      "resonix",
       "computer",
     ]);
 
@@ -304,14 +304,14 @@ describe("gateway server models + voicewake", () => {
 
 describe("gateway server misc", () => {
   test("hello-ok advertises the gateway port for canvas host", async () => {
-    const envSnapshot = captureEnv(["OPENCLAW_CANVAS_HOST_PORT", "OPENCLAW_GATEWAY_TOKEN"]);
+    const envSnapshot = captureEnv(["RESONIX_CANVAS_HOST_PORT", "RESONIX_GATEWAY_TOKEN"]);
     try {
-      process.env.OPENCLAW_GATEWAY_TOKEN = "secret";
+      process.env.RESONIX_GATEWAY_TOKEN = "secret";
       testTailnetIPv4.value = "100.64.0.1";
       testState.gatewayBind = "lan";
       const canvasPort = await getFreePort();
       testState.canvasHostPort = canvasPort;
-      process.env.OPENCLAW_CANVAS_HOST_PORT = String(canvasPort);
+      process.env.RESONIX_CANVAS_HOST_PORT = String(canvasPort);
 
       const testPort = await getFreePort();
       const canvasHostUrl = resolveCanvasHostUrl({
@@ -357,9 +357,9 @@ describe("gateway server misc", () => {
   });
 
   test("auto-enables configured channel plugins on startup", async () => {
-    const configPath = process.env.OPENCLAW_CONFIG_PATH;
+    const configPath = process.env.RESONIX_CONFIG_PATH;
     if (!configPath) {
-      throw new Error("Missing OPENCLAW_CONFIG_PATH");
+      throw new Error("Missing RESONIX_CONFIG_PATH");
     }
     await fs.mkdir(path.dirname(configPath), { recursive: true });
     await fs.writeFile(

@@ -12,7 +12,7 @@ describe("getShellConfig", () => {
   const tempDirs: string[] = [];
 
   const createTempBin = (files: string[]) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-shell-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-shell-"));
     tempDirs.push(dir);
     for (const name of files) {
       const filePath = path.join(dir, name);
@@ -85,7 +85,7 @@ describe("resolveShellFromPath", () => {
   const tempDirs: string[] = [];
 
   const createTempBin = (name: string, executable: boolean) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-shell-path-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-shell-path-"));
     tempDirs.push(dir);
     const filePath = path.join(dir, name);
     fs.writeFileSync(filePath, "");
@@ -129,7 +129,7 @@ describe("resolveShellFromPath", () => {
   });
 
   it("returns undefined when command does not exist", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-shell-empty-"));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "resonix-shell-empty-"));
     tempDirs.push(dir);
     process.env.PATH = dir;
     expect(resolveShellFromPath("bash")).toBeUndefined();

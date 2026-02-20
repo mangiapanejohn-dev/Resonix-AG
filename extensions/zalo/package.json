@@ -1,15 +1,15 @@
 {
-  "name": "@openclaw/zalo",
+  "name": "@resonix/zalo",
   "version": "2026.2.20",
-  "description": "OpenClaw Zalo channel plugin",
+  "description": "Resonix Zalo channel plugin",
   "type": "module",
   "dependencies": {
     "undici": "7.22.0"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "resonix": "workspace:*"
   },
-  "openclaw": {
+  "resonix": {
     "extensions": [
       "./index.ts"
     ],
@@ -27,7 +27,7 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalo",
+      "npmSpec": "@resonix/zalo",
       "localPath": "extensions/zalo",
       "defaultChoice": "npm"
     }

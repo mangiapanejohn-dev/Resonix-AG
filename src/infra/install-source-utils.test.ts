@@ -41,7 +41,7 @@ describe("withTempDir", () => {
     let observedDir = "";
     const markerFile = "marker.txt";
 
-    const value = await withTempDir("openclaw-install-source-utils-", async (tmpDir) => {
+    const value = await withTempDir("resonix-install-source-utils-", async (tmpDir) => {
       observedDir = tmpDir;
       await fs.writeFile(path.join(tmpDir, markerFile), "ok", "utf-8");
       await expect(fs.stat(path.join(tmpDir, markerFile))).resolves.toBeDefined();
@@ -55,7 +55,7 @@ describe("withTempDir", () => {
 
 describe("resolveArchiveSourcePath", () => {
   it("returns not found error for missing archive paths", async () => {
-    const result = await resolveArchiveSourcePath("/tmp/does-not-exist-openclaw-archive.tgz");
+    const result = await resolveArchiveSourcePath("/tmp/does-not-exist-resonix-archive.tgz");
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error).toContain("archive not found");
@@ -63,7 +63,7 @@ describe("resolveArchiveSourcePath", () => {
   });
 
   it("rejects unsupported archive extensions", async () => {
-    const dir = await createTempDir("openclaw-install-source-utils-");
+    const dir = await createTempDir("resonix-install-source-utils-");
     const filePath = path.join(dir, "plugin.txt");
     await fs.writeFile(filePath, "not-an-archive", "utf-8");
 
@@ -75,7 +75,7 @@ describe("resolveArchiveSourcePath", () => {
   });
 
   it("accepts supported archive extensions", async () => {
-    const dir = await createTempDir("openclaw-install-source-utils-");
+    const dir = await createTempDir("resonix-install-source-utils-");
     const filePath = path.join(dir, "plugin.zip");
     await fs.writeFile(filePath, "", "utf-8");
 
@@ -86,14 +86,14 @@ describe("resolveArchiveSourcePath", () => {
 
 describe("packNpmSpecToArchive", () => {
   it("packs spec and returns archive path using JSON output metadata", async () => {
-    const cwd = await createTempDir("openclaw-install-source-utils-");
+    const cwd = await createTempDir("resonix-install-source-utils-");
     runCommandWithTimeoutMock.mockResolvedValue({
       stdout: JSON.stringify([
         {
-          id: "openclaw-plugin@1.2.3",
-          name: "openclaw-plugin",
+          id: "resonix-plugin@1.2.3",
+          name: "resonix-plugin",
           version: "1.2.3",
-          filename: "openclaw-plugin-1.2.3.tgz",
+          filename: "resonix-plugin-1.2.3.tgz",
           integrity: "sha512-test-integrity",
           shasum: "abc123",
         },
@@ -105,24 +105,24 @@ describe("packNpmSpecToArchive", () => {
     });
 
     const result = await packNpmSpecToArchive({
-      spec: "openclaw-plugin@1.2.3",
+      spec: "resonix-plugin@1.2.3",
       timeoutMs: 1000,
       cwd,
     });
 
     expect(result).toEqual({
       ok: true,
-      archivePath: path.join(cwd, "openclaw-plugin-1.2.3.tgz"),
+      archivePath: path.join(cwd, "resonix-plugin-1.2.3.tgz"),
       metadata: {
-        name: "openclaw-plugin",
+        name: "resonix-plugin",
         version: "1.2.3",
-        resolvedSpec: "openclaw-plugin@1.2.3",
+        resolvedSpec: "resonix-plugin@1.2.3",
         integrity: "sha512-test-integrity",
         shasum: "abc123",
       },
     });
     expect(runCommandWithTimeoutMock).toHaveBeenCalledWith(
-      ["npm", "pack", "openclaw-plugin@1.2.3", "--ignore-scripts", "--json"],
+      ["npm", "pack", "resonix-plugin@1.2.3", "--ignore-scripts", "--json"],
       expect.objectContaining({
         cwd,
         timeoutMs: 300_000,
@@ -131,9 +131,9 @@ describe("packNpmSpecToArchive", () => {
   });
 
   it("falls back to parsing final stdout line when npm json output is unavailable", async () => {
-    const cwd = await createTempDir("openclaw-install-source-utils-");
+    const cwd = await createTempDir("resonix-install-source-utils-");
     runCommandWithTimeoutMock.mockResolvedValue({
-      stdout: "npm notice created package\nopenclaw-plugin-1.2.3.tgz\n",
+      stdout: "npm notice created package\nresonix-plugin-1.2.3.tgz\n",
       stderr: "",
       code: 0,
       signal: null,
@@ -141,20 +141,20 @@ describe("packNpmSpecToArchive", () => {
     });
 
     const result = await packNpmSpecToArchive({
-      spec: "openclaw-plugin@1.2.3",
+      spec: "resonix-plugin@1.2.3",
       timeoutMs: 1000,
       cwd,
     });
 
     expect(result).toEqual({
       ok: true,
-      archivePath: path.join(cwd, "openclaw-plugin-1.2.3.tgz"),
+      archivePath: path.join(cwd, "resonix-plugin-1.2.3.tgz"),
       metadata: {},
     });
   });
 
   it("returns npm pack error details when command fails", async () => {
-    const cwd = await createTempDir("openclaw-install-source-utils-");
+    const cwd = await createTempDir("resonix-install-source-utils-");
     runCommandWithTimeoutMock.mockResolvedValue({
       stdout: "fallback stdout",
       stderr: "registry timeout",
@@ -177,7 +177,7 @@ describe("packNpmSpecToArchive", () => {
   });
 
   it("returns explicit error when npm pack produces no archive name", async () => {
-    const cwd = await createTempDir("openclaw-install-source-utils-");
+    const cwd = await createTempDir("resonix-install-source-utils-");
     runCommandWithTimeoutMock.mockResolvedValue({
       stdout: " \n\n",
       stderr: "",
@@ -187,7 +187,7 @@ describe("packNpmSpecToArchive", () => {
     });
 
     const result = await packNpmSpecToArchive({
-      spec: "openclaw-plugin@1.2.3",
+      spec: "resonix-plugin@1.2.3",
       timeoutMs: 5000,
       cwd,
     });

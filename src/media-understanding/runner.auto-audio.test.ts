@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { MsgContext } from "../auto-reply/templating.js";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import {
   buildProviderRegistry,
   createMediaAttachmentCache,
@@ -20,7 +20,7 @@ async function withAudioFixture(
 ) {
   const originalPath = process.env.PATH;
   process.env.PATH = "/usr/bin:/bin";
-  const tmpPath = path.join(os.tmpdir(), `openclaw-auto-audio-${Date.now()}.wav`);
+  const tmpPath = path.join(os.tmpdir(), `resonix-auto-audio-${Date.now()}.wav`);
   await fs.writeFile(tmpPath, Buffer.from("RIFF"));
   const ctx: MsgContext = { MediaPath: tmpPath, MediaType: "audio/wav" };
   const media = normalizeMediaAttachments(ctx);
@@ -47,7 +47,7 @@ function createOpenAiAudioProvider(
   });
 }
 
-function createOpenAiAudioCfg(extra?: Partial<OpenClawConfig>): OpenClawConfig {
+function createOpenAiAudioCfg(extra?: Partial<ResonixConfig>): ResonixConfig {
   return {
     models: {
       providers: {
@@ -58,7 +58,7 @@ function createOpenAiAudioCfg(extra?: Partial<OpenClawConfig>): OpenClawConfig {
       },
     },
     ...extra,
-  } as unknown as OpenClawConfig;
+  } as unknown as ResonixConfig;
 }
 
 describe("runCapability auto audio entries", () => {

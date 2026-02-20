@@ -9,7 +9,7 @@ import {
 } from "../test-utils/exec-assertions.js";
 import { isAddressInUseError } from "./gmail-watcher.js";
 
-const fixtureRoot = path.join(os.tmpdir(), `openclaw-hook-install-${randomUUID()}`);
+const fixtureRoot = path.join(os.tmpdir(), `resonix-hook-install-${randomUUID()}`);
 let tempDirIndex = 0;
 
 const fixturesDir = path.resolve(process.cwd(), "test", "fixtures", "hooks-install");
@@ -156,9 +156,9 @@ describe("installHooksFromPath", () => {
     fs.writeFileSync(
       path.join(pkgDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/test-hooks",
+        name: "@resonix/test-hooks",
         version: "0.0.1",
-        openclaw: { hooks: ["./hooks/one-hook"] },
+        resonix: { hooks: ["./hooks/one-hook"] },
         dependencies: { "left-pad": "1.3.0" },
       }),
       "utf-8",
@@ -169,7 +169,7 @@ describe("installHooksFromPath", () => {
         "---",
         "name: one-hook",
         "description: One hook",
-        'metadata: {"openclaw":{"events":["command:new"]}}',
+        'metadata: {"resonix":{"events":["command:new"]}}',
         "---",
         "",
         "# One Hook",
@@ -217,7 +217,7 @@ describe("installHooksFromPath", () => {
         "---",
         "name: my-hook",
         "description: My hook",
-        'metadata: {"openclaw":{"events":["command:new"]}}',
+        'metadata: {"resonix":{"events":["command:new"]}}',
         "---",
         "",
         "# My Hook",
@@ -249,9 +249,9 @@ describe("installHooksFromPath", () => {
     fs.writeFileSync(
       path.join(pkgDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/test-hooks",
+        name: "@resonix/test-hooks",
         version: "0.0.1",
-        openclaw: { hooks: ["../outside"] },
+        resonix: { hooks: ["../outside"] },
       }),
       "utf-8",
     );
@@ -267,7 +267,7 @@ describe("installHooksFromPath", () => {
     if (result.ok) {
       return;
     }
-    expect(result.error).toContain("openclaw.hooks entry escapes package directory");
+    expect(result.error).toContain("resonix.hooks entry escapes package directory");
   });
 
   it("rejects hook pack entries that escape via symlink", async () => {
@@ -288,9 +288,9 @@ describe("installHooksFromPath", () => {
     fs.writeFileSync(
       path.join(pkgDir, "package.json"),
       JSON.stringify({
-        name: "@openclaw/test-hooks",
+        name: "@resonix/test-hooks",
         version: "0.0.1",
-        openclaw: { hooks: ["./linked"] },
+        resonix: { hooks: ["./linked"] },
       }),
       "utf-8",
     );
@@ -304,7 +304,7 @@ describe("installHooksFromPath", () => {
     if (result.ok) {
       return;
     }
-    expect(result.error).toContain("openclaw.hooks entry resolves outside package directory");
+    expect(result.error).toContain("resonix.hooks entry resolves outside package directory");
   });
 });
 
@@ -323,8 +323,8 @@ describe("installHooksFromNpmSpec", () => {
           code: 0,
           stdout: JSON.stringify([
             {
-              id: "@openclaw/test-hooks@0.0.1",
-              name: "@openclaw/test-hooks",
+              id: "@resonix/test-hooks@0.0.1",
+              name: "@resonix/test-hooks",
               version: "0.0.1",
               filename: packedName,
               integrity: "sha512-hook-test",
@@ -342,7 +342,7 @@ describe("installHooksFromNpmSpec", () => {
 
     const hooksDir = path.join(stateDir, "hooks");
     const result = await installHooksFromNpmSpec({
-      spec: "@openclaw/test-hooks@0.0.1",
+      spec: "@resonix/test-hooks@0.0.1",
       hooksDir,
       logger: { info: () => {}, warn: () => {} },
     });
@@ -351,13 +351,13 @@ describe("installHooksFromNpmSpec", () => {
       return;
     }
     expect(result.hookPackId).toBe("test-hooks");
-    expect(result.npmResolution?.resolvedSpec).toBe("@openclaw/test-hooks@0.0.1");
+    expect(result.npmResolution?.resolvedSpec).toBe("@resonix/test-hooks@0.0.1");
     expect(result.npmResolution?.integrity).toBe("sha512-hook-test");
     expect(fs.existsSync(path.join(result.targetDir, "hooks", "one-hook", "HOOK.md"))).toBe(true);
 
     expectSingleNpmPackIgnoreScriptsCall({
       calls: run.mock.calls,
-      expectedSpec: "@openclaw/test-hooks@0.0.1",
+      expectedSpec: "@resonix/test-hooks@0.0.1",
     });
 
     expect(packTmpDir).not.toBe("");
@@ -379,8 +379,8 @@ describe("installHooksFromNpmSpec", () => {
       code: 0,
       stdout: JSON.stringify([
         {
-          id: "@openclaw/test-hooks@0.0.1",
-          name: "@openclaw/test-hooks",
+          id: "@resonix/test-hooks@0.0.1",
+          name: "@resonix/test-hooks",
           version: "0.0.1",
           filename: "test-hooks-0.0.1.tgz",
           integrity: "sha512-new",
@@ -395,7 +395,7 @@ describe("installHooksFromNpmSpec", () => {
 
     const onIntegrityDrift = vi.fn(async () => false);
     const result = await installHooksFromNpmSpec({
-      spec: "@openclaw/test-hooks@0.0.1",
+      spec: "@resonix/test-hooks@0.0.1",
       expectedIntegrity: "sha512-old",
       onIntegrityDrift,
     });

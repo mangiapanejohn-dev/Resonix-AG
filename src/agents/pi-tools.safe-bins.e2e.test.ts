@@ -2,16 +2,16 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import type { OpenClawConfig } from "../config/config.js";
+import type { ResonixConfig } from "../config/config.js";
 import type { ExecApprovalsResolved } from "../infra/exec-approvals.js";
 import { captureEnv } from "../test-utils/env.js";
 
-const bundledPluginsDirSnapshot = captureEnv(["OPENCLAW_BUNDLED_PLUGINS_DIR"]);
+const bundledPluginsDirSnapshot = captureEnv(["RESONIX_BUNDLED_PLUGINS_DIR"]);
 
 beforeAll(() => {
-  process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = path.join(
+  process.env.RESONIX_BUNDLED_PLUGINS_DIR = path.join(
     os.tmpdir(),
-    "openclaw-test-no-bundled-extensions",
+    "resonix-test-no-bundled-extensions",
   );
 });
 
@@ -88,13 +88,13 @@ async function createSafeBinsExecTool(params: {
   safeBins: string[];
   files?: Array<{ name: string; contents: string }>;
 }): Promise<{ tmpDir: string; execTool: ExecTool }> {
-  const { createOpenClawCodingTools } = await import("./pi-tools.js");
+  const { createResonixCodingTools } = await import("./pi-tools.js");
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), params.tmpPrefix));
   for (const file of params.files ?? []) {
     fs.writeFileSync(path.join(tmpDir, file.name), file.contents, "utf8");
   }
 
-  const cfg: OpenClawConfig = {
+  const cfg: ResonixConfig = {
     tools: {
       exec: {
         host: "gateway",
@@ -105,7 +105,7 @@ async function createSafeBinsExecTool(params: {
     },
   };
 
-  const tools = createOpenClawCodingTools({
+  const tools = createResonixCodingTools({
     config: cfg,
     sessionKey: "agent:main:main",
     workspaceDir: tmpDir,
@@ -118,22 +118,22 @@ async function createSafeBinsExecTool(params: {
   return { tmpDir, execTool: execTool as ExecTool };
 }
 
-describe("createOpenClawCodingTools safeBins", () => {
+describe("createResonixCodingTools safeBins", () => {
   it("threads tools.exec.safeBins into exec allowlist checks", async () => {
     if (process.platform === "win32") {
       return;
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-",
+      tmpPrefix: "resonix-safe-bins-",
       safeBins: ["echo"],
     });
 
     const marker = `safe-bins-${Date.now()}`;
-    const envSnapshot = captureEnv(["OPENCLAW_SHELL_ENV_TIMEOUT_MS"]);
+    const envSnapshot = captureEnv(["RESONIX_SHELL_ENV_TIMEOUT_MS"]);
     const result = await (async () => {
       try {
-        process.env.OPENCLAW_SHELL_ENV_TIMEOUT_MS = "1000";
+        process.env.RESONIX_SHELL_ENV_TIMEOUT_MS = "1000";
         return await execTool.execute("call1", {
           command: `echo ${marker}`,
           workdir: tmpDir,
@@ -155,7 +155,7 @@ describe("createOpenClawCodingTools safeBins", () => {
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-expand-",
+      tmpPrefix: "resonix-safe-bins-expand-",
       safeBins: ["head", "wc"],
       files: [{ name: "secret.txt", contents: "TOP_SECRET\n" }],
     });
@@ -175,7 +175,7 @@ describe("createOpenClawCodingTools safeBins", () => {
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-oracle-",
+      tmpPrefix: "resonix-safe-bins-oracle-",
       safeBins: ["sort"],
       files: [{ name: "existing.txt", contents: "x\n" }],
     });
@@ -202,7 +202,7 @@ describe("createOpenClawCodingTools safeBins", () => {
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-sort-",
+      tmpPrefix: "resonix-safe-bins-sort-",
       safeBins: ["sort"],
     });
 
@@ -228,7 +228,7 @@ describe("createOpenClawCodingTools safeBins", () => {
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-redirect-",
+      tmpPrefix: "resonix-safe-bins-redirect-",
       safeBins: ["head"],
       files: [{ name: "source.txt", contents: "line1\nline2\n" }],
     });
@@ -248,7 +248,7 @@ describe("createOpenClawCodingTools safeBins", () => {
     }
 
     const { tmpDir, execTool } = await createSafeBinsExecTool({
-      tmpPrefix: "openclaw-safe-bins-grep-",
+      tmpPrefix: "resonix-safe-bins-grep-",
       safeBins: ["grep"],
       files: [{ name: "secret.txt", contents: "SAFE_BINS_RECURSIVE_SHOULD_NOT_LEAK\n" }],
     });

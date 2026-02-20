@@ -11,7 +11,7 @@ import {
 } from "./version.js";
 
 async function withTempDir<T>(run: (dir: string) => Promise<T>): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-version-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "resonix-version-"));
   try {
     return await run(dir);
   } finally {
@@ -29,7 +29,7 @@ describe("version resolution", () => {
       await fs.mkdir(path.join(root, "dist", "plugin-sdk"), { recursive: true });
       await fs.writeFile(
         path.join(root, "package.json"),
-        JSON.stringify({ name: "openclaw", version: "1.2.3" }),
+        JSON.stringify({ name: "resonix", version: "1.2.3" }),
         "utf-8",
       );
 
@@ -44,7 +44,7 @@ describe("version resolution", () => {
       await fs.mkdir(path.join(root, "dist", "plugin-sdk"), { recursive: true });
       await fs.writeFile(
         path.join(root, "package.json"),
-        JSON.stringify({ name: "openclaw", version: "2.3.4" }),
+        JSON.stringify({ name: "resonix", version: "2.3.4" }),
         "utf-8",
       );
       await fs.writeFile(
@@ -85,11 +85,11 @@ describe("version resolution", () => {
     });
   });
 
-  it("prefers OPENCLAW_VERSION over service and package versions", () => {
+  it("prefers RESONIX_VERSION over service and package versions", () => {
     expect(
       resolveRuntimeServiceVersion({
-        OPENCLAW_VERSION: "9.9.9",
-        OPENCLAW_SERVICE_VERSION: "2.2.2",
+        RESONIX_VERSION: "9.9.9",
+        RESONIX_SERVICE_VERSION: "2.2.2",
         npm_package_version: "1.1.1",
       }),
     ).toBe("9.9.9");
@@ -98,16 +98,16 @@ describe("version resolution", () => {
   it("uses service and package fallbacks and ignores blank env values", () => {
     expect(
       resolveRuntimeServiceVersion({
-        OPENCLAW_VERSION: "   ",
-        OPENCLAW_SERVICE_VERSION: "  2.0.0  ",
+        RESONIX_VERSION: "   ",
+        RESONIX_SERVICE_VERSION: "  2.0.0  ",
         npm_package_version: "1.0.0",
       }),
     ).toBe("2.0.0");
 
     expect(
       resolveRuntimeServiceVersion({
-        OPENCLAW_VERSION: " ",
-        OPENCLAW_SERVICE_VERSION: "\t",
+        RESONIX_VERSION: " ",
+        RESONIX_SERVICE_VERSION: "\t",
         npm_package_version: " 1.0.0-package ",
       }),
     ).toBe("1.0.0-package");
@@ -115,8 +115,8 @@ describe("version resolution", () => {
     expect(
       resolveRuntimeServiceVersion(
         {
-          OPENCLAW_VERSION: "",
-          OPENCLAW_SERVICE_VERSION: " ",
+          RESONIX_VERSION: "",
+          RESONIX_SERVICE_VERSION: " ",
           npm_package_version: "",
         },
         "fallback",

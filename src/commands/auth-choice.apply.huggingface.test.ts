@@ -26,15 +26,15 @@ function createHuggingfacePrompter(params: {
 
 describe("applyAuthChoiceHuggingface", () => {
   const lifecycle = createAuthTestLifecycle([
-    "OPENCLAW_STATE_DIR",
-    "OPENCLAW_AGENT_DIR",
+    "RESONIX_STATE_DIR",
+    "RESONIX_AGENT_DIR",
     "PI_CODING_AGENT_DIR",
     "HF_TOKEN",
     "HUGGINGFACE_HUB_TOKEN",
   ]);
 
   async function setupTempState() {
-    const env = await setupAuthTestEnv("openclaw-hf-");
+    const env = await setupAuthTestEnv("resonix-hf-");
     lifecycle.setStateDir(env.stateDir);
     return env.agentDir;
   }

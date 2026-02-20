@@ -1,4 +1,4 @@
-import type { MSTeamsConfig } from "openclaw/plugin-sdk";
+import type { MSTeamsConfig } from "resonix/plugin-sdk";
 import { describe, expect, it, vi } from "vitest";
 
 const hostMockState = vi.hoisted(() => ({

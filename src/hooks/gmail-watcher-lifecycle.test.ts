@@ -22,11 +22,11 @@ describe("startGmailWatcherWithLogs", () => {
     log.info.mockReset();
     log.warn.mockReset();
     log.error.mockReset();
-    delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+    delete process.env.RESONIX_SKIP_GMAIL_WATCHER;
   });
 
   afterEach(() => {
-    delete process.env.OPENCLAW_SKIP_GMAIL_WATCHER;
+    delete process.env.RESONIX_SKIP_GMAIL_WATCHER;
   });
 
   it("logs startup success", async () => {
@@ -68,7 +68,7 @@ describe("startGmailWatcherWithLogs", () => {
   });
 
   it("supports skip callback when watcher is disabled", async () => {
-    process.env.OPENCLAW_SKIP_GMAIL_WATCHER = "1";
+    process.env.RESONIX_SKIP_GMAIL_WATCHER = "1";
     const onSkipped = vi.fn();
 
     await startGmailWatcherWithLogs({

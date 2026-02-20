@@ -8,7 +8,7 @@ import {
   withCopilotGithubToken,
   withModelsTempHome as withTempHome,
 } from "./models-config.e2e-harness.js";
-import { ensureOpenClawModelsJson } from "./models-config.js";
+import { ensureResonixModelsJson } from "./models-config.js";
 
 installModelsConfigTestHooks({ restoreFetch: true });
 
@@ -17,7 +17,7 @@ describe("models-config", () => {
     await withTempHome(async (home) => {
       await withCopilotGithubToken("gh-token", async () => {
         const agentDir = path.join(home, "agent-default-base-url");
-        await ensureOpenClawModelsJson({ models: { providers: {} } }, agentDir);
+        await ensureResonixModelsJson({ models: { providers: {} } }, agentDir);
 
         const raw = await fs.readFile(path.join(agentDir, "models.json"), "utf8");
         const parsed = JSON.parse(raw) as {
@@ -40,7 +40,7 @@ describe("models-config", () => {
       const fetchMock = mockCopilotTokenExchangeSuccess();
 
       try {
-        await ensureOpenClawModelsJson({ models: { providers: {} } });
+        await ensureResonixModelsJson({ models: { providers: {} } });
 
         const [, opts] = fetchMock.mock.calls[0] as [string, { headers?: Record<string, string> }];
         expect(opts?.headers?.Authorization).toBe("Bearer copilot-token");

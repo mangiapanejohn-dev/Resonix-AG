@@ -16,11 +16,11 @@ import { createTypingSignaler, resolveTypingMode } from "./typing-mode.js";
 import { createTypingController } from "./typing.js";
 
 describe("matchesMentionWithExplicit", () => {
-  const mentionRegexes = [/\bopenclaw\b/i];
+  const mentionRegexes = [/\bresonix\b/i];
 
   it("checks mentionPatterns even when explicit mention is available", () => {
     const result = matchesMentionWithExplicit({
-      text: "@openclaw hello",
+      text: "@resonix hello",
       mentionRegexes,
       explicit: {
         hasAnyMention: true,
@@ -59,7 +59,7 @@ describe("matchesMentionWithExplicit", () => {
 
   it("falls back to regex matching when explicit mention cannot be resolved", () => {
     const result = matchesMentionWithExplicit({
-      text: "openclaw please",
+      text: "resonix please",
       mentionRegexes,
       explicit: {
         hasAnyMention: true,
@@ -720,16 +720,16 @@ describe("resolveResponsePrefixTemplate", () => {
 
   it("resolves {identity.name} variable", () => {
     const result = resolveResponsePrefixTemplate("[{identity.name}]", {
-      identityName: "OpenClaw",
+      identityName: "Resonix",
     });
-    expect(result).toBe("[OpenClaw]");
+    expect(result).toBe("[Resonix]");
   });
 
   it("resolves {identityName} as alias", () => {
     const result = resolveResponsePrefixTemplate("[{identityName}]", {
-      identityName: "OpenClaw",
+      identityName: "Resonix",
     });
-    expect(result).toBe("[OpenClaw]");
+    expect(result).toBe("[Resonix]");
   });
 
   it("leaves unresolved variables as-is", () => {
@@ -764,13 +764,13 @@ describe("resolveResponsePrefixTemplate", () => {
     const result = resolveResponsePrefixTemplate(
       "[{identity.name}] {provider}/{model} (think:{thinkingLevel})",
       {
-        identityName: "OpenClaw",
+        identityName: "Resonix",
         provider: "anthropic",
         model: "claude-opus-4-5",
         thinkingLevel: "high",
       },
     );
-    expect(result).toBe("[OpenClaw] anthropic/claude-opus-4-5 (think:high)");
+    expect(result).toBe("[Resonix] anthropic/claude-opus-4-5 (think:high)");
   });
 });
 
