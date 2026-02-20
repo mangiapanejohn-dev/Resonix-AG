@@ -21,9 +21,11 @@ import { WizardCancelledError, type WizardPrompter } from "./prompts.js";
 async function requireRiskAcknowledgement(params: {
   opts: OnboardOptions;
   prompter: WizardPrompter;
+  config: ResonixConfig;
 }) {
-  if (params.opts.acceptRisk === true) {
-    return;
+  // Check if risk was already accepted in config
+  if (params.config.core?.acceptedRisk === true || params.opts.acceptRisk === true) {
+    return params.config;
   }
 
   await params.prompter.note(
@@ -59,6 +61,15 @@ async function requireRiskAcknowledgement(params: {
   if (!ok) {
     throw new WizardCancelledError("risk not accepted");
   }
+
+  // Update config to mark risk as accepted
+  const updatedConfig = { ...params.config };
+  if (!updatedConfig.core) {
+    updatedConfig.core = {};
+  }
+  updatedConfig.core.acceptedRisk = true;
+  
+  return updatedConfig;
 }
 
 export async function runOnboardingWizard(
@@ -69,10 +80,14 @@ export async function runOnboardingWizard(
   const onboardHelpers = await import("../commands/onboard-helpers.js");
   onboardHelpers.printWizardHeader(runtime);
   await prompter.intro("Resonix onboarding");
-  await requireRiskAcknowledgement({ opts, prompter });
-
+  
+  // Read config first to check if risk was already accepted
   const snapshot = await readConfigFileSnapshot();
   let baseConfig: ResonixConfig = snapshot.valid ? snapshot.config : {};
+  
+  // Check and accept risk if needed
+  const riskConfig = await requireRiskAcknowledgement({ opts, prompter, config: baseConfig });
+  baseConfig = riskConfig;
 
   if (snapshot.exists && !snapshot.valid) {
     await prompter.note(onboardHelpers.summarizeExistingConfig(baseConfig), "Invalid config");
