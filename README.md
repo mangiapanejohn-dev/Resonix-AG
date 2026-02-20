@@ -5,7 +5,9 @@
 
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory !</strong>
-  <strong>Special thanks to OpenClaw for open-source code support !<strong>
+</p>
+<p align="center">
+  <strong>Special thanks to OpenClaw for open-source code support !</strong>
 </p>
 
 <p align="center">
