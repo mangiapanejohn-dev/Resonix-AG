@@ -5,60 +5,119 @@ set -euo pipefail
 # Usage: curl -fsSL --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
 
 BOLD='\033[1m'
-PURPLE='\033[38;2;139;92;246m'
-LIGHT_PURPLE='\033[38;2;167;139;250m'
-LAVENDER='\033[38;2;196;181;253m'
-GREEN='\033[38;2;47;201;113m'
-AMBER='\033[38;2;255;176;32m'
-PINK='\033[38;2;226;61;100m'
-MUTED='\033[38;2;139;127;119m'
+ACCENT='\033[38;2;139;92;246m'       # purple #8B5CF6
+ACCENT_BRIGHT='\033[38;2;167;139;250m' # light purple #A78BFA
+INFO='\033[38;2;196;181;253m'       # lavender #C4B5FD
+SUCCESS='\033[38;2;47;201;113m'    # green #2FBF71
+WARN='\033[38;2;255;176;32m'       # amber
+ERROR='\033[38;2;226;61;100m'       # pink
+MUTED='\033[38;2;139;127;119m'    # muted #8B7F77
 NC='\033[0m'
 
 print_banner() {
     echo ""
-    echo -e "${PURPLE}██████╗  ██████╗  ██████╗  ███████╗${NC}"
-    echo -e "${PURPLE}██╔══██╗██╔════╝ ██╔══██╗ ██╔════╝${NC}"
-    echo -e "${PURPLE}██████╔╝██║  ███╗██████╔╝ ███████╗${NC}"
-    echo -e "${PURPLE}██╔══██╗██║   ██║██╔══██╗ ╚════██║${NC}"
-    echo -e "${PURPLE}██║  ██║╚██████╔╝██║  ██║███████║${NC}"
-    echo -e "${PURPLE}╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝${NC}"
+    echo -e "${ACCENT}██████╗  ██████╗  ██████╗  ███████╗${NC}"
+    echo -e "${ACCENT}██╔══██╗██╔════╝ ██╔══██╗ ██╔════╝${NC}"
+    echo -e "${ACCENT}██████╔╝██║  ███╗██████╔╝ ███████╗${NC}"
+    echo -e "${ACCENT}██╔══██╗██║   ██║██╔══██╗ ╚════██║${NC}"
+    echo -e "${ACCENT}██║  ██║╚██████╔╝██║  ██║███████║${NC}"
+    echo -e "${ACCENT}╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝${NC}"
     echo ""
     echo -e "${BOLD}  Resonix-AG Installer${NC} v2026.2.20"
+    echo ""
+    echo -e "${INFO}Autonomous AI Agent with Self-Cognition${NC}"
     echo ""
 }
 
 ui_error() {
-    echo -e "${PINK}Error: $1${NC}" >&2
+    echo -e "${ERROR}Error: $1${NC}" >&2
     exit 1
 }
 
 ui_info() {
-    echo -e "${LAVENDER}$1${NC}"
+    echo -e "${INFO}$1${NC}"
+}
+
+ui_warn() {
+    echo -e "${WARN}$1${NC}"
 }
 
 ui_success() {
-    echo -e "${GREEN}$1${NC}"
+    echo -e "${SUCCESS}$1${NC}"
 }
 
-check_minimum_requirements() {
-    local node_version
-    node_version=$(node -v 2>/dev/null | sed 's/v//' | cut -d. -f1) || true
+run_quiet_step() {
+    local msg="$1"
+    shift
+    echo -e "${INFO}→ ${msg}...${NC}"
+    "$@" 2>/dev/null || ui_warn "${msg} failed, continuing"
+}
+
+detect_os() {
+    case "$(uname -s)" in
+        Darwin*) echo "macos" ;;
+        Linux*) echo "linux" ;;
+        *) ui_error "Unsupported OS: $(uname -s)" ;;
+    esac
+}
+
+check_requirements() {
+    local os
+    os=$(detect_os)
     
-    if [[ -z "$node_version" ]]; then
+    # Check Node.js
+    if ! command -v node &> /dev/null; then
         ui_error "Node.js not found. Please install Node.js 22+ first: https://nodejs.org"
     fi
     
+    local node_version
+    node_version=$(node -v | sed 's/v//' | cut -d. -f1)
     if [[ "$node_version" -lt 22 ]]; then
-        ui_info "Warning: Node.js 22+ recommended. Current: $(node -v)"
+        ui_warn "Node.js 22+ recommended. Current: $(node -v)"
     fi
     
+    # Check npm
     if ! command -v npm &> /dev/null; then
-        ui_error "npm not found. Please install Node.js with npm: https://nodejs.org"
+        ui_error "npm not found. Please install Node.js with npm"
+    fi
+    
+    # Check git
+    if ! command -v git &> /dev/null; then
+        if [[ "$os" == "macos" ]]; then
+            run_quiet_step "Installing Git" brew install git
+        else
+            ui_error "Git not found. Please install git"
+        fi
+    fi
+    
+    ui_success "Requirements OK"
+}
+
+install_pnpm() {
+    if command -v pnpm &> /dev/null; then
+        return 0
+    fi
+    
+    ui_info "Installing pnpm..."
+    npm install -g pnpm@10
+    
+    if command -v pnpm &> /dev/null; then
+        ui_success "pnpm ready"
+    else
+        ui_error "pnpm installation failed"
     fi
 }
 
-install_from_github() {
+install_resonix() {
     local install_dir="$HOME/.resonix-ag"
+    
+    print_banner
+    
+    ui_info "Checking requirements..."
+    check_requirements
+    
+    ui_info "Installing pnpm..."
+    install_pnpm
     
     ui_info "Cloning Resonix-AG from GitHub..."
     
@@ -71,48 +130,40 @@ install_from_github() {
     cd "$install_dir"
     
     ui_info "Installing dependencies..."
-    pnpm install 2>/dev/null || npm install
+    pnpm install
     
-    ui_info "Building..."
-    pnpm build 2>/dev/null || npm run build
+    ui_info "Building Resonix-AG..."
+    pnpm build
     
-    ui_info "Creating CLI symlink..."
+    # Create wrapper script
     mkdir -p "$HOME/.local/bin"
-    ln -sf "$install_dir/dist/entry.mjs" "$HOME/.local/bin/resonix-ag"
     
-    # Add to PATH if not already
+    cat > "$HOME/.local/bin/resonix-ag" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec node "$HOME/.resonix-ag/dist/entry.mjs" "$@"
+EOF
+    chmod +x "$HOME/.local/bin/resonix-ag"
+    
+    # Add to PATH if needed
     if ! grep -q ".local/bin" "$HOME/.zshrc" 2>/dev/null; then
         echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
     fi
     
     export PATH="$HOME/.local/bin:$PATH"
     
-    ui_success "✓ Resonix-AG installed successfully!"
     echo ""
-    echo -e "${BOLD}👾 Next steps:${NC}"
+    ui_success "👾 Resonix-AG installed successfully!"
     echo ""
-    echo -e "  ${LIGHT_PURPLE}1.${NC} Run onboarding:"
-    echo -e "     ${BOLD}resonix-ag onboard${NC}"
+    echo -e "${BOLD}Next steps:${NC}"
     echo ""
-    echo -e "  ${LIGHT_PURPLE}2.${NC} Start gateway:"
-    echo -e "     ${BOLD}resonix-ag gateway start${NC}"
+    echo -e "  ${ACCENT}1.${NC} Restart terminal or run: source ~/.zshrc"
+    echo -e "  ${ACCENT}2.${NC} Run onboarding: ${BOLD}resonix-ag onboard${NC}"
+    echo -e "  ${ACCENT}3.${NC} Start gateway: ${BOLD}resonix-ag gateway start${NC}"
     echo ""
-    echo -e "  ${LIGHT_PURPLE}3.${NC} Get help:"
-    echo -e "     ${BOLD}resonix-ag --help${NC}"
-    echo ""
-    echo -e "${MUTED}Join community:${NC} ${LAVENDER}https://discord.gg/FKXPBAtPwG${NC}"
-    echo -e "${MUTED}Follow updates:${NC} ${LAVENDER}https://x.com/moralesjavx1032${NC}"
+    echo -e "${MUTED}Join community:${NC} ${INFO}https://discord.gg/FKXPBAtPwG${NC}"
+    echo -e "${MUTED}Follow updates:${NC} ${INFO}https://x.com/moralesjavx1032${NC}"
     echo ""
 }
 
-main() {
-    print_banner
-    
-    ui_info "Checking requirements..."
-    check_minimum_requirements
-    
-    ui_info "Installing Resonix-AG..."
-    install_from_github
-}
-
-main "$@"
+install_resonix "$@"
