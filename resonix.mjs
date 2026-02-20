@@ -3,6 +3,7 @@
 import module from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
 
 // Get the directory where the script is located
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,49 +18,17 @@ if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
   }
 }
 
-const isModuleNotFoundError = (err) =>
-  err && typeof err === "object" && "code" in err && err.code === "ERR_MODULE_NOT_FOUND";
+// Forward all arguments to the actual CLI
+const args = process.argv.slice(2);
+const nodeBin = process.execPath;
+const indexPath = path.join(scriptDir, "dist", "index.mjs");
 
-const installProcessWarningFilter = async () => {
-  // Keep bootstrap warnings consistent with the TypeScript runtime.
-  for (const specifier of ["./dist/warning-filter.js", "./dist/warning-filter.mjs"]) {
-    try {
-      const mod = await import(specifier);
-      if (typeof mod.installProcessWarningFilter === "function") {
-        mod.installProcessWarningFilter();
-        return;
-      }
-    } catch (err) {
-      if (isModuleNotFoundError(err)) {
-        continue;
-      }
-      throw err;
-    }
-  }
-};
+const child = spawn(nodeBin, [indexPath, ...args], {
+  stdio: 'inherit',
+  cwd: scriptDir,
+  env: process.env
+});
 
-await installProcessWarningFilter();
-
-const tryImport = async (specifier) => {
-  try {
-    await import(specifier);
-    return true;
-  } catch (err) {
-    // Only swallow missing-module errors; rethrow real runtime errors.
-    if (isModuleNotFoundError(err)) {
-      return false;
-    }
-    throw err;
-  }
-};
-
-const distIndexJs = path.join(scriptDir, "dist", "index.js");
-const distIndexMjs = path.join(scriptDir, "dist", "index.mjs");
-
-if (await tryImport(distIndexJs)) {
-  // OK
-} else if (await tryImport(distIndexMjs)) {
-  // OK
-} else {
-  throw new Error("resonix: missing dist/index.(m)js (build output).");
-}
+child.on('exit', (code) => {
+  process.exit(code || 0);
+});
