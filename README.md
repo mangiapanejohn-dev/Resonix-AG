@@ -22,7 +22,9 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
-```Start
+```
+# Start Resonix
+```
 resonix onboard
 ```
 
@@ -30,7 +32,9 @@ resonix onboard
 
 ```bash
 npm i -g resonix-ag
-```start
+```
+# start Resonix
+```
 resonix onboard
 ```
 
