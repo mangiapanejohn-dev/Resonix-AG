@@ -290,7 +290,7 @@ export function registerConfigCli(program: Command) {
       "before",
       () =>
         `\n${"+----------------------------------------------------------------+"}\n${"|           RESONIX SYSTEM LAYER - CONFIGURATION             |"}\n${"+----------------------------------------------------------------+"}\n${"|                                                                |"}\n${"|  System layer modules are running and configured:           |"}\n${"|                                                                |"}\n${"|  o Model Providers - Anthropic, OpenAI, MiniMax, Qwen, etc.  |"}\n${"|  o Channel Settings - Telegram, Feishu integration           |"}\n${"|  o Plugin Management - All bundled plugins auto-loaded       |"}\n${"|  o Security Policies - Access control and sandbox policies   |"}\n${"|  o Memory Configuration - Semantic and episodic memory       |"}\n${"|                                                                |"}\n${"|  Your configuration is automatically synchronized            |"}\n${"|  with the running system layer.                            |"}\n${"|                                                                |"}\n${"|  Docs: https://docs.resonix.ai/cli/config                   |"}\n${"+----------------------------------------------------------------+"}\n`,
-    );
+    )
     .option(
       "--section <section>",
       "Configure wizard sections (repeatable). Use with no subcommand.",
