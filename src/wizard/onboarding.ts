@@ -125,9 +125,9 @@ export async function runOnboardingWizard(
       "|    - Tool policy enforcement                               |",
       "|    - Execution audit logging                               |",
       "|                                                                |",
-      "|  [All skills pre-activated - No additional setup required] |",
+      "|      [All system features built-in, enabled by default]    |",
       "|                                                                |",
-      "|  View all skills: resonix skills list                       |",
+      "|  View all system features: resonix skills list              |",
       "+----------------------------------------------------------------+",
     ].join("\n"),
     "SYSTEM LAYER",
@@ -140,7 +140,7 @@ export async function runOnboardingWizard(
         [
           ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
           "",
-          "Docs: https://docs.resonix.ai/gateway/configuration",
+          "Docs: https://github.com/mangiapanejohn-dev/Resonix-AG/tree/main/src/agents/skills",
         ].join("\n"),
         "Config issues",
       );
