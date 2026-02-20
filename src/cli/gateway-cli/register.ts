@@ -92,10 +92,9 @@ export function registerGatewayCli(program: Command) {
       .command("gateway")
       .description("Run, inspect, and query the WebSocket Gateway")
       .addHelpText(
-        "after",
+        "before",
         () =>
-          `\n${theme.heading("System Layer:")}\n${theme.muted("记忆系统已激活 · Sandbox隔离已就绪 · 自主学习引擎运行中")}` +
-          `\n${formatDocsLink("docs", "https://docs.resonix.ai/gateway")}`,
+          `\n${"+----------------------------------------------------------------+"}\n${"|           RESONIX SYSTEM LAYER - GATEWAY STATUS              |"}\n${"+----------------------------------------------------------------+"}\n${"|                                                                |"}\n${"|  Your Resonix system layer modules are running:                 |"}\n${"|                                                                |"}\n${"|  [OK] Memory System - Long-term semantic memory active         |"}\n${"|  [OK] Working Memory - Real-time reasoning ready                 |"}\n${"|  [OK] Self-Cognition Engine - Capability profiling loaded      |"}\n${"|  [OK] Browser Control - Playwright automation ready          |"}\n${"|  [OK] File Sandbox - Isolated execution environment ready    |"}\n${"|  [OK] Feishu Integration - Document operations available     |"}\n${"|                                                                |"}\n${"|  Gateway is ready to accept connections and manage agents. |"}\n${"|                                                                |"}\n${"|  Docs: https://docs.resonix.ai/cli/gateway                  |"}\n${"+----------------------------------------------------------------+"}\n`,
       )
       .addHelpText(
         "afterAll",

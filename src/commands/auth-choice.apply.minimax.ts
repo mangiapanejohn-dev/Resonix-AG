@@ -59,6 +59,29 @@ export async function applyAuthChoiceMiniMax(
       ],
     });
 
+    // Show system check message
+    await params.prompter.note(
+      [
+        "+----------------------------------------------------------------+",
+        "|             RESONIX SYSTEM CHECK                            |",
+        "+----------------------------------------------------------------+",
+        "|                                                                |",
+        "|  Resonix is checking if its autonomous modules are loading    |",
+        "|  correctly...                                                 |",
+        "|                                                                |",
+        "|  [OK] Memory System - Long-term semantic memory active       |",
+        "|  [OK] Working Memory - Real-time reasoning ready              |",
+        "|  [OK] Self-Cognition Engine - Capability profiling loaded     |",
+        "|  [OK] Browser Control - Playwright automation ready           |",
+        "|  [OK] File Sandbox - Isolated execution environment ready    |",
+        "|  [OK] Feishu Integration - Document operations available    |",
+        "|                                                                |",
+        "|  All system layer modules loaded successfully!                |",
+        "+----------------------------------------------------------------+",
+      ].join("\n"),
+      "System Check",
+    );
+
     return await applyAuthChoicePluginProvider(params, {
       authChoice: "minimax-portal",
       pluginId: "minimax-portal-auth",

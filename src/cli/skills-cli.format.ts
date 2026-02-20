@@ -152,9 +152,15 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   
   // Add system skills header if there are any
   if (systemSkills.length > 0) {
-    lines.push(theme.heading("系统层技能 (System Layer Skills)"));
-    lines.push("");
-    lines.push(theme.muted("核心自主能力 - 已内置于系统，无需额外配置"));
+    lines.push("+----------------------------------------------------------------+");
+    lines.push("|           RESONIX SYSTEM LAYER SKILLS                    |");
+    lines.push("|           Core Autonomous Capabilities - Built-in        |");
+    lines.push("+----------------------------------------------------------------+");
+    lines.push("|                                                                |");
+    lines.push("|  These skills are pre-activated as part of Resonix's    |");
+    lines.push("|  system layer. No additional configuration required.      |");
+    lines.push("|                                                                |");
+    lines.push("+----------------------------------------------------------------+");
     lines.push("");
   }
   

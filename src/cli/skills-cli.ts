@@ -21,10 +21,14 @@ export function registerSkillsCli(program: Command) {
     .command("skills")
     .description("List and inspect available skills")
     .addHelpText(
+      "before",
+      () =>
+        `\n${"+----------------------------------------------------------------+"}\n${"|           RESONIX SYSTEM LAYER - CORE CAPABILITIES           |"}\n${"+----------------------------------------------------------------+"}\n${"|                                                                |"}\n${"|  [SYSTEM PRE-ACTIVATED - NO EXTRA SETUP REQUIRED]              |"}\n${"|                                                                |"}\n${"|  o Feishu Integration                                           |"}\n${"|    - Document read/write operations                             |"}\n${"|    - Cloud storage file management                             |"}\n${"|    - Permission management for documents and files              |"}\n${"|    - Knowledge base navigation                                 |"}\n${"|                                                                |"}\n${"|  o Memory System                                             |"}\n${"|    - Long-term semantic memory (permanent knowledge)             |"}\n${"|    - Short-term episodic memory (session context)               |"}\n${"|    - Working memory (real-time reasoning)                       |"}\n${"|    - Automatic knowledge retention and retrieval                |"}\n${"|                                                                |"}\n${"|  o Self-Cognition Engine                                     |"}\n${"|    - Capability profiling (continuous self-assessment)           |"}\n${"|    - Knowledge gap detection (knows what it doesn't know)       |"}\n${"|    - Continuous learning without manual prompts                 |"}\n${"|                                                                |"}\n${"|  o Browser Control                                           |"}\n${"|    - Playwright-based web automation                           |"}\n${"|    - Multi-profile browser management                          |"}\n${"|    - Sandbox-isolated execution                              |"}\n${"|                                                                |"}\n${"|  o Security & Isolation                                     |"}\n${"|    - File system sandbox (least-privilege)                     |"}\n${"|    - Tool policy enforcement                                   |"}\n${"|    - Execution audit logging                                 |"}\n${"|                                                                |"}\n${"|  [All skills pre-activated - No additional setup required]    |"}\n${"|                                                                |"}\n${"|  View all skills: resonix skills list                         |"}\n${"+----------------------------------------------------------------+"}\n`,
+    )
+    .addHelpText(
       "after",
       () =>
-        `\n${theme.heading("系统层核心能力:")}\n${theme.muted("Feishu文档/云盘/权限/知识库 | 记忆系统 | 自主学习 | 浏览器控制")}\n` +
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/skills", "docs.resonix.ai/cli/skills")}\n`,
+        `\n${"Docs: https://docs.resonix.ai/cli/skills"}\n`,
     );
 
   skills
