@@ -1,14 +1,9 @@
-<div align="center">👾 Resonix-AG</div>
+<div align="center">#👾 Resonix-AG</div>
 
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory</strong>
 </p>
 
-<p align="center">
-  <a href="https://discord.gg/FKXPBAtPwG"><img src="https://img.shields.io/discord/FKXPBAtPwG?label=Discord&logo=discord&style=for-the-badge" alt="Discord"></a>
-  <a href="https://x.com/moralesjavx1032"><img src="https://img.shields.io/twitter/follow/moralesjavx1032?logo=X&style=for-the-badge" alt="Twitter"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
-</p>
 
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory</strong>
