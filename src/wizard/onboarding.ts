@@ -89,6 +89,21 @@ export async function runOnboardingWizard(
   const riskConfig = await requireRiskAcknowledgement({ opts, prompter, config: baseConfig });
   baseConfig = riskConfig;
 
+  // Show system layer capabilities
+  await prompter.note(
+    [
+      "系统层核心功能已就绪:",
+      "• Feishu 文档/云盘/权限/知识库",
+      "• 记忆系统 (长期/短期/工作记忆)",
+      "• 自主学习引擎 (Resonix-AI)",
+      "• 浏览器控制 (Playwright)",
+      "• 文件系统/Sandbox 隔离",
+      "",
+      "可通过 resonix skills list 查看所有已激活技能",
+    ].join("\n"),
+    "系统层自主能力",
+  );
+
   if (snapshot.exists && !snapshot.valid) {
     await prompter.note(onboardHelpers.summarizeExistingConfig(baseConfig), "Invalid config");
     if (snapshot.issues.length > 0) {

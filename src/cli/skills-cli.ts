@@ -23,6 +23,7 @@ export function registerSkillsCli(program: Command) {
     .addHelpText(
       "after",
       () =>
+        `\n${theme.heading("系统层核心能力:")}\n${theme.muted("Feishu文档/云盘/权限/知识库 | 记忆系统 | 自主学习 | 浏览器控制")}\n` +
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/skills", "docs.resonix.ai/cli/skills")}\n`,
     );
 

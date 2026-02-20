@@ -289,6 +289,7 @@ export function registerConfigCli(program: Command) {
     .addHelpText(
       "after",
       () =>
+        `\n${theme.heading("系统层配置已就绪:")}\n${theme.muted("模型提供商 | 通道设置 | 插件管理 | 安全策略")}\n` +
         `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/config", "docs.resonix.ai/cli/config")}\n`,
     )
     .option(

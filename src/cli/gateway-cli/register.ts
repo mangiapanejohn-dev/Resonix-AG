@@ -94,6 +94,12 @@ export function registerGatewayCli(program: Command) {
       .addHelpText(
         "after",
         () =>
+          `\n${theme.heading("System Layer:")}\n${theme.muted("记忆系统已激活 · Sandbox隔离已就绪 · 自主学习引擎运行中")}` +
+          `\n${formatDocsLink("docs", "https://docs.resonix.ai/gateway")}`,
+      )
+      .addHelpText(
+        "afterAll",
+        () =>
           `\n${theme.heading("Examples:")}\n${formatHelpExamples([
             ["resonix gateway run", "Run the gateway in the foreground."],
             ["resonix gateway status", "Show service status and probe reachability."],

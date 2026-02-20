@@ -18,6 +18,26 @@ export type SkillsCheckOptions = {
   json?: boolean;
 };
 
+// Resonix system layer skills - these are built-in core capabilities
+const RESONIX_SYSTEM_SKILLS = new Set([
+  "feishu-doc",
+  "feishu-drive", 
+  "feishu-perm",
+  "feishu-wiki",
+]);
+
+function isResonixSystemSkill(skill: SkillStatusEntry): boolean {
+  return RESONIX_SYSTEM_SKILLS.has(skill.name) || 
+         RESONIX_SYSTEM_SKILLS.has(skill.skillKey ?? "");
+}
+
+function formatSkillSource(source: string | undefined, skill: SkillStatusEntry): string {
+  if (isResonixSystemSkill(skill)) {
+    return theme.command("系统层技能");
+  }
+  return source ?? "";
+}
+
 function appendResonixHubHint(output: string, json?: boolean): string {
   if (json) {
     return output;
@@ -94,15 +114,26 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
     return appendResonixHubHint(message, opts.json);
   }
 
-  const eligible = skills.filter((s) => s.eligible);
+  // Reorder: Resonix system skills first, then others
+  const sortedSkills = [...skills].sort((a, b) => {
+    const aIsSystem = isResonixSystemSkill(a);
+    const bIsSystem = isResonixSystemSkill(b);
+    if (aIsSystem && !bIsSystem) return -1;
+    if (!aIsSystem && bIsSystem) return 1;
+    return 0;
+  });
+
+  const eligible = sortedSkills.filter((s) => s.eligible);
+  const systemSkills = sortedSkills.filter((s) => isResonixSystemSkill(s));
   const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
-  const rows = skills.map((skill) => {
+  
+  const rows = sortedSkills.map((skill) => {
     const missing = formatSkillMissingSummary(skill);
     return {
       Status: formatSkillStatus(skill),
       Skill: formatSkillName(skill),
       Description: theme.muted(skill.description),
-      Source: skill.source ?? "",
+      Source: formatSkillSource(skill.source, skill),
       Missing: missing ? theme.warn(missing) : "",
     };
   });
@@ -118,8 +149,17 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   }
 
   const lines: string[] = [];
+  
+  // Add system skills header if there are any
+  if (systemSkills.length > 0) {
+    lines.push(theme.heading("系统层技能 (System Layer Skills)"));
+    lines.push("");
+    lines.push(theme.muted("核心自主能力 - 已内置于系统，无需额外配置"));
+    lines.push("");
+  }
+  
   lines.push(
-    `${theme.heading("Skills")} ${theme.muted(`(${eligible.length}/${skills.length} ready)`)}`,
+    `${theme.heading("Skills")} ${theme.muted(`(${eligible.length}/${sortedSkills.length} ready)`)}`,
   );
   lines.push(
     renderTable({
