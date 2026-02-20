@@ -22,12 +22,16 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+```Start
+resonix onboard
 ```
 
 ### Option 2: npm Global Install
 
 ```bash
 npm i -g resonix-ag
+```start
+resonix onboard
 ```
 
 ---
