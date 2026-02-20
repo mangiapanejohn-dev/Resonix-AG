@@ -22,8 +22,10 @@
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
 ```
-# Start Resonix
-```
+
+### Start Resonix
+
+```bash
 resonix onboard
 ```
 
@@ -36,13 +38,9 @@ source ~/.zshrc
 Then use:
 
 ```bash
-resonix-ag onboard
-resonix-ag gateway start
-resonix-ag --help
-```
-# start Resonix
-```
 resonix onboard
+resonix gateway start
+resonix --help
 ```
 
 ---
@@ -53,13 +51,13 @@ After installation, run:
 
 ```bash
 # Interactive onboarding wizard
-resonix-ag onboard
+resonix onboard
 
 # Start the gateway
-resonix-ag gateway start
+resonix gateway start
 
 # Check help
-resonix-ag --help
+resonix --help
 ```
 
 ---
@@ -118,9 +116,9 @@ pnpm install
 pnpm build
 
 # Run
-node dist/entry.mjs --help
+node resonix.mjs --help
 # or use the CLI
-resonix-ag --help
+resonix --help
 ```
 
 ---

@@ -23,7 +23,7 @@ print_banner() {
     echo -e "${ACCENT}██║  ██║╚██████╔╝██║  ██║███████║${NC}"
     echo -e "${ACCENT}╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝${NC}"
     echo ""
-    echo -e "${BOLD}  Resonix-AG Installer${NC} v2026.2.20"
+    echo -e "${BOLD}  Resonix-AG Installer${NC} v1.2.7"
     echo ""
     echo -e "${INFO}Autonomous AI Agent with Self-Cognition${NC}"
     echo ""
@@ -141,7 +141,8 @@ install_resonix() {
     cat > "$HOME/.local/bin/resonix" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-exec node "$HOME/.resonix/dist/entry.mjs" "$@"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec node "$SCRIPT_DIR/resonix.mjs" "$@"
 EOF
     chmod +x "$HOME/.local/bin/resonix"
     
