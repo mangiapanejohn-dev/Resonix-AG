@@ -111,7 +111,7 @@ install_resonix() {
     check_minimum_requirements
     
     ui_info "Installing Resonix-AG globally..."
-    if npm install -g resonix@latest 2>&1; then
+    if npm install -g resonix-ag@latest 2>&1; then
         ui_success "✓ Resonix-AG installed successfully!"
     else
         ui_error "Failed to install Resonix-AG"
@@ -121,13 +121,13 @@ install_resonix() {
     echo -e "${BOLD}👾 Next steps:${NC}"
     echo ""
     echo -e "  ${ACCENT}1.${NC} Run onboarding:"
-    echo -e "     ${ACCENT_BRIGHT}resonix onboard${NC}"
+    echo -e "     ${ACCENT_BRIGHT}resonix-ag onboard${NC}"
     echo ""
     echo -e "  ${ACCENT}2.${NC} Start gateway:"
-    echo -e "     ${ACCENT_BRIGHT}resonix gateway start${NC}"
+    echo -e "     ${ACCENT_BRIGHT}resonix-ag gateway start${NC}"
     echo ""
     echo -e "  ${ACCENT}3.${NC} Get help:"
-    echo -e "     ${ACCENT_BRIGHT}resonix --help${NC}"
+    echo -e "     ${ACCENT_BRIGHT}resonix-ag --help${NC}"
     echo ""
     echo -e "${MUTED}Join community:${NC} ${INFO}https://discord.gg/FKXPBAtPwG${NC}"
     echo -e "${MUTED}Follow updates:${NC} ${INFO}https://x.com/moralesjavx1032${NC}"

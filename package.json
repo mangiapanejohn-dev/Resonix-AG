@@ -1,5 +1,5 @@
 {
-  "name": "resonix",
+  "name": "resonix-ag",
   "version": "2026.2.20",
   "description": "Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory",
   "keywords": ["ai", "agent", "autonomous", "self-learning", "memory"],
@@ -13,7 +13,8 @@
     "url": "git+https://github.com/mangiapanejohn-dev/Resonix-AG.git"
   },
   "bin": {
-    "resonix": "dist/entry.mjs"
+    "resonix": "dist/entry.mjs",
+    "resonix-ag": "dist/entry.mjs"
   },
   "directories": {
     "doc": "docs",
