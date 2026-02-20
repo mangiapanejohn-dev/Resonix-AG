@@ -10,7 +10,6 @@ export async function runInteractiveOnboarding(
   opts: OnboardOptions,
   runtime: RuntimeEnv = defaultRuntime,
 ) {
-  // Always use clack prompter - it works in both TTY and non-TTY environments
   const prompter = createClackPrompter();
   let exitCode: number | null = null;
   try {
@@ -23,6 +22,8 @@ export async function runInteractiveOnboarding(
     throw err;
   } finally {
     restoreTerminalState("onboarding finish", { resumeStdinIfPaused: false });
-    if (exitCode !== null) runtime.exit(exitCode);
+    if (exitCode !== null) {
+      runtime.exit(exitCode);
+    }
   }
 }
