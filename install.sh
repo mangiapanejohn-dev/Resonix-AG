@@ -2,7 +2,10 @@
 set -euo pipefail
 
 # Resonix-AG Installer for macOS and Linux
-# Usage: curl -fsSL --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+#
+# For Windows, use PowerShell:
+#   iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
 
 BOLD='\033[1m'
 ACCENT='\033[38;2;139;92;246m'       # purple #8B5CF6
@@ -26,6 +29,8 @@ print_banner() {
     echo -e "${BOLD}  Resonix-AG Installer${NC} v1.2.7"
     echo ""
     echo -e "${INFO}Autonomous AI Agent with Self-Cognition${NC}"
+    echo ""
+    echo -e "${MUTED}Windows installer: iwr -useb https://.../install.ps1 | iex${NC}"
     echo ""
 }
 
