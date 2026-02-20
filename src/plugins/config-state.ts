@@ -17,6 +17,11 @@ export const BUNDLED_ENABLED_BY_DEFAULT = new Set<string>([
   "device-pair",
   "phone-control",
   "talk-voice",
+  // Auth provider plugins - needed for onboarding wizard
+  "minimax-portal-auth",
+  "qwen-portal-auth",
+  "google-antigravity-auth",
+  "google-gemini-cli-auth",
 ]);
 
 const normalizeList = (value: unknown): string[] => {

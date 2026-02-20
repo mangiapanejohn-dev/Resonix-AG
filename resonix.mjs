@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import module from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Get the directory where the script is located
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const scriptDir = __dirname;
 
 // https://nodejs.org/api/module.html#module-compile-cache
 if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
@@ -47,10 +53,13 @@ const tryImport = async (specifier) => {
   }
 };
 
-if (await tryImport("./dist/entry.js")) {
+const distIndexJs = path.join(scriptDir, "dist", "index.js");
+const distIndexMjs = path.join(scriptDir, "dist", "index.mjs");
+
+if (await tryImport(distIndexJs)) {
   // OK
-} else if (await tryImport("./dist/entry.mjs")) {
+} else if (await tryImport(distIndexMjs)) {
   // OK
 } else {
-  throw new Error("resonix: missing dist/entry.(m)js (build output).");
+  throw new Error("resonix: missing dist/index.(m)js (build output).");
 }

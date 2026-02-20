@@ -46,7 +46,11 @@ function createOAuthHandler(region: MiniMaxRegion) {
 
   return async (ctx: ProviderAuthContext): Promise<ProviderAuthResult> => {
     const progress = ctx.prompter.progress(`Starting MiniMax OAuth (${regionLabel})…`);
+
     try {
+      // Immediately show we're connecting (before network request)
+      progress.update("Connecting to MiniMax…");
+
       const result = await loginMiniMaxPortalOAuth({
         openUrl: ctx.openUrl,
         note: ctx.prompter.note,

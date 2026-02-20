@@ -7,6 +7,7 @@ import {
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
+import { loadSinglePlugin } from "../plugins/single-loader.js";
 import { resolvePluginProviders } from "../plugins/providers.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
@@ -54,8 +55,18 @@ export async function applyAuthChoicePluginProvider(
   const workspaceDir =
     resolveAgentWorkspaceDir(nextConfig, agentId) ?? resolveDefaultAgentWorkspaceDir();
 
-  const providers = resolvePluginProviders({ config: nextConfig, workspaceDir });
-  const provider = resolveProviderMatch(providers, options.providerId);
+  // Try lightweight single-plugin loader first (faster)
+  let provider = await loadSinglePlugin({ pluginId: options.pluginId, config: nextConfig });
+
+  // Fallback to full provider resolution if lightweight loader fails
+  if (!provider) {
+    const providers = resolvePluginProviders({ config: nextConfig, workspaceDir, noCache: true });
+    provider = resolveProviderMatch(providers, options.providerId);
+  } else {
+    // Ensure we get the correct method
+    provider = resolveProviderMatch([provider], options.providerId) ?? provider;
+  }
+
   if (!provider) {
     await params.prompter.note(
       `${options.label} auth plugin is not available. Enable it and re-run the wizard.`,

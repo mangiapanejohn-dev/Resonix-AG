@@ -2,6 +2,20 @@
 
 Docs: https://docs.resonix.ai
 
+## 1.2.7 (2026-02-20)
+
+### Changes
+
+- **Performance**: Optimized OAuth provider loading to only load selected provider instead of all providers
+- **Channels**: Only include Telegram and Feishu (飞书) in channel selection options
+- **UI**: Improved progress feedback during OAuth flow with immediate connection status
+
+### Fixes
+
+- Fixed slow OAuth provider loading by implementing direct plugin import
+- Fixed channel selection showing unnecessary options
+- Added timeout handling for OAuth network requests
+
 ## 2026.2.20 (Unreleased)
 
 ### Changes

@@ -68,39 +68,52 @@ async function requestOAuthCode(params: {
   region: MiniMaxRegion;
 }): Promise<MiniMaxOAuthAuthorization> {
   const endpoints = getOAuthEndpoints(params.region);
-  const response = await fetch(endpoints.codeEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      "x-request-id": randomUUID(),
-    },
-    body: toFormUrlEncoded({
-      response_type: "code",
-      client_id: endpoints.clientId,
-      scope: MINIMAX_OAUTH_SCOPE,
-      code_challenge: params.challenge,
-      code_challenge_method: "S256",
-      state: params.state,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`MiniMax OAuth authorization failed: ${text || response.statusText}`);
-  }
+  try {
+    const response = await fetch(endpoints.codeEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+        "x-request-id": randomUUID(),
+      },
+      body: toFormUrlEncoded({
+        response_type: "code",
+        client_id: endpoints.clientId,
+        scope: MINIMAX_OAUTH_SCOPE,
+        code_challenge: params.challenge,
+        code_challenge_method: "S256",
+        state: params.state,
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
 
-  const payload = (await response.json()) as MiniMaxOAuthAuthorization & { error?: string };
-  if (!payload.user_code || !payload.verification_uri) {
-    throw new Error(
-      payload.error ??
-        "MiniMax OAuth authorization returned an incomplete payload (missing user_code or verification_uri).",
-    );
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`MiniMax OAuth authorization failed: ${text || response.statusText}`);
+    }
+
+    const payload = (await response.json()) as MiniMaxOAuthAuthorization & { error?: string };
+    if (!payload.user_code || !payload.verification_uri) {
+      throw new Error(
+        payload.error ??
+          "MiniMax OAuth authorization returned an incomplete payload (missing user_code or verification_uri).",
+      );
+    }
+    if (payload.state !== params.state) {
+      throw new Error("MiniMax OAuth state mismatch: possible CSRF attack or session corruption.");
+    }
+    return payload;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("MiniMax OAuth request timed out. Please check your network connection.");
+    }
+    throw err;
   }
-  if (payload.state !== params.state) {
-    throw new Error("MiniMax OAuth state mismatch: possible CSRF attack or session corruption.");
-  }
-  return payload;
 }
 
 async function pollOAuthToken(params: {
@@ -192,13 +205,17 @@ export async function loginMiniMaxPortalOAuth(params: {
 }): Promise<MiniMaxOAuthToken> {
   const region = params.region ?? "global";
   const { verifier, challenge, state } = generatePkce();
+
+  // Show immediate feedback that we're starting
+  params.progress.update("Requesting authorization from MiniMax…");
+
   const oauth = await requestOAuthCode({ challenge, state, region });
   const verificationUrl = oauth.verification_uri;
 
   const noteLines = [
     `Open ${verificationUrl} to approve access.`,
     `If prompted, enter the code ${oauth.user_code}.`,
-    `Interval: ${oauth.interval ?? "default (2000ms)"}, Expires at: ${oauth.expired_in} unix timestamp`,
+    `Expires in: ${Math.round((oauth.expired_in - Date.now() / 1000) / 60)} minutes`,
   ];
   await params.note(noteLines.join("\n"), "MiniMax OAuth");
 
@@ -211,22 +228,14 @@ export async function loginMiniMaxPortalOAuth(params: {
   let pollIntervalMs = oauth.interval ? oauth.interval : 2000;
   const expireTimeMs = oauth.expired_in;
 
+  params.progress.update("Waiting for MiniMax OAuth approval…");
+
   while (Date.now() < expireTimeMs) {
-    params.progress.update("Waiting for MiniMax OAuth approval…");
     const result = await pollOAuthToken({
       userCode: oauth.user_code,
       verifier,
       region,
     });
-
-    // // Debug: print poll result
-    // await params.note(
-    //   `status: ${result.status}` +
-    //     (result.status === "success" ? `\ntoken: ${JSON.stringify(result.token, null, 2)}` : "") +
-    //     (result.status === "error" ? `\nmessage: ${result.message}` : "") +
-    //     (result.status === "pending" && result.message ? `\nmessage: ${result.message}` : ""),
-    //   "MiniMax OAuth Poll Result",
-    // );
 
     if (result.status === "success") {
       return result.token;
@@ -238,6 +247,7 @@ export async function loginMiniMaxPortalOAuth(params: {
 
     if (result.status === "pending") {
       pollIntervalMs = Math.min(pollIntervalMs * 1.5, 10000);
+      params.progress.update("Waiting for approval…");
     }
 
     await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
