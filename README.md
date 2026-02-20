@@ -15,9 +15,9 @@
 
 ---
 
-## 🚀 Quick Install
+## 🚀 Quick Install (Recommended)
 
-### Option 1: One-Click Install (Recommended)
+### One-Line Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
@@ -27,10 +27,18 @@ curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/
 resonix onboard
 ```
 
-### Option 2: npm Global Install
+After installation, restart your terminal or run:
 
 ```bash
-npm i -g resonix-ag
+source ~/.zshrc
+```
+
+Then use:
+
+```bash
+resonix-ag onboard
+resonix-ag gateway start
+resonix-ag --help
 ```
 # start Resonix
 ```

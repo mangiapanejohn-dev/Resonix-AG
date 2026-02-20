@@ -5,86 +5,39 @@ set -euo pipefail
 # Usage: curl -fsSL --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
 
 BOLD='\033[1m'
-ACCENT='\033[38;2;139;92;246m'      # purple #8B5CF6
-ACCENT_BRIGHT='\033[38;2;167;139;250m' # light purple #A78BFA
-INFO='\033[38;2;196;181;253m'       # lavender #C4B5FD
-SUCCESS='\033[38;2;47;201;113m'    # green #2FBF71
-WARN='\033[38;2;255;176;32m'       # amber
-ERROR='\033[38;2;226;61;100m'       # pink
-MUTED='\033[38;2;139;127;119m'    # muted #8B7F77
-NC='\033[0m' # No Color
+PURPLE='\033[38;2;139;92;246m'
+LIGHT_PURPLE='\033[38;2;167;139;250m'
+LAVENDER='\033[38;2;196;181;253m'
+GREEN='\033[38;2;47;201;113m'
+AMBER='\033[38;2;255;176;32m'
+PINK='\033[38;2;226;61;100m'
+MUTED='\033[38;2;139;127;119m'
+NC='\033[0m'
 
-DEFAULT_TAGLINE="Autonomous AI Agent with Self-Cognition"
-
-ORIGINAL_PATH="${PATH:-}"
-
-TMPFILES=()
-cleanup_tmpfiles() {
-    local f
-    for f in "${TMPFILES[@]:-}"; do
-        rm -rf "$f" 2>/dev/null || true
-    done
-}
-trap cleanup_tmpfiles EXIT
-
-mktempfile() {
-    local f
-    f="$(mktemp)"
-    TMPFILES+=("$f")
-    echo "$f"
-}
-
-DOWNLOADER=""
-detect_downloader() {
-    if command -v curl &> /dev/null; then
-        DOWNLOADER="curl"
-        return 0
-    fi
-    if command -v wget &> /dev/null; then
-        DOWNLOADER="wget"
-        return 0
-    fi
-    ui_error "Missing downloader (curl or wget required)"
-    exit 1
-}
-
-download() {
-    if [[ "$DOWNLOADER" == "curl" ]]; then
-        curl -fsSL --proto '=https' --tlsv1.2 -o "$1" "$2"
-    else
-        wget -q -O "$1" "$2"
-    fi
-}
-
-ui_header() {
+print_banner() {
     echo ""
-    echo -e "${BOLD}${ACCENT}██████╗ ███████╗███████╗ ██████╗ ███╗ ██╗██╗██╗ ██╗ ██╔══██╗${NC}"
-    echo -e "${BOLD}${ACCENT}██████╗ ███████╗███████╗█████╗  ████╗ ██║██║╚██╗██║${NC}"
-    echo -e "${BOLD}${ACCENT}██╔══██╗██╔════╝██╔════╝██╔══██╗██╔██╗ ██║██║ ╚████║${NC}"
-    echo -e "${BOLD}${ACCENT}██║  ██║█████╗  █████╗  ██████╔╝██║╚██╗██║██║  ╚██╔╝${NC}"
-    echo -e "${BOLD}${ACCENT}██║  ██║██╔══╝  ██╔══╝  ██╔══██╗██║ ╚████║██║   ██║${NC}"
-    echo -e "${BOLD}${ACCENT}██████╔╝███████╗███████╗██║  ██║██║  ╚═══╝╚═╝   ╚═╝${NC}"
-    echo -e "${BOLD}${ACCENT}╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝       ${NC}"
+    echo -e "${PURPLE}██████╗  ██████╗  ██████╗  ███████╗${NC}"
+    echo -e "${PURPLE}██╔══██╗██╔════╝ ██╔══██╗ ██╔════╝${NC}"
+    echo -e "${PURPLE}██████╔╝██║  ███╗██████╔╝ ███████╗${NC}"
+    echo -e "${PURPLE}██╔══██╗██║   ██║██╔══██╗ ╚════██║${NC}"
+    echo -e "${PURPLE}██║  ██║╚██████╔╝██║  ██║███████║${NC}"
+    echo -e "${PURPLE}╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝${NC}"
     echo ""
-    echo -e "${BOLD}  Resonix-AG Installer${NC} $1"
+    echo -e "${BOLD}  Resonix-AG Installer${NC} v2026.2.20"
     echo ""
 }
 
 ui_error() {
-    echo -e "${ERROR}Error: $1${NC}" >&2
+    echo -e "${PINK}Error: $1${NC}" >&2
     exit 1
 }
 
 ui_info() {
-    echo -e "${INFO}$1${NC}"
+    echo -e "${LAVENDER}$1${NC}"
 }
 
 ui_success() {
-    echo -e "${SUCCESS}$1${NC}"
-}
-
-ui_warn() {
-    echo -e "${WARN}Warning: $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 check_minimum_requirements() {
@@ -96,7 +49,7 @@ check_minimum_requirements() {
     fi
     
     if [[ "$node_version" -lt 22 ]]; then
-        ui_warn "Node.js 22+ recommended. Current: $(node -v)"
+        ui_info "Warning: Node.js 22+ recommended. Current: $(node -v)"
     fi
     
     if ! command -v npm &> /dev/null; then
@@ -104,39 +57,62 @@ check_minimum_requirements() {
     fi
 }
 
-install_resonix() {
-    ui_header "v2026.2.20"
+install_from_github() {
+    local install_dir="$HOME/.resonix-ag"
     
-    ui_info "Checking requirements..."
-    check_minimum_requirements
+    ui_info "Cloning Resonix-AG from GitHub..."
     
-    ui_info "Installing Resonix-AG globally..."
-    if npm install -g resonix-ag@latest 2>&1; then
-        ui_success "✓ Resonix-AG installed successfully!"
-    else
-        ui_error "Failed to install Resonix-AG"
+    if [[ -d "$install_dir" ]]; then
+        rm -rf "$install_dir"
     fi
     
+    git clone --depth 1 https://github.com/mangiapanejohn-dev/Resonix-AG.git "$install_dir"
+    
+    cd "$install_dir"
+    
+    ui_info "Installing dependencies..."
+    pnpm install 2>/dev/null || npm install
+    
+    ui_info "Building..."
+    pnpm build 2>/dev/null || npm run build
+    
+    ui_info "Creating CLI symlink..."
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$install_dir/dist/entry.mjs" "$HOME/.local/bin/resonix-ag"
+    
+    # Add to PATH if not already
+    if ! grep -q ".local/bin" "$HOME/.zshrc" 2>/dev/null; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+    fi
+    
+    export PATH="$HOME/.local/bin:$PATH"
+    
+    ui_success "✓ Resonix-AG installed successfully!"
     echo ""
     echo -e "${BOLD}👾 Next steps:${NC}"
     echo ""
-    echo -e "  ${ACCENT}1.${NC} Run onboarding:"
-    echo -e "     ${ACCENT_BRIGHT}resonix-ag onboard${NC}"
+    echo -e "  ${LIGHT_PURPLE}1.${NC} Run onboarding:"
+    echo -e "     ${BOLD}resonix-ag onboard${NC}"
     echo ""
-    echo -e "  ${ACCENT}2.${NC} Start gateway:"
-    echo -e "     ${ACCENT_BRIGHT}resonix-ag gateway start${NC}"
+    echo -e "  ${LIGHT_PURPLE}2.${NC} Start gateway:"
+    echo -e "     ${BOLD}resonix-ag gateway start${NC}"
     echo ""
-    echo -e "  ${ACCENT}3.${NC} Get help:"
-    echo -e "     ${ACCENT_BRIGHT}resonix-ag --help${NC}"
+    echo -e "  ${LIGHT_PURPLE}3.${NC} Get help:"
+    echo -e "     ${BOLD}resonix-ag --help${NC}"
     echo ""
-    echo -e "${MUTED}Join community:${NC} ${INFO}https://discord.gg/FKXPBAtPwG${NC}"
-    echo -e "${MUTED}Follow updates:${NC} ${INFO}https://x.com/moralesjavx1032${NC}"
+    echo -e "${MUTED}Join community:${NC} ${LAVENDER}https://discord.gg/FKXPBAtPwG${NC}"
+    echo -e "${MUTED}Follow updates:${NC} ${LAVENDER}https://x.com/moralesjavx1032${NC}"
     echo ""
 }
 
 main() {
-    detect_downloader
-    install_resonix
+    print_banner
+    
+    ui_info "Checking requirements..."
+    check_minimum_requirements
+    
+    ui_info "Installing Resonix-AG..."
+    install_from_github
 }
 
 main "$@"
