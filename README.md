@@ -1,8 +1,6 @@
-<div align="center">#👾 Resonix-AG</div>
-
-<p align="center">
-  <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory</strong>
-</p>
+<div align="center">
+  <h1>👾 Resonix-AG</h1>
+</div>
 
 
 <p align="center">
