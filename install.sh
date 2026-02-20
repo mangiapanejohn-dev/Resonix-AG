@@ -19,12 +19,12 @@ NC='\033[0m'
 
 print_banner() {
     echo ""
-    echo -e "${ACCENT}██████╗  ██████╗  ██████╗  ███████╗${NC}"
-    echo -e "${ACCENT}██╔══██╗██╔════╝ ██╔══██╗ ██╔════╝${NC}"
-    echo -e "${ACCENT}██████╔╝██║  ███╗██████╔╝ ███████╗${NC}"
-    echo -e "${ACCENT}██╔══██╗██║   ██║██╔══██╗ ╚════██║${NC}"
-    echo -e "${ACCENT}██║  ██║╚██████╔╝██║  ██║███████║${NC}"
-    echo -e "${ACCENT}╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝${NC}"
+    echo -e "${ACCENT}  RRR    EEE    SSS   OOO   N   N   II   X   X ${NC}"
+    echo -e "${ACCENT} R   R   E     S     O   O  NN  N    I    X X  ${NC}"
+    echo -e "${ACCENT} RRRR    EEE    SS   O   O  N N N    I     X   ${NC}"
+    echo -e "${ACCENT} R   R   E       S   O   O  N  NN    I    X X  ${NC}"
+    echo -e "${ACCENT} R   R   EEE   SSS    OOO   N   N   II   X   X ${NC}"
+    echo -e "${ACCENT}                                                 ${NC}"
     echo ""
     echo -e "${BOLD}  Resonix-AG Installer${NC} v1.2.7"
     echo ""
