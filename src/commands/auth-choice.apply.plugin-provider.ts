@@ -122,19 +122,17 @@ export async function applyAuthChoicePluginProvider(
   if (result.defaultModel) {
     if (params.setDefaultModel) {
       nextConfig = applyDefaultModel(nextConfig, result.defaultModel);
-      await params.prompter.note(`Default model set to ${result.defaultModel}`, "Model configured");
+      // Skip note for cleaner flow
     } else if (params.agentId) {
       agentModelOverride = result.defaultModel;
-      await params.prompter.note(
-        `Default model set to ${result.defaultModel} for agent "${params.agentId}".`,
-        "Model configured",
-      );
+      // Skip note for cleaner flow
     }
   }
 
-  if (result.notes && result.notes.length > 0) {
-    await params.prompter.note(result.notes.join("\n"), "Provider notes");
-  }
+  // Skip provider notes for cleaner flow
+  // if (result.notes && result.notes.length > 0) {
+  //   await params.prompter.note(result.notes.join("\n"), "Provider notes");
+  // }
 
   return { config: nextConfig, agentModelOverride };
 }
