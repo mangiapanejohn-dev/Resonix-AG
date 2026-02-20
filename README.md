@@ -1,5 +1,6 @@
-# 👾 Resonix-AG
-
+<p align="center">
+  <h1>👾 Resonix-AG</h1>
+</p>
 
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory</strong>
