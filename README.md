@@ -1,8 +1,5 @@
 # 👾 Resonix-AG
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/resonix/resonix/main/docs/assets/resonix-logo-text.png" alt="Resonix-AG" width="400">
-</p>
 
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory</strong>
