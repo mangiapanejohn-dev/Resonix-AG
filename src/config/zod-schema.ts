@@ -663,7 +663,8 @@ export const ResonixSchema = z
       .strict()
       .optional(),
   })
-  .strict()
+  // 关键修改：把 .strict() 改成 .passthrough()，允许未定义的字段（如 core）存在
+  .passthrough()
   .superRefine((cfg, ctx) => {
     const agents = cfg.agents?.list ?? [];
     if (agents.length === 0) {
