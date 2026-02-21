@@ -315,6 +315,10 @@ function stripChannelSchema(schema: ConfigSchema): ConfigSchema {
     channelsNode.required = [];
     channelsNode.additionalProperties = true;
   }
+  
+  // 核心修改：允许根节点包含额外字段（如 core），解决 Unrecognized key 错误
+  root.additionalProperties = true;
+
   return next;
 }
 
