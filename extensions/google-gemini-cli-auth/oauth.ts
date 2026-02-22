@@ -2,7 +2,6 @@ import { createHash, randomBytes } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { createServer } from "node:http";
 import { delimiter, dirname, join } from "node:path";
-import { isWSL2Sync } from "resonix/plugin-sdk";
 
 const CLIENT_ID_KEYS = ["RESONIX_GEMINI_OAUTH_CLIENT_ID", "GEMINI_CLI_OAUTH_CLIENT_ID"];
 const CLIENT_SECRET_KEYS = [
@@ -40,6 +39,37 @@ export type GeminiCliOAuthContext = {
   prompt: (message: string) => Promise<string>;
   progress: { update: (msg: string) => void; stop: (msg?: string) => void };
 };
+
+function isWSLEnv(): boolean {
+  return Boolean(process.env.WSL_INTEROP || process.env.WSL_DISTRO_NAME || process.env.WSLENV);
+}
+
+function isWSLSync(): boolean {
+  if (process.platform !== "linux") {
+    return false;
+  }
+  if (isWSLEnv()) {
+    return true;
+  }
+  try {
+    const release = readFileSync("/proc/version", "utf8").toLowerCase();
+    return release.includes("microsoft") || release.includes("wsl");
+  } catch {
+    return false;
+  }
+}
+
+function isWSL2Sync(): boolean {
+  if (!isWSLSync()) {
+    return false;
+  }
+  try {
+    const version = readFileSync("/proc/version", "utf8").toLowerCase();
+    return version.includes("wsl2") || version.includes("microsoft-standard");
+  } catch {
+    return false;
+  }
+}
 
 function resolveEnv(keys: string[]): string | undefined {
   for (const key of keys) {
@@ -600,11 +630,9 @@ export async function loginGeminiCliOAuth(
   }
 
   ctx.progress.update("Complete sign-in in browser...");
-  try {
-    await ctx.openUrl(authUrl);
-  } catch {
+  void ctx.openUrl(authUrl).catch(() => {
     ctx.log(`\nOpen this URL in your browser:\n\n${authUrl}\n`);
-  }
+  });
 
   try {
     const { code } = await waitForLocalCallback({

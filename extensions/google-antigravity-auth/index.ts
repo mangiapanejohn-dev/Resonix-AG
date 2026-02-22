@@ -1,12 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
-import {
-  buildOauthProviderAuthResult,
-  emptyPluginConfigSchema,
-  isWSL2Sync,
-  type ResonixPluginApi,
-  type ProviderAuthContext,
-} from "resonix/plugin-sdk";
+import type { ResonixPluginApi, ProviderAuthContext, ProviderAuthResult } from "resonix/plugin-sdk";
 
 // OAuth constants - decoded from pi-ai's base64 encoded values to stay in sync
 const decode = (s: string) => Buffer.from(s, "base64").toString();
@@ -46,6 +41,113 @@ const RESPONSE_PAGE = `<!DOCTYPE html>
     </main>
   </body>
 </html>`;
+
+function emptyPluginConfigSchema() {
+  return {
+    safeParse(value: unknown) {
+      if (value === undefined) {
+        return { success: true, data: undefined };
+      }
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "expected config object" }],
+          },
+        };
+      }
+      if (Object.keys(value as Record<string, unknown>).length > 0) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "config must be empty" }],
+          },
+        };
+      }
+      return { success: true, data: value };
+    },
+    jsonSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {},
+    },
+  };
+}
+
+function buildOauthProviderAuthResult(params: {
+  providerId: string;
+  defaultModel: string;
+  access: string;
+  refresh?: string | null;
+  expires?: number | null;
+  email?: string | null;
+  profilePrefix?: string;
+  credentialExtra?: Record<string, unknown>;
+  notes?: string[];
+}): ProviderAuthResult {
+  const email = params.email ?? undefined;
+  const profilePrefix = params.profilePrefix ?? params.providerId;
+  const profileId = `${profilePrefix}:${email ?? "default"}`;
+  const credential = {
+    type: "oauth",
+    provider: params.providerId,
+    access: params.access,
+    ...(params.refresh ? { refresh: params.refresh } : {}),
+    ...(Number.isFinite(params.expires) ? { expires: params.expires as number } : {}),
+    ...(email ? { email } : {}),
+    ...(params.credentialExtra ?? {}),
+  } as ProviderAuthResult["profiles"][number]["credential"];
+  return {
+    profiles: [
+      {
+        profileId,
+        credential,
+      },
+    ],
+    configPatch: {
+      agents: {
+        defaults: {
+          models: {
+            [params.defaultModel]: {},
+          },
+        },
+      },
+    },
+    defaultModel: params.defaultModel,
+    notes: params.notes,
+  };
+}
+
+function isWSLEnv(): boolean {
+  return Boolean(process.env.WSL_INTEROP || process.env.WSL_DISTRO_NAME || process.env.WSLENV);
+}
+
+function isWSLSync(): boolean {
+  if (process.platform !== "linux") {
+    return false;
+  }
+  if (isWSLEnv()) {
+    return true;
+  }
+  try {
+    const release = readFileSync("/proc/version", "utf8").toLowerCase();
+    return release.includes("microsoft") || release.includes("wsl");
+  } catch {
+    return false;
+  }
+}
+
+function isWSL2Sync(): boolean {
+  if (!isWSLSync()) {
+    return false;
+  }
+  try {
+    const version = readFileSync("/proc/version", "utf8").toLowerCase();
+    return version.includes("wsl2") || version.includes("microsoft-standard");
+  } catch {
+    return false;
+  }
+}
 
 function generatePkce(): { verifier: string; challenge: string } {
   const verifier = randomBytes(32).toString("hex");
@@ -325,11 +427,9 @@ async function loginAntigravity(params: {
 
   if (!needsManual) {
     params.progress.update("Opening Google sign-in…");
-    try {
-      await params.openUrl(authUrl);
-    } catch {
+    void params.openUrl(authUrl).catch(() => {
       // ignore
-    }
+    });
   }
 
   let code = "";

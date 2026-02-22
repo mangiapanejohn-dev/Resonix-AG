@@ -143,6 +143,7 @@ export async function loginQwenPortalOAuth(params: {
   progress: { update: (message: string) => void; stop: (message?: string) => void };
 }): Promise<QwenOAuthToken> {
   const { verifier, challenge } = generatePkce();
+  params.progress.update("Requesting authorization from Qwen…");
   const device = await requestDeviceCode({ challenge });
   const verificationUrl = device.verification_uri_complete || device.verification_uri;
 
@@ -154,11 +155,10 @@ export async function loginQwenPortalOAuth(params: {
     "Qwen OAuth",
   );
 
-  try {
-    await params.openUrl(verificationUrl);
-  } catch {
+  // Avoid blocking OAuth flow on browser-launch command timeouts.
+  void params.openUrl(verificationUrl).catch(() => {
     // Fall back to manual copy/paste if browser open fails.
-  }
+  });
 
   const start = Date.now();
   let pollIntervalMs = device.interval ? device.interval * 1000 : 2000;

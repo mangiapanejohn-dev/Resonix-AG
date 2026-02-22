@@ -1,9 +1,4 @@
-import {
-  emptyPluginConfigSchema,
-  type ResonixPluginApi,
-  type ProviderAuthContext,
-  type ProviderAuthResult,
-} from "resonix/plugin-sdk";
+import type { ResonixPluginApi, ProviderAuthContext, ProviderAuthResult } from "resonix/plugin-sdk";
 import { loginMiniMaxPortalOAuth, type MiniMaxRegion } from "./oauth.js";
 
 const PROVIDER_ID = "minimax-portal";
@@ -14,6 +9,38 @@ const DEFAULT_BASE_URL_GLOBAL = "https://api.minimax.io/anthropic";
 const DEFAULT_CONTEXT_WINDOW = 200000;
 const DEFAULT_MAX_TOKENS = 8192;
 const OAUTH_PLACEHOLDER = "minimax-oauth";
+
+function emptyPluginConfigSchema() {
+  return {
+    safeParse(value: unknown) {
+      if (value === undefined) {
+        return { success: true, data: undefined };
+      }
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "expected config object" }],
+          },
+        };
+      }
+      if (Object.keys(value as Record<string, unknown>).length > 0) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "config must be empty" }],
+          },
+        };
+      }
+      return { success: true, data: value };
+    },
+    jsonSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {},
+    },
+  };
+}
 
 function getDefaultBaseUrl(region: MiniMaxRegion): string {
   return region === "cn" ? DEFAULT_BASE_URL_CN : DEFAULT_BASE_URL_GLOBAL;

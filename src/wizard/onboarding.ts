@@ -30,32 +30,32 @@ async function requireRiskAcknowledgement(params: {
 
   await params.prompter.note(
     [
-      "Security warning — please read.",
+      "Safety briefing (quick, but important).",
       "",
-      "Resonix is a hobby project and still in beta. Expect sharp edges.",
-      "This bot can read files and run actions if tools are enabled.",
-      "A bad prompt can trick it into doing unsafe things.",
+      "Resonix is beta software with sharp elbows.",
+      "If tools are enabled, it can read files and execute actions.",
+      "A bad prompt can become a bad decision at machine speed.",
       "",
-      "If you're not comfortable with basic security and access control, don't run Resonix.",
-      "Ask someone experienced to help before enabling tools or exposing it to the internet.",
+      "If security basics feel fuzzy, pause and get help before going live.",
+      "Least privilege beats heroic debugging every single time.",
       "",
       "Recommended baseline:",
       "- Pairing/allowlists + mention gating.",
       "- Sandbox + least-privilege tools.",
-      "- Keep secrets out of the agent's reachable filesystem.",
-      "- Use the strongest available model for any bot with tools or untrusted inboxes.",
+      "- Keep secrets outside the agent's reachable filesystem.",
+      "- Use stronger models for tool-enabled or untrusted inbox workflows.",
       "",
       "Run regularly:",
       "resonix security audit --deep",
       "resonix security audit --fix",
       "",
-      "Must read: https://docs.resonix.ai/gateway/security",
+      "Read before adventure: https://docs.resonix.ai/gateway/security",
     ].join("\n"),
     "Security",
   );
 
   const ok = await params.prompter.confirm({
-    message: "I understand this is powerful and inherently risky. Continue?",
+    message: "I understand this can do powerful (and risky) things. Continue?",
     initialValue: false,
   });
   if (!ok) {
@@ -93,41 +93,43 @@ export async function runOnboardingWizard(
   await prompter.note(
     [
       "+----------------------------------------------------------------+",
-      "|           RESONIX SYSTEM LAYER CAPABILITIES                 |",
+      "|  RESONIX SYSTEM LAYER CAPABILITIES (READY OUT OF THE BOX)     |",
       "+----------------------------------------------------------------+",
       "|                                                                |",
-      "|  [CORE AUTONOMOUS FEATURES - BUILT-IN, NO EXTRA CONFIG]      |",
+      "|  [Core features are preloaded, no extra ceremony required.]   |",
       "|                                                                |",
-      "|  o Feishu Integration                                        |",
+      "|  o Feishu Integration                                         |",
       "|    - Document read/write operations                           |",
-      "|    - Cloud storage file management                           |",
-      "|    - Permission management for documents and files          |",
-      "|    - Knowledge base navigation                              |",
+      "|    - Cloud storage file management                            |",
+      "|    - Permission handling for docs and files                   |",
+      "|    - Knowledge base navigation                                |",
       "|                                                                |",
-      "|  o Memory System                                            |",
-      "|    - Long-term semantic memory (permanent knowledge)          |",
-      "|    - Short-term episodic memory (session context)           |",
-      "|    - Working memory (real-time reasoning)                  |",
-      "|    - Automatic knowledge retention and retrieval             |",
+      "|  o Memory System                                              |",
+      "|    - Long-term semantic memory (keeps useful context)         |",
+      "|    - Short-term episodic memory (session breadcrumbs)         |",
+      "|    - Working memory (real-time reasoning)                     |",
+      "|    - Automatic retention + retrieval                          |",
       "|                                                                |",
-      "|  o Self-Cognition Engine                                    |",
-      "|    - Capability profiling (continuous self-assessment)       |",
-      "|    - Knowledge gap detection (knows what it doesn't know)   |",
-      "|    - Continuous learning without manual prompts             |",
+      "|  o Self-Cognition Engine                                      |",
+      "|    - Capability profiling (knows its own toolbox)             |",
+      "|    - Gap detection (knows what it does not know)              |",
+      "|    - Continuous learning without constant babysitting         |",
       "|                                                                |",
-      "|  o Browser Control                                          |",
-      "|    - Playwright-based web automation                       |",
-      "|    - Multi-profile browser management                       |",
-      "|    - Sandbox-isolated execution                            |",
+      "|  o Browser Control                                            |",
+      "|    - Playwright-based web automation                          |",
+      "|    - Multi-profile browser management                         |",
+      "|    - Sandbox-isolated execution                               |",
       "|                                                                |",
-      "|  o Security & Isolation                                     |",
-      "|    - File system sandbox (least-privilege)                 |",
-      "|    - Tool policy enforcement                               |",
-      "|    - Execution audit logging                               |",
+      "|  o Security & Isolation                                       |",
+      "|    - File system sandbox (least-privilege)                   |",
+      "|    - Tool policy enforcement                                  |",
+      "|    - Execution audit logging                                  |",
       "|                                                                |",
-      "|      [All system features built-in, enabled by default]    |",
+      "|  [Everything above is enabled by default and ready to go.]    |",
       "|                                                                |",
-      "|  View all system features: resonix skills list              |",
+      "|  View all system features: resonix skills list               |",
+      "|  Built by MarkEllington                                       |",
+      "|  Follow: https://x.com/moralesjavx1032                        |",
       "+----------------------------------------------------------------+",
     ].join("\n"),
     "SYSTEM LAYER",
@@ -152,8 +154,8 @@ export async function runOnboardingWizard(
     return;
   }
 
-  const quickstartHint = `Configure details later via ${formatCliCommand("resonix configure")}.`;
-  const manualHint = "Configure port, network, Tailscale, and auth options.";
+  const quickstartHint = `Fast lane now, tweak details later via ${formatCliCommand("resonix configure")}.`;
+  const manualHint = "Hands-on setup: port, network, Tailscale, and auth.";
   const explicitFlowRaw = opts.flow?.trim();
   const normalizedExplicitFlow = explicitFlowRaw === "manual" ? "advanced" : explicitFlowRaw;
   if (
@@ -172,7 +174,7 @@ export async function runOnboardingWizard(
   let flow: WizardFlow =
     explicitFlow ??
     (await prompter.select({
-      message: "Onboarding mode",
+      message: "Onboarding mode (quick cruise or manual controls)",
       options: [
         { value: "quickstart", label: "QuickStart", hint: quickstartHint },
         { value: "advanced", label: "Manual", hint: manualHint },
@@ -182,7 +184,7 @@ export async function runOnboardingWizard(
 
   if (opts.mode === "remote" && flow === "quickstart") {
     await prompter.note(
-      "QuickStart only supports local gateways. Switching to Manual mode.",
+      "QuickStart is local-only. Switching to Manual mode so we can wire remote properly.",
       "QuickStart",
     );
     flow = "advanced";
@@ -191,13 +193,13 @@ export async function runOnboardingWizard(
   if (snapshot.exists) {
     await prompter.note(
       onboardHelpers.summarizeExistingConfig(baseConfig),
-      "Existing config detected",
+      "Existing config spotted",
     );
 
     const action = await prompter.select({
-      message: "Config handling",
+      message: "Config handling (keep, tweak, or clean reset)",
       options: [
-        { value: "keep", label: "Use existing values" },
+        { value: "keep", label: "Keep as-is" },
         { value: "modify", label: "Update values" },
         { value: "reset", label: "Reset" },
       ],
@@ -207,12 +209,12 @@ export async function runOnboardingWizard(
       const workspaceDefault =
         baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE;
       const resetScope = (await prompter.select({
-        message: "Reset scope",
+        message: "Reset scope (how deep should we clean?)",
         options: [
-          { value: "config", label: "Config only" },
+          { value: "config", label: "Config only (light cleanup)" },
           {
             value: "config+creds+sessions",
-            label: "Config + creds + sessions",
+            label: "Config + creds + sessions (medium cleanup)",
           },
           {
             value: "full",
@@ -309,7 +311,7 @@ export async function runOnboardingWizard(
     };
     const quickstartLines = quickstartGateway.hasExisting
       ? [
-          "Keeping your current gateway settings:",
+          "Keeping your current gateway settings (smooth and simple):",
           `Gateway port: ${quickstartGateway.port}`,
           `Gateway bind: ${formatBind(quickstartGateway.bind)}`,
           ...(quickstartGateway.bind === "custom" && quickstartGateway.customBindHost
@@ -317,14 +319,14 @@ export async function runOnboardingWizard(
             : []),
           `Gateway auth: ${formatAuth(quickstartGateway.authMode)}`,
           `Tailscale exposure: ${formatTailscale(quickstartGateway.tailscaleMode)}`,
-          "Direct to chat channels.",
+          "Ready to route directly to chat channels.",
         ]
       : [
           `Gateway port: ${DEFAULT_GATEWAY_PORT}`,
           "Gateway bind: Loopback (127.0.0.1)",
           "Gateway auth: Token (default)",
           "Tailscale exposure: Off",
-          "Direct to chat channels.",
+          "Ready to route directly to chat channels.",
         ];
     await prompter.note(quickstartLines.join("\n"), "QuickStart");
   }
@@ -349,7 +351,7 @@ export async function runOnboardingWizard(
     (flow === "quickstart"
       ? "local"
       : ((await prompter.select({
-          message: "What do you want to set up?",
+          message: "What do you want to set up first?",
           options: [
             {
               value: "local",
@@ -377,7 +379,7 @@ export async function runOnboardingWizard(
     nextConfig = onboardHelpers.applyWizardMetadata(nextConfig, { command: "onboard", mode });
     await writeConfigFile(nextConfig);
     logConfigUpdated(runtime);
-    await prompter.outro("Remote gateway configured.");
+    await prompter.outro("Remote gateway configured and ready.");
     return;
   }
 
@@ -386,7 +388,7 @@ export async function runOnboardingWizard(
     (flow === "quickstart"
       ? (baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE)
       : await prompter.text({
-          message: "Workspace directory",
+          message: "Workspace directory (where your bot lives)",
           initialValue: baseConfig.agents?.defaults?.workspace ?? onboardHelpers.DEFAULT_WORKSPACE,
         }));
 
@@ -469,7 +471,7 @@ export async function runOnboardingWizard(
   const settings = gateway.settings;
 
   if (opts.skipChannels ?? opts.skipProviders) {
-    await prompter.note("Skipping channel setup.", "Channels");
+    await prompter.note("Skipping channel setup for now. You can add channels anytime.", "Channels");
   } else {
     const { listChannelPlugins } = await import("../channels/plugins/index.js");
     const { setupChannels } = await import("../commands/onboard-channels.js");
@@ -496,7 +498,7 @@ export async function runOnboardingWizard(
   });
 
   if (opts.skipSkills) {
-    await prompter.note("Skipping skills setup.", "Skills");
+    await prompter.note("Skipping skills setup for now. We can wire skills later.", "Skills");
   } else {
     const { setupSkills } = await import("../commands/onboard-skills.js");
     nextConfig = await setupSkills(nextConfig, workspaceDir, runtime, prompter);

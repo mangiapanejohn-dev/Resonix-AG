@@ -33,7 +33,7 @@ function isResonixSystemSkill(skill: SkillStatusEntry): boolean {
 
 function formatSkillSource(source: string | undefined, skill: SkillStatusEntry): string {
   if (isResonixSystemSkill(skill)) {
-    return theme.command("系统层技能");
+    return theme.command("System layer skill");
   }
   return source ?? "";
 }
@@ -153,12 +153,12 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   // Add system skills header if there are any
   if (systemSkills.length > 0) {
     lines.push("+----------------------------------------------------------------+");
-    lines.push("|           RESONIX SYSTEM LAYER SKILLS                    |");
-    lines.push("|           Core Autonomous Capabilities - Built-in        |");
+    lines.push("|             RESONIX SYSTEM LAYER SKILLS                   |");
+    lines.push("|             Built-in Core Capabilities                    |");
     lines.push("+----------------------------------------------------------------+");
     lines.push("|                                                                |");
-    lines.push("|  These skills are pre-activated as part of Resonix's    |");
-    lines.push("|  system layer. No additional configuration required.      |");
+    lines.push("|  These skills are pre-activated by the system layer.           |");
+    lines.push("|  Translation: they are already on and ready to work.           |");
     lines.push("|                                                                |");
     lines.push("+----------------------------------------------------------------+");
     lines.push("");

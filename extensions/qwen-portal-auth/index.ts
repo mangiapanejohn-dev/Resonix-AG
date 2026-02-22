@@ -1,8 +1,4 @@
-import {
-  emptyPluginConfigSchema,
-  type ResonixPluginApi,
-  type ProviderAuthContext,
-} from "resonix/plugin-sdk";
+import type { ResonixPluginApi, ProviderAuthContext } from "resonix/plugin-sdk";
 import { loginQwenPortalOAuth } from "./oauth.js";
 
 const PROVIDER_ID = "qwen-portal";
@@ -12,6 +8,38 @@ const DEFAULT_BASE_URL = "https://portal.qwen.ai/v1";
 const DEFAULT_CONTEXT_WINDOW = 128000;
 const DEFAULT_MAX_TOKENS = 8192;
 const OAUTH_PLACEHOLDER = "qwen-oauth";
+
+function emptyPluginConfigSchema() {
+  return {
+    safeParse(value: unknown) {
+      if (value === undefined) {
+        return { success: true, data: undefined };
+      }
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "expected config object" }],
+          },
+        };
+      }
+      if (Object.keys(value as Record<string, unknown>).length > 0) {
+        return {
+          success: false,
+          error: {
+            issues: [{ path: [], message: "config must be empty" }],
+          },
+        };
+      }
+      return { success: true, data: value };
+    },
+    jsonSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {},
+    },
+  };
+}
 
 function normalizeBaseUrl(value: string | undefined): string {
   const raw = value?.trim() || DEFAULT_BASE_URL;

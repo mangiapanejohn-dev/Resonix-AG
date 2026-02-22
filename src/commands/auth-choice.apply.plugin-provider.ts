@@ -60,7 +60,7 @@ export async function applyAuthChoicePluginProvider(
 
   // Fallback to full provider resolution if lightweight loader fails
   if (!provider) {
-    const providers = resolvePluginProviders({ config: nextConfig, workspaceDir, noCache: true });
+    const providers = resolvePluginProviders({ config: nextConfig, workspaceDir });
     provider = resolveProviderMatch(providers, options.providerId);
   } else {
     // Ensure we get the correct method

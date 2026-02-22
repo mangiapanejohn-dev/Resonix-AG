@@ -1,15 +1,48 @@
 import { spawn } from "node:child_process";
 import os from "node:os";
 import type { ResonixPluginApi } from "resonix/plugin-sdk";
-import { approveDevicePairing, listDevicePairing } from "resonix/plugin-sdk";
-import qrcode from "qrcode-terminal";
+
+type ListDevicePairingFn = typeof import("resonix/plugin-sdk")["listDevicePairing"];
+type ApproveDevicePairingFn = typeof import("resonix/plugin-sdk")["approveDevicePairing"];
+
+let pairingApiPromise:
+  | Promise<{
+      listDevicePairing: ListDevicePairingFn;
+      approveDevicePairing: ApproveDevicePairingFn;
+    }>
+  | null = null;
+
+async function loadPairingApi(): Promise<{
+  listDevicePairing: ListDevicePairingFn;
+  approveDevicePairing: ApproveDevicePairingFn;
+}> {
+  if (!pairingApiPromise) {
+    pairingApiPromise = import("resonix/plugin-sdk").then((sdk) => ({
+      listDevicePairing: sdk.listDevicePairing,
+      approveDevicePairing: sdk.approveDevicePairing,
+    }));
+  }
+  return await pairingApiPromise;
+}
+
+let qrModulePromise: Promise<typeof import("qrcode-terminal")> | null = null;
+
+async function loadQrModule(): Promise<typeof import("qrcode-terminal")> {
+  if (!qrModulePromise) {
+    qrModulePromise = import("qrcode-terminal");
+  }
+  return await qrModulePromise;
+}
 
 function renderQrAscii(data: string): Promise<string> {
-  return new Promise((resolve) => {
-    qrcode.generate(data, { small: true }, (output: string) => {
-      resolve(output);
-    });
-  });
+  return loadQrModule().then(
+    (qrcode) =>
+      new Promise((resolve) => {
+        qrcode.generate(data, { small: true }, (output: string) => {
+          resolve(output);
+        });
+      }),
+  );
 }
 
 const DEFAULT_GATEWAY_PORT = 18789;
@@ -474,11 +507,13 @@ export default function register(api: ResonixPluginApi) {
       );
 
       if (action === "status" || action === "pending") {
+        const { listDevicePairing } = await loadPairingApi();
         const list = await listDevicePairing();
         return { text: formatPendingRequests(list.pending) };
       }
 
       if (action === "approve") {
+        const { listDevicePairing, approveDevicePairing } = await loadPairingApi();
         const requested = tokens[1]?.trim();
         const list = await listDevicePairing();
         if (list.pending.length === 0) {

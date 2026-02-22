@@ -42,6 +42,13 @@ const EXAMPLES = [
   ],
 ] as const;
 
+function formatDateVersionWithGreeting(now = new Date()): string {
+  const year = String(now.getFullYear());
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day} Heyy! Have Good Time ! - MarkEllington`;
+}
+
 export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   program
     .name(CLI_NAME)
@@ -103,7 +110,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     hasFlag(process.argv, "--version") ||
     hasRootVersionAlias(process.argv)
   ) {
-    console.log(ctx.programVersion);
+    console.log(formatDateVersionWithGreeting());
     process.exit(0);
   }
 

@@ -289,7 +289,26 @@ export function registerConfigCli(program: Command) {
     .addHelpText(
       "before",
       () =>
-        `\n${"+----------------------------------------------------------------+"}\n${"|           RESONIX SYSTEM LAYER - CONFIGURATION             |"}\n${"+----------------------------------------------------------------+"}\n${"|                                                                |"}\n${"|  System layer modules are running and configured:           |"}\n${"|                                                                |"}\n${"|  o Model Providers - Anthropic, OpenAI, MiniMax, Qwen, etc.  |"}\n${"|  o Channel Settings - Telegram, Feishu integration           |"}\n${"|  o Plugin Management - All bundled plugins auto-loaded       |"}\n${"|  o Security Policies - Access control and sandbox policies   |"}\n${"|  o Memory Configuration - Semantic and episodic memory       |"}\n${"|                                                                |"}\n${"|  Your configuration is automatically synchronized            |"}\n${"|  with the running system layer.                            |"}\n${"|                                                                |"}\n${"|  Docs: https://docs.resonix.ai/cli/config                   |"}\n${"+----------------------------------------------------------------+"}\n`,
+        [
+          "",
+          "+----------------------------------------------------------------+",
+          "|        RESONIX SYSTEM LAYER - CONFIGURATION                   |",
+          "+----------------------------------------------------------------+",
+          "|                                                                |",
+          "|  Config modules are online and politely judging your YAML.     |",
+          "|                                                                |",
+          "|  o Model Providers - Anthropic, OpenAI, MiniMax, Qwen, etc.   |",
+          "|  o Channel Settings - Telegram, Feishu integration             |",
+          "|  o Plugin Management - bundled plugins auto-loaded             |",
+          "|  o Security Policies - access control + sandbox rules          |",
+          "|  o Memory Configuration - semantic + episodic memory           |",
+          "|                                                                |",
+          "|  Changes stay synchronized with the running system layer.      |",
+          "|                                                                |",
+          "|  Docs: https://docs.resonix.ai/cli/config                      |",
+          "+----------------------------------------------------------------+",
+          "",
+        ].join("\n"),
     )
     .option(
       "--section <section>",

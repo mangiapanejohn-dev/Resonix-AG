@@ -219,11 +219,10 @@ export async function loginMiniMaxPortalOAuth(params: {
   ];
   await params.note(noteLines.join("\n"), "MiniMax OAuth");
 
-  try {
-    await params.openUrl(verificationUrl);
-  } catch {
+  // Avoid blocking OAuth flow on browser-launch command timeouts.
+  void params.openUrl(verificationUrl).catch(() => {
     // Fall back to manual copy/paste if browser open fails.
-  }
+  });
 
   let pollIntervalMs = oauth.interval ? oauth.interval : 2000;
   const expireTimeMs = oauth.expired_in;
