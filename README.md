@@ -173,7 +173,7 @@ src/resonix/
 
 - **Logo**: 👾 (Alien)
 - **Theme Color**: Blue-Purple Gradient
-- **Developer**: [MarkEllington](https://x.com/moralesjavx1032) (14 years old)
+- **Developer**: [MarkEllington](https://x.com/moralesjavx1032) (Do't thinking is younger than you ✌️)
 
 ---
 
@@ -190,4 +190,4 @@ MIT License
 
 ---
 
-_Built with ❤️ by MarkEllington (14yo)_
+_Built with ❤️ by MarkEllington (✌️)_
