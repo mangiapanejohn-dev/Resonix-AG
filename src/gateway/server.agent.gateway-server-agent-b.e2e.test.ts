@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { WebSocket } from "ws";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
+import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { BARE_SESSION_RESET_PROMPT } from "../auto-reply/reply/session-reset-prompt.js";
 import type { ChannelPlugin } from "../channels/plugins/types.js";
 import { emitAgentEvent, registerAgentRunContext } from "../infra/agent-events.js";
@@ -61,9 +61,9 @@ const createMSTeamsPlugin = (params?: { aliases?: string[] }): ChannelPlugin => 
 const emptyRegistry = createRegistry([]);
 const defaultRegistry = createRegistry([
   {
-    pluginId: "whatsapp",
+    pluginId: "telegram",
     source: "test",
-    plugin: whatsappPlugin,
+    plugin: telegramPlugin,
   },
 ]);
 
@@ -177,7 +177,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    expectAgentRoutingCall({ channel: "whatsapp", deliver: true });
+    expectAgentRoutingCall({ channel: "telegram", deliver: true });
   });
 
   test("agent accepts channel aliases (imsg/teams)", async () => {
@@ -249,7 +249,7 @@ describe("gateway server agent", () => {
     });
     expect(res.ok).toBe(true);
 
-    expectAgentRoutingCall({ channel: "whatsapp", deliver: true });
+    expectAgentRoutingCall({ channel: "telegram", deliver: true });
   });
 
   test("agent uses webchat for internal runs when last provider is webchat", async () => {

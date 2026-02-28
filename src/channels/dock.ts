@@ -484,6 +484,26 @@ const DOCKS: Record<ChatChannelId, ChannelDock> = {
         buildIMessageThreadToolContext({ context, hasRepliedRef }),
     },
   },
+  feishu: {
+    id: "feishu",
+    capabilities: {
+      chatTypes: ["direct", "group"],
+      media: true,
+    },
+    outbound: { textChunkLimit: 4000 },
+    config: {
+      resolveAllowFrom: ({ cfg, accountId }) => {
+        const channel = cfg.channels?.feishu as any;
+        const account = resolveCaseInsensitiveAccount(channel?.accounts, accountId) as any;
+        return (account?.allowFrom ?? channel?.allowFrom ?? []).map((entry: any) => String(entry));
+      },
+      formatAllowFrom: ({ allowFrom }) =>
+        allowFrom
+          .map((entry) => String(entry).trim())
+          .filter(Boolean)
+          .map((entry) => entry.replace(/^(feishu|lark):/i, "").toLowerCase()),
+    },
+  },
 };
 
 function buildDockFromPlugin(plugin: ChannelPlugin): ChannelDock {

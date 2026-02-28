@@ -1,5 +1,4 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { slackPlugin } from "../../../extensions/slack/src/channel.js";
 import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
 import type { ResonixConfig } from "../../config/config.js";
 import { setActivePluginRegistry } from "../../plugins/runtime.js";
@@ -32,19 +31,10 @@ vi.mock("../../config/sessions.js", async () => {
 
 import { runMessageAction } from "./message-action-runner.js";
 
-const slackConfig = {
-  channels: {
-    slack: {
-      botToken: "xoxb-test",
-      appToken: "xapp-test",
-    },
-  },
-} as ResonixConfig;
-
 const telegramConfig = {
   channels: {
     telegram: {
-      botToken: "telegram-test",
+      token: "telegram-test",
     },
   },
 } as ResonixConfig;
@@ -81,27 +71,19 @@ const defaultTelegramToolContext = {
 } as const;
 
 let createPluginRuntime: typeof import("../../plugins/runtime/index.js").createPluginRuntime;
-let setSlackRuntime: typeof import("../../../extensions/slack/src/runtime.js").setSlackRuntime;
 let setTelegramRuntime: typeof import("../../../extensions/telegram/src/runtime.js").setTelegramRuntime;
 
 describe("runMessageAction threading auto-injection", () => {
   beforeAll(async () => {
     ({ createPluginRuntime } = await import("../../plugins/runtime/index.js"));
-    ({ setSlackRuntime } = await import("../../../extensions/slack/src/runtime.js"));
     ({ setTelegramRuntime } = await import("../../../extensions/telegram/src/runtime.js"));
   });
 
   beforeEach(() => {
     const runtime = createPluginRuntime();
-    setSlackRuntime(runtime);
     setTelegramRuntime(runtime);
     setActivePluginRegistry(
       createTestRegistry([
-        {
-          pluginId: "slack",
-          source: "test",
-          plugin: slackPlugin,
-        },
         {
           pluginId: "telegram",
           source: "test",
@@ -115,40 +97,6 @@ describe("runMessageAction threading auto-injection", () => {
     setActivePluginRegistry(createTestRegistry([]));
     mocks.executeSendAction.mockReset();
     mocks.recordSessionMetaFromInbound.mockReset();
-  });
-
-  it.each([
-    {
-      name: "exact channel id",
-      target: "channel:C123",
-      threadTs: "111.222",
-      expectedSessionKey: "agent:main:slack:channel:c123:thread:111.222",
-    },
-    {
-      name: "case-insensitive channel id",
-      target: "channel:c123",
-      threadTs: "333.444",
-      expectedSessionKey: "agent:main:slack:channel:c123:thread:333.444",
-    },
-  ] as const)("auto-threads slack using $name", async (testCase) => {
-    mockHandledSendAction();
-
-    const call = await runThreadingAction({
-      cfg: slackConfig,
-      actionParams: {
-        channel: "slack",
-        target: testCase.target,
-        message: "hi",
-      },
-      toolContext: {
-        currentChannelId: "C123",
-        currentThreadTs: testCase.threadTs,
-        replyToMode: "all",
-      },
-    });
-
-    expect(call?.ctx?.agentId).toBe("main");
-    expect(call?.ctx?.mirror?.sessionKey).toBe(testCase.expectedSessionKey);
   });
 
   it.each([

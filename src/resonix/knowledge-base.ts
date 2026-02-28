@@ -1,16 +1,16 @@
 /**
  * Resonix Knowledge Base
- * 
+ *
  * Structured knowledge storage with semantic search.
  * Part of Resonix's autonomous learning system.
- * 
+ *
  * Author: MarkEllington (14-year-old developer)
  * Logo: 👾
  */
 
-import path from "node:path";
 import fs from "node:fs";
-import { appDataDir } from "../utils.js";
+import path from "node:path";
+import { resolveStateDir } from "../config/paths.js";
 
 export interface KnowledgeEntry {
   id: string;
@@ -28,7 +28,7 @@ export interface KnowledgeSearchResult {
   relevance: number;
 }
 
-const KNOWLEDGE_BASE_DIR = path.join(appDataDir(), 'resonix-knowledge');
+const KNOWLEDGE_BASE_DIR = path.join(resolveStateDir(), "resonix-knowledge");
 
 export class KnowledgeBase {
   private knowledge: Map<string, KnowledgeEntry> = new Map();
@@ -55,14 +55,14 @@ export class KnowledgeBase {
   private loadKnowledge(): void {
     if (!fs.existsSync(KNOWLEDGE_BASE_DIR)) return;
 
-    const files = fs.readdirSync(KNOWLEDGE_BASE_DIR).filter(f => f.endsWith('.json'));
-    
+    const files = fs.readdirSync(KNOWLEDGE_BASE_DIR).filter((f) => f.endsWith(".json"));
+
     for (const file of files) {
       try {
-        const content = fs.readFileSync(path.join(KNOWLEDGE_BASE_DIR, file), 'utf-8');
+        const content = fs.readFileSync(path.join(KNOWLEDGE_BASE_DIR, file), "utf-8");
         const entry = JSON.parse(content) as KnowledgeEntry;
         entry.timestamp = new Date(entry.timestamp);
-        
+
         this.knowledge.set(entry.id, entry);
         this.indexEntry(entry);
       } catch {
@@ -98,11 +98,11 @@ export class KnowledgeBase {
   /**
    * Add knowledge
    */
-  async add(data: Omit<KnowledgeEntry, 'id' | 'timestamp'>): Promise<KnowledgeEntry> {
+  async add(data: Omit<KnowledgeEntry, "id" | "timestamp">): Promise<KnowledgeEntry> {
     const entry: KnowledgeEntry = {
       ...data,
       id: crypto.randomUUID(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     // Save to disk
@@ -125,11 +125,14 @@ export class KnowledgeBase {
       return Array.from(this.knowledge.values())
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, limit)
-        .map(entry => ({ entry, relevance: 1 }));
+        .map((entry) => ({ entry, relevance: 1 }));
     }
 
-    const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-    const results: Array<{entry: KnowledgeEntry, relevance: number}> = [];
+    const queryWords = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 2);
+    const results: Array<{ entry: KnowledgeEntry; relevance: number }> = [];
 
     // Find candidate entries
     const candidateIds = new Set<string>();
@@ -165,7 +168,7 @@ export class KnowledgeBase {
 
       // Tag match
       for (const word of queryWords) {
-        if (entry.tags.some(t => t.toLowerCase().includes(word))) {
+        if (entry.tags.some((t) => t.toLowerCase().includes(word))) {
           relevance += 0.2;
         }
       }
@@ -196,7 +199,7 @@ export class KnowledgeBase {
    */
   getByTopic(topic: string): KnowledgeEntry[] {
     const results = this.search(topic, 10);
-    return results.map(r => r.entry);
+    return results.map((r) => r.entry);
   }
 
   /**
@@ -227,10 +230,9 @@ export class KnowledgeBase {
    * Get statistics
    */
   getStats() {
-    const qualities = Array.from(this.knowledge.values()).map(e => e.quality);
-    const avgQuality = qualities.length > 0 
-      ? qualities.reduce((a, b) => a + b, 0) / qualities.length 
-      : 0;
+    const qualities = Array.from(this.knowledge.values()).map((e) => e.quality);
+    const avgQuality =
+      qualities.length > 0 ? qualities.reduce((a, b) => a + b, 0) / qualities.length : 0;
 
     return {
       totalEntries: this.knowledge.size,
@@ -238,7 +240,7 @@ export class KnowledgeBase {
       topics: this.topicIndex.size,
       tags: this.tagIndex.size,
       newestEntry: this.getNewest(),
-      oldestEntry: this.getOldest()
+      oldestEntry: this.getOldest(),
     };
   }
 

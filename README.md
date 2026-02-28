@@ -2,7 +2,6 @@
   <h1>👾 Resonix-AG</h1>
 </div>
 
-
 <p align="center">
   <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory !</strong>
 </p>
@@ -23,11 +22,13 @@
 ### One-Line Install
 
 **macOS / Linux:**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
 ```
 
 **Windows (PowerShell as Administrator):**
+
 ```powershell
 iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
 ```
@@ -78,25 +79,28 @@ resonix --help
 Unlike traditional AI assistants that only respond to commands, Resonix-AG can:
 
 - 🧠 **Self-Cognition**: Knows what it knows, identifies knowledge gaps
-- 📚 **Autonomous Learning**: Actively learns new knowledge without manual prompts  
+- 📚 **Autonomous Learning**: Actively learns new knowledge without manual prompts
 - 💾 **Permanent Memory**: Remembers learned information forever with smart retention
 - 🔄 **Continuous Evolution**: Improves itself over time through learning
 
 ## Core Features
 
 ### Self-Cognition System
+
 - Capability profiling (hourly updates)
 - Knowledge gap detection
 - Deviation correction with multi-source validation
 - Learning demand recognition
 
 ### 4-Layer Memory Architecture
+
 - **Working Memory**: Temporary buffer (30 min TTL)
 - **Episodic Memory**: Behavioral logs (1 year retention)
 - **Semantic Memory**: Knowledge cards (permanent)
 - **Program Memory**: Learning strategies (permanent)
 
 ### Autonomous Learning
+
 - Dynamic path planning (Basic → Advanced → Practical → Validation)
 - BrewAPI-first with browser fallback
 - Anti-crawling simulation
@@ -173,4 +177,4 @@ MIT License
 
 ---
 
-*Built with ❤️ by MarkEllington (14yo)*
+_Built with ❤️ by MarkEllington (14yo)_

@@ -17,10 +17,7 @@ function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessio
   return sessionKey.trim() !== mainSessionKey.trim();
 }
 
-function resolveMainSessionKeyForSandbox(params: {
-  cfg?: ResonixConfig;
-  agentId: string;
-}): string {
+function resolveMainSessionKeyForSandbox(params: { cfg?: ResonixConfig; agentId: string }): string {
   if (params.cfg?.session?.scope === "global") {
     return "global";
   }
@@ -42,10 +39,7 @@ function resolveComparableSessionKeyForSandbox(params: {
   });
 }
 
-export function resolveSandboxRuntimeStatus(params: {
-  cfg?: ResonixConfig;
-  sessionKey?: string;
-}): {
+export function resolveSandboxRuntimeStatus(params: { cfg?: ResonixConfig; sessionKey?: string }): {
   agentId: string;
   sessionKey: string;
   mainSessionKey: string;

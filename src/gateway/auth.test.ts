@@ -8,10 +8,28 @@ function createLimiterSpy(): AuthRateLimiter & {
   reset: ReturnType<typeof vi.fn>;
 } {
   const check = vi.fn<AuthRateLimiter["check"]>(
-    (_ip, _scope) => ({ allowed: true, remaining: 10, retryAfterMs: 0 }) as const,
+    (_ip, _scope) =>
+      ({
+        allowed: true,
+        remaining: 10,
+        retryAfterMs: 0,
+        currentAttempts: 0,
+        exempt: false,
+      }) as const,
   );
   const recordFailure = vi.fn<AuthRateLimiter["recordFailure"]>((_ip, _scope) => {});
   const reset = vi.fn<AuthRateLimiter["reset"]>((_ip, _scope) => {});
+  const getMetrics = vi.fn<AuthRateLimiter["getMetrics"]>(() => ({
+    totalChecks: 0,
+    allowedChecks: 0,
+    blockedChecks: 0,
+    totalFailures: 0,
+    totalResets: 0,
+    currentEntries: 0,
+    exemptedChecks: 0,
+  }));
+  const clear = vi.fn<AuthRateLimiter["clear"]>(() => {});
+  const getEntries = vi.fn<AuthRateLimiter["getEntries"]>(() => new Map());
   return {
     check,
     recordFailure,
@@ -19,6 +37,9 @@ function createLimiterSpy(): AuthRateLimiter & {
     size: () => 0,
     prune: () => {},
     dispose: () => {},
+    getMetrics,
+    clear,
+    getEntries,
   };
 }
 

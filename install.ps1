@@ -65,10 +65,10 @@ function Install-Resonix {
         $nodeVersion = (node --version 2>$null)
         if ($nodeVersion) {
             $nodeMajor = [int]($nodeVersion -replace 'v','' -split '\.')[0]
-            if ($nodeMajor -ge 20) {
-                Write-Success "Node.js $nodeVersion (>= 20)"
+            if ($nodeMajor -ge 22) {
+                Write-Success "Node.js $nodeVersion (>= 22)"
             } else {
-                Write-Warn "Node.js $nodeVersion found, but v20+ recommended"
+                Write-Warn "Node.js $nodeVersion found, but v22+ recommended"
             }
         } else {
             throw "Node.js not found"
@@ -91,13 +91,23 @@ function Install-Resonix {
         exit 1
     }
     
-    # Check pnpm (optional)
+    # Check and install pnpm
     $pnpmAvailable = $false
     try {
         $pnpmVersion = (pnpm --version 2>$null)
         if ($pnpmVersion) {
             $pnpmAvailable = $true
             Write-Success "pnpm $pnpmVersion"
+        } else {
+            Write-Info "Installing pnpm..."
+            npm install -g pnpm@10 2>&1 | Out-Host
+            $pnpmVersion = (pnpm --version 2>$null)
+            if ($pnpmVersion) {
+                $pnpmAvailable = $true
+                Write-Success "pnpm $pnpmVersion installed"
+            } else {
+                Write-Warn "pnpm installation failed, will use npm"
+            }
         }
     } catch {
         Write-Warn "pnpm not found, will use npm"
@@ -139,6 +149,22 @@ function Install-Resonix {
     Write-Host ""
     Write-Info "Creating shortcuts..."
     
+    # Create resonix.ps1 wrapper in the installation directory
+    $wrapperContent = @"
+#!/usr/bin/env pwsh
+# Resonix wrapper script
+`$scriptDir = Split-Path -Parent (`$MyInvocation.MyCommand.Path)
+node "`$scriptDir\dist\index.mjs" `$args
+"@
+    $wrapperContent | Out-File -FilePath "$INST_DIR\resonix.ps1" -Encoding UTF8
+    
+    # Create resonix.bat wrapper for cmd.exe compatibility
+    $batContent = @"
+@echo off
+node "%~dp0dist\index.mjs" %*
+"@
+    $batContent | Out-File -FilePath "$INST_DIR\resonix.bat" -Encoding ASCII
+    
     # Add to PATH (user level)
     $pathEntry = "$INST_DIR"
     $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
@@ -146,15 +172,6 @@ function Install-Resonix {
         [Environment]::SetEnvironmentVariable("PATH", "$currentPath;$pathEntry", "User")
         Write-Success "Added to PATH"
     }
-    
-    # Create resonix.ps1 wrapper in the installation directory
-    $wrapperContent = @"
-#!/usr/bin/env pwsh
-# Resonix wrapper script
-`$scriptDir = Split-Path -Parent (`$MyInvocation.MyCommand.Path)
-node "`$scriptDir\resonix.mjs" `$args
-"@
-    $wrapperContent | Out-File -FilePath "$INST_DIR\resonix.ps1" -Encoding UTF8
     
     Write-Host ""
     Write-Success "$BOLD Resonix-AG installed successfully!$RESET" -ForegroundColor Green

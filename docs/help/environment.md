@@ -76,10 +76,10 @@ See [Configuration: Env var substitution](/gateway/configuration#env-var-substit
 
 ## Path-related env vars
 
-| Variable               | Purpose                                                                                                                                                                          |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Variable              | Purpose                                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `RESONIX_HOME`        | Override the home directory used for all internal path resolution (`~/.resonix/`, agent dirs, sessions, credentials). Useful when running Resonix as a dedicated service user. |
-| `RESONIX_STATE_DIR`   | Override the state directory (default `~/.resonix`).                                                                                                                            |
+| `RESONIX_STATE_DIR`   | Override the state directory (default `~/.resonix`).                                                                                                                           |
 | `RESONIX_CONFIG_PATH` | Override the config file path (default `~/.resonix/resonix.json`).                                                                                                             |
 
 ### `RESONIX_HOME`

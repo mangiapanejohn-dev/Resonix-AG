@@ -4,8 +4,6 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { telegramPlugin } from "../../extensions/telegram/src/channel.js";
 import { setTelegramRuntime } from "../../extensions/telegram/src/runtime.js";
-import { whatsappPlugin } from "../../extensions/whatsapp/src/channel.js";
-import { setWhatsAppRuntime } from "../../extensions/whatsapp/src/runtime.js";
 import * as replyModule from "../auto-reply/reply.js";
 import type { ResonixConfig } from "../config/config.js";
 import { resolveAgentMainSessionKey, resolveMainSessionKey } from "../config/sessions.js";
@@ -63,12 +61,8 @@ async function withHeartbeatFixture(
 beforeEach(() => {
   const runtime = createPluginRuntime();
   setTelegramRuntime(runtime);
-  setWhatsAppRuntime(runtime);
   setActivePluginRegistry(
-    createTestRegistry([
-      { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
-      { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
-    ]),
+    createTestRegistry([{ pluginId: "telegram", plugin: telegramPlugin, source: "test" }]),
   );
 });
 
@@ -88,17 +82,17 @@ describe("runHeartbeatOnce – heartbeat model override", () => {
             workspace: tmpDir,
             heartbeat: {
               every: "5m",
-              target: "whatsapp",
+              target: "telegram",
               model: params.model,
               suppressToolErrorWarnings: params.suppressToolErrorWarnings,
             },
           },
         },
-        channels: { whatsapp: { allowFrom: ["*"] } },
+        channels: { telegram: { allowFrom: ["*"] } },
         session: { store: storePath },
       };
       const sessionKey = resolveMainSessionKey(cfg);
-      await seedSession(sessionKey, { lastChannel: "whatsapp", lastTo: "+1555" });
+      await seedSession(sessionKey, { lastChannel: "telegram", lastTo: "+1555" });
 
       const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
       replySpy.mockResolvedValue({ text: "HEARTBEAT_OK" });
@@ -154,17 +148,17 @@ describe("runHeartbeatOnce – heartbeat model override", () => {
               workspace: tmpDir,
               heartbeat: {
                 every: "5m",
-                target: "whatsapp",
+                target: "telegram",
                 model: "ollama/llama3.2:1b",
               },
             },
           ],
         },
-        channels: { whatsapp: { allowFrom: ["*"] } },
+        channels: { telegram: { allowFrom: ["*"] } },
         session: { store: storePath },
       };
       const sessionKey = resolveAgentMainSessionKey({ cfg, agentId: "ops" });
-      await seedSession(sessionKey, { lastChannel: "whatsapp", lastTo: "+1555" });
+      await seedSession(sessionKey, { lastChannel: "telegram", lastTo: "+1555" });
 
       const replySpy = vi.spyOn(replyModule, "getReplyFromConfig");
       replySpy.mockResolvedValue({ text: "HEARTBEAT_OK" });

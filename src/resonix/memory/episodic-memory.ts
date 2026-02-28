@@ -1,13 +1,13 @@
 /**
  * Resonix 永久记忆体系 - 情景记忆（学习/交互行为日志库）
- * 
+ *
  * 核心定位：存储自主认知结论、学习执行记录、用户反馈、异常信息
  * 相当于人类的"情景记忆"，为偏差修正和学习策略优化提供依据
  */
 
-import path from 'node:path';
-import fs from 'node:fs';
-import { appDataDir } from '../../config/paths.js';
+import fs from "node:fs";
+import path from "node:path";
+import { resolveStateDir } from "../../config/paths.js";
 
 export interface EpisodicEvent {
   id: string;
@@ -16,7 +16,7 @@ export interface EpisodicEvent {
   timestamp: number;
   metadata?: Record<string, any>;
   relatedKnowledge?: string[];
-  sentiment?: 'positive' | 'negative' | 'neutral';
+  sentiment?: "positive" | "negative" | "neutral";
 }
 
 export interface EpisodicSearchQuery {
@@ -41,10 +41,11 @@ export class EpisodicMemory {
   private initialized: boolean = false;
 
   constructor(config?: Partial<EpisodicMemoryConfig>) {
-    this.storageDir = config?.storageDir || path.join(appDataDir(), 'resonix-memory', 'episodic');
+    this.storageDir =
+      config?.storageDir || path.join(resolveStateDir(), "resonix-memory", "episodic");
     this.retentionDays = config?.retentionDays ?? 365;
     this.maxEventsPerDay = config?.maxEventsPerDay ?? 1000;
-    
+
     this.ensureStorageDir();
     this.loadRecentEvents();
   }
@@ -61,25 +62,25 @@ export class EpisodicMemory {
   private async loadRecentEvents(): Promise<void> {
     const daysToLoad = 7; // 加载最近7天
     const now = Date.now();
-    
+
     for (let i = 0; i < daysToLoad; i++) {
       const date = new Date(now - i * 24 * 60 * 60 * 1000);
       const dateStr = this.formatDate(date);
       const events = await this.loadDayEvents(dateStr);
       this.memoryCache.push(...events);
     }
-    
+
     this.initialized = true;
   }
 
   /**
    * 记录事件
    */
-  async log(event: Omit<EpisodicEvent, 'id' | 'timestamp'>): Promise<EpisodicEvent> {
+  async log(event: Omit<EpisodicEvent, "id" | "timestamp">): Promise<EpisodicEvent> {
     const fullEvent: EpisodicEvent = {
       id: `ep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
-      ...event
+      ...event,
     };
 
     // 添加到缓存
@@ -104,20 +105,20 @@ export class EpisodicMemory {
     let results = this.memoryCache;
 
     if (query.event_type) {
-      results = results.filter(e => e.event_type === query.event_type);
+      results = results.filter((e) => e.event_type === query.event_type);
     }
 
     if (query.content) {
       const lowerContent = query.content.toLowerCase();
-      results = results.filter(e => e.content.toLowerCase().includes(lowerContent));
+      results = results.filter((e) => e.content.toLowerCase().includes(lowerContent));
     }
 
     if (query.startTime) {
-      results = results.filter(e => e.timestamp >= query.startTime!);
+      results = results.filter((e) => e.timestamp >= query.startTime!);
     }
 
     if (query.endTime) {
-      results = results.filter(e => e.timestamp <= query.endTime!);
+      results = results.filter((e) => e.timestamp <= query.endTime!);
     }
 
     // 按时间倒序
@@ -134,9 +135,7 @@ export class EpisodicMemory {
    * 获取最近的事件
    */
   async getRecent(limit: number = 100): Promise<EpisodicEvent[]> {
-    return this.memoryCache
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, limit);
+    return this.memoryCache.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
   }
 
   /**
@@ -144,9 +143,9 @@ export class EpisodicMemory {
    */
   async getEventStats(eventType?: string): Promise<Record<string, number>> {
     const stats: Record<string, number> = {};
-    
-    const filtered = eventType 
-      ? this.memoryCache.filter(e => e.event_type === eventType)
+
+    const filtered = eventType
+      ? this.memoryCache.filter((e) => e.event_type === eventType)
       : this.memoryCache;
 
     for (const event of filtered) {
@@ -160,9 +159,9 @@ export class EpisodicMemory {
    * 获取用户反馈事件
    */
   async getUserFeedback(): Promise<EpisodicEvent[]> {
-    return this.search({ 
-      event_type: 'user_feedback',
-      limit: 100 
+    return this.search({
+      event_type: "user_feedback",
+      limit: 100,
     });
   }
 
@@ -171,8 +170,8 @@ export class EpisodicMemory {
    */
   async getErrors(): Promise<EpisodicEvent[]> {
     return this.search({
-      content: 'error',
-      limit: 50
+      content: "error",
+      limit: 50,
     });
   }
 
@@ -181,7 +180,7 @@ export class EpisodicMemory {
    */
   async getRelatedToKnowledge(knowledgeId: string): Promise<EpisodicEvent[]> {
     return this.memoryCache
-      .filter(e => e.relatedKnowledge?.includes(knowledgeId))
+      .filter((e) => e.relatedKnowledge?.includes(knowledgeId))
       .sort((a, b) => b.timestamp - a.timestamp);
   }
 
@@ -191,17 +190,17 @@ export class EpisodicMemory {
   async cleanup(): Promise<number> {
     const cutoff = Date.now() - this.retentionDays * 24 * 60 * 60 * 1000;
     const beforeCount = this.memoryCache.length;
-    
+
     // 保留超过保留期的事件到归档
-    const toArchive = this.memoryCache.filter(e => e.timestamp < cutoff);
+    const toArchive = this.memoryCache.filter((e) => e.timestamp < cutoff);
     for (const event of toArchive) {
       const dateStr = this.formatDate(new Date(event.timestamp));
       await this.archiveEvent(dateStr, event);
     }
 
     // 从内存中移除
-    this.memoryCache = this.memoryCache.filter(e => e.timestamp >= cutoff);
-    
+    this.memoryCache = this.memoryCache.filter((e) => e.timestamp >= cutoff);
+
     // 删除旧的日记文件
     await this.deleteOldDayFiles(cutoff);
 
@@ -212,14 +211,14 @@ export class EpisodicMemory {
    * 归档事件
    */
   private async archiveEvent(originalDate: string, event: EpisodicEvent): Promise<void> {
-    const archiveDir = path.join(this.storageDir, 'archive');
+    const archiveDir = path.join(this.storageDir, "archive");
     if (!fs.existsSync(archiveDir)) {
       fs.mkdirSync(archiveDir, { recursive: true });
     }
 
     const archiveFile = path.join(archiveDir, `${originalDate}.jsonl`);
-    const line = JSON.stringify(event) + '\n';
-    
+    const line = JSON.stringify(event) + "\n";
+
     fs.appendFileSync(archiveFile, line);
   }
 
@@ -235,15 +234,18 @@ export class EpisodicMemory {
    */
   private async loadDayEvents(dateStr: string): Promise<EpisodicEvent[]> {
     const filePath = this.getDayFilePath(dateStr);
-    
+
     if (!fs.existsSync(filePath)) {
       return [];
     }
 
     try {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      const lines = content.trim().split('\n').filter(l => l);
-      return lines.map(line => JSON.parse(line) as EpisodicEvent);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const lines = content
+        .trim()
+        .split("\n")
+        .filter((l) => l);
+      return lines.map((line) => JSON.parse(line) as EpisodicEvent);
     } catch (e) {
       console.error(`[EpisodicMemory] Failed to load day events for ${dateStr}:`, e);
       return [];
@@ -255,8 +257,8 @@ export class EpisodicMemory {
    */
   private async appendToDayFile(dateStr: string, event: EpisodicEvent): Promise<void> {
     const filePath = this.getDayFilePath(dateStr);
-    const line = JSON.stringify(event) + '\n';
-    
+    const line = JSON.stringify(event) + "\n";
+
     fs.appendFileSync(filePath, line);
   }
 
@@ -264,16 +266,16 @@ export class EpisodicMemory {
    * 删除旧的日记文件
    */
   private async deleteOldDayFiles(cutoff: number): Promise<void> {
-    const files = fs.readdirSync(this.storageDir).filter(f => f.endsWith('.jsonl'));
-    
+    const files = fs.readdirSync(this.storageDir).filter((f) => f.endsWith(".jsonl"));
+
     for (const file of files) {
-      const dateStr = file.replace('.jsonl', '');
+      const dateStr = file.replace(".jsonl", "");
       const date = this.parseDate(dateStr);
-      
+
       if (date.getTime() < cutoff) {
-        const archiveDir = path.join(this.storageDir, 'archive');
+        const archiveDir = path.join(this.storageDir, "archive");
         const archivePath = path.join(archiveDir, file);
-        
+
         // 如果归档文件不存在，复制过去
         if (!fs.existsSync(archivePath)) {
           const sourcePath = path.join(this.storageDir, file);
@@ -284,7 +286,7 @@ export class EpisodicMemory {
             fs.copyFileSync(sourcePath, archivePath);
           }
         }
-        
+
         // 删除原文件
         fs.unlinkSync(path.join(this.storageDir, file));
       }
@@ -295,14 +297,14 @@ export class EpisodicMemory {
    * 格式化日期
    */
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }
 
   /**
    * 解析日期
    */
   private parseDate(dateStr: string): Date {
-    return new Date(dateStr + 'T00:00:00Z');
+    return new Date(dateStr + "T00:00:00Z");
   }
 
   /**
@@ -330,7 +332,7 @@ export class EpisodicMemory {
       totalEvents: this.memoryCache.length,
       byType,
       dateRange: { start: minTime, end: maxTime },
-      averagePerDay: this.memoryCache.length / days
+      averagePerDay: this.memoryCache.length / days,
     };
   }
 }

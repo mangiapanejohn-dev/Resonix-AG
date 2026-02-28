@@ -9,7 +9,11 @@ import { isWebchatClient } from "../../utils/message-channel.js";
 import type { AuthRateLimiter } from "../auth-rate-limit.js";
 import type { ResolvedGatewayAuth } from "../auth.js";
 import { isLoopbackAddress } from "../net.js";
-import { getHandshakeTimeoutMs } from "../server-constants.js";
+import {
+  getHandshakeTimeoutMs,
+  getHeartbeatIntervalMs,
+  getHeartbeatTimeoutMs,
+} from "../server-constants.js";
 import type { GatewayRequestContext, GatewayRequestHandlers } from "../server-methods/types.js";
 import { formatError } from "../server-utils.js";
 import { logWs } from "../ws-log.js";
@@ -65,6 +69,8 @@ export function attachGatewayWsConnectionHandler(params: {
   resolvedAuth: ResolvedGatewayAuth;
   /** Optional rate limiter for auth brute-force protection. */
   rateLimiter?: AuthRateLimiter;
+  /** Browser-specific rate limiter (loopback non-exempt). */
+  browserRateLimiter: AuthRateLimiter;
   gatewayMethods: string[];
   events: string[];
   logGateway: SubsystemLogger;
@@ -90,6 +96,7 @@ export function attachGatewayWsConnectionHandler(params: {
     canvasHostServerPort,
     resolvedAuth,
     rateLimiter,
+    browserRateLimiter,
     gatewayMethods,
     events,
     logGateway,
@@ -133,6 +140,10 @@ export function attachGatewayWsConnectionHandler(params: {
     let lastFrameType: string | undefined;
     let lastFrameMethod: string | undefined;
     let lastFrameId: string | undefined;
+    let lastHeartbeatSent: number = 0;
+    let lastHeartbeatReceived: number = 0;
+    let heartbeatInterval: NodeJS.Timeout | undefined;
+    let heartbeatTimeout: NodeJS.Timeout | undefined;
 
     const setCloseCause = (cause: string, meta?: Record<string, unknown>) => {
       if (!closeCause) {
@@ -172,6 +183,12 @@ export function attachGatewayWsConnectionHandler(params: {
       }
       closed = true;
       clearTimeout(handshakeTimer);
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
+      if (heartbeatTimeout) {
+        clearTimeout(heartbeatTimeout);
+      }
       if (client) {
         clients.delete(client);
       }
@@ -179,6 +196,46 @@ export function attachGatewayWsConnectionHandler(params: {
         socket.close(code, reason);
       } catch {
         /* ignore */
+      }
+    };
+
+    const sendHeartbeat = () => {
+      if (closed || handshakeState !== "connected") {
+        return;
+      }
+      lastHeartbeatSent = Date.now();
+      try {
+        socket.send(
+          JSON.stringify({ type: "event", event: "heartbeat", payload: { ts: lastHeartbeatSent } }),
+        );
+        // Set timeout to check for heartbeat response
+        if (heartbeatTimeout) {
+          clearTimeout(heartbeatTimeout);
+        }
+        heartbeatTimeout = setTimeout(() => {
+          if (lastHeartbeatReceived < lastHeartbeatSent) {
+            setCloseCause("heartbeat-timeout");
+            logWsControl.warn(`heartbeat timeout conn=${connId} remote=${remoteAddr ?? "?"}`);
+            close(1008, "Heartbeat timeout");
+          }
+        }, getHeartbeatTimeoutMs());
+      } catch (error) {
+        logWsControl.warn(`error sending heartbeat conn=${connId}: ${formatError(error)}`);
+        close(1011, "Error sending heartbeat");
+      }
+    };
+
+    const startHeartbeat = () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
+      heartbeatInterval = setInterval(sendHeartbeat, getHeartbeatIntervalMs());
+    };
+
+    const handleHeartbeatResponse = () => {
+      lastHeartbeatReceived = Date.now();
+      if (heartbeatTimeout) {
+        clearTimeout(heartbeatTimeout);
       }
     };
 
@@ -278,6 +335,7 @@ export function attachGatewayWsConnectionHandler(params: {
       connectNonce,
       resolvedAuth,
       rateLimiter,
+      browserRateLimiter,
       gatewayMethods,
       events,
       extraHandlers,
@@ -290,12 +348,15 @@ export function attachGatewayWsConnectionHandler(params: {
       setClient: (next) => {
         client = next;
         clients.add(next);
+        // Start heartbeat after successful connection
+        startHeartbeat();
       },
       setHandshakeState: (next) => {
         handshakeState = next;
       },
       setCloseCause,
       setLastFrameMeta,
+      handleHeartbeatResponse,
       logGateway,
       logHealth,
       logWsControl,

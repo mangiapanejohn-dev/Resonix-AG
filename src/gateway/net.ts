@@ -232,6 +232,7 @@ export function resolveGatewayClientIp(params: {
   forwardedFor?: string;
   realIp?: string;
   trustedProxies?: string[];
+  allowRealIpFallback?: boolean;
 }): string | undefined {
   const remote = normalizeIp(params.remoteAddr);
   if (!remote) {
@@ -243,7 +244,14 @@ export function resolveGatewayClientIp(params: {
   // Fail closed when traffic comes from a trusted proxy but client-origin headers
   // are missing or invalid. Falling back to the proxy's own IP can accidentally
   // treat unrelated requests as local/trusted.
-  return parseForwardedForClientIp(params.forwardedFor) ?? parseRealIp(params.realIp);
+  const forwarded = parseForwardedForClientIp(params.forwardedFor);
+  if (forwarded) {
+    return forwarded;
+  }
+  if (params.allowRealIpFallback) {
+    return parseRealIp(params.realIp);
+  }
+  return undefined;
 }
 
 export function isLocalGatewayAddress(ip: string | undefined): boolean {

@@ -1,4 +1,5 @@
 import { resolveEnvApiKey } from "../agents/model-auth.js";
+import { withProgress } from "../cli/progress.js";
 import {
   formatApiKeyPreview,
   normalizeApiKeyInput,
@@ -59,35 +60,25 @@ export async function applyAuthChoiceMiniMax(
       ],
     });
 
-    // Show system check message
-    await params.prompter.note(
-      [
-        "+----------------------------------------------------------------+",
-        "|                   RESONIX SYSTEM CHECK                        |",
-        "+----------------------------------------------------------------+",
-        "|                                                                |",
-        "|  Resonix is running a quick preflight on core modules...      |",
-        "|                                                                |",
-        "|  [OK] Memory System - memory banks online and curious         |",
-        "|  [OK] Working Memory - real-time reasoning warmed up          |",
-        "|  [OK] Self-Cognition Engine - capability map loaded           |",
-        "|  [OK] Browser Control - Playwright keys in the ignition       |",
-        "|  [OK] File Sandbox - isolation walls standing                 |",
-        "|  [OK] Feishu Integration - doc tools ready                    |",
-        "|                                                                |",
-        "|  All core modules checked in and caffeinated.                 |",
-        "+----------------------------------------------------------------+",
-      ].join("\n"),
-      "System Check",
+    // Show loading animation immediately after user selects MiniMax endpoint
+    return await withProgress(
+      {
+        label: "Preparing MiniMax authorization...",
+        indeterminate: true,
+      },
+      async (progress) => {
+        progress.setLabel("Initializing MiniMax authorization...");
+        const result = await applyAuthChoicePluginProvider(params, {
+          authChoice: "minimax-portal",
+          pluginId: "minimax-portal-auth",
+          providerId: "minimax-portal",
+          methodId: endpoint,
+          label: "MiniMax",
+        });
+        progress.setLabel("MiniMax authorization completed!");
+        return result;
+      },
     );
-
-    return await applyAuthChoicePluginProvider(params, {
-      authChoice: "minimax-portal",
-      pluginId: "minimax-portal-auth",
-      providerId: "minimax-portal",
-      methodId: endpoint,
-      label: "MiniMax",
-    });
   }
 
   if (

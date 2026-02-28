@@ -376,8 +376,8 @@ resonix pairing list feishu
 
 ## Gateway management commands
 
-| Command                    | Description                   |
-| -------------------------- | ----------------------------- |
+| Command                   | Description                   |
+| ------------------------- | ----------------------------- |
 | `resonix gateway status`  | Show gateway status           |
 | `resonix gateway install` | Install/start gateway service |
 | `resonix gateway stop`    | Stop gateway service          |

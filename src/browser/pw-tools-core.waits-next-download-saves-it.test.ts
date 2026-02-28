@@ -132,12 +132,7 @@ describe("pw-tools-core", () => {
       suggestedFilename: "file.bin",
     });
     expect(typeof outPath).toBe("string");
-    const expectedRootedDownloadsDir = path.join(
-      path.sep,
-      "tmp",
-      "resonix-preferred",
-      "downloads",
-    );
+    const expectedRootedDownloadsDir = path.join(path.sep, "tmp", "resonix-preferred", "downloads");
     const expectedDownloadsTail = `${path.join("tmp", "resonix-preferred", "downloads")}${path.sep}`;
     expect(path.dirname(String(outPath))).toBe(expectedRootedDownloadsDir);
     expect(path.basename(String(outPath))).toMatch(/-file\.bin$/);

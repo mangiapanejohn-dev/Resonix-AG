@@ -422,10 +422,7 @@ function resolveDefaultStoreAgentId(cfg: ResonixConfig): string {
   return normalizeAgentId(resolveDefaultAgentId(cfg));
 }
 
-export function resolveSessionStoreKey(params: {
-  cfg: ResonixConfig;
-  sessionKey: string;
-}): string {
+export function resolveSessionStoreKey(params: { cfg: ResonixConfig; sessionKey: string }): string {
   const raw = params.sessionKey.trim();
   if (!raw) {
     return raw;

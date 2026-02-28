@@ -72,20 +72,28 @@ function createOAuthHandler(region: MiniMaxRegion) {
   const regionLabel = region === "cn" ? "CN" : "Global";
 
   return async (ctx: ProviderAuthContext): Promise<ProviderAuthResult> => {
-    const progress = ctx.prompter.progress(`Starting MiniMax OAuth (${regionLabel})…`);
-
     try {
-      // Immediately show we're connecting (before network request)
-      progress.update("Connecting to MiniMax…");
-
       const result = await loginMiniMaxPortalOAuth({
         openUrl: ctx.openUrl,
         note: ctx.prompter.note,
-        progress,
+        progress: {
+          update: (message) => {
+            // Use the progress object passed from applyAuthChoicePluginProvider
+            console.log(`Progress update: ${message}`);
+            if (ctx.progress) {
+              ctx.progress.update(message);
+            }
+          },
+          stop: (message) => {
+            // Use the progress object passed from applyAuthChoicePluginProvider
+            console.log(`Progress stop: ${message}`);
+            if (ctx.progress) {
+              ctx.progress.stop(message);
+            }
+          },
+        },
         region,
       });
-
-      progress.stop("MiniMax OAuth complete");
 
       if (result.notification_message) {
         await ctx.prompter.note(result.notification_message, "MiniMax OAuth");
@@ -148,7 +156,9 @@ function createOAuthHandler(region: MiniMaxRegion) {
       };
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      progress.stop(`MiniMax OAuth failed: ${errorMsg}`);
+      if (ctx.progress) {
+        ctx.progress.stop(`MiniMax OAuth failed: ${errorMsg}`);
+      }
       await ctx.prompter.note(
         "If OAuth fails, verify your MiniMax account has portal access and try again.",
         "MiniMax OAuth",

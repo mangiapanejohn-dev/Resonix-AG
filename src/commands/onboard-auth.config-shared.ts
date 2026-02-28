@@ -40,10 +40,7 @@ export function applyOnboardAuthAgentModelsAndProviders(
   };
 }
 
-export function applyAgentDefaultModelPrimary(
-  cfg: ResonixConfig,
-  primary: string,
-): ResonixConfig {
+export function applyAgentDefaultModelPrimary(cfg: ResonixConfig, primary: string): ResonixConfig {
   const existingFallbacks = extractAgentDefaultModelFallbacks(cfg.agents?.defaults?.model);
   return {
     ...cfg,

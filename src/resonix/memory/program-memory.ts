@@ -1,18 +1,18 @@
 /**
  * Resonix 永久记忆体系 - 程序记忆（学习策略/技能沉淀库）
- * 
+ *
  * 核心定位：存储API调用策略、浏览器操作模板、反爬规则等
  * 相当于人类的"技能记忆"，越用越聪明
  */
 
-import path from 'node:path';
-import fs from 'node:fs';
-import { appDataDir } from '../../config/paths.js';
+import fs from "node:fs";
+import path from "node:path";
+import { resolveStateDir } from "../../config/paths.js";
 
 export interface LearningStrategy {
   id: string;
   name: string;
-  type: 'api' | 'browser' | 'extraction' | 'evaluation';
+  type: "api" | "browser" | "extraction" | "evaluation";
   content: Record<string, any>;
   successRate: number;
   usageCount: number;
@@ -34,7 +34,7 @@ export interface BrowserTemplate {
 }
 
 export interface BrowserAction {
-  type: 'click' | 'type' | 'scroll' | 'wait' | 'screenshot' | 'extract';
+  type: "click" | "type" | "scroll" | "wait" | "screenshot" | "extract";
   selector?: string;
   text?: string;
   options?: Record<string, any>;
@@ -49,7 +49,7 @@ export interface AntiCrawlConfig {
 }
 
 export interface ExtractionRule {
-  type: 'css' | 'xpath' | 'regex' | 'ai';
+  type: "css" | "xpath" | "regex" | "ai";
   pattern: string;
   field: string;
   transform?: string;
@@ -65,14 +65,15 @@ export class ProgramMemory {
   private browserTemplates: Map<string, BrowserTemplate> = new Map();
 
   constructor(config?: Partial<ProgramMemoryConfig>) {
-    this.storageDir = config?.storageDir || path.join(appDataDir(), 'resonix-memory', 'program');
+    this.storageDir =
+      config?.storageDir || path.join(resolveStateDir(), "resonix-memory", "program");
     this.ensureStorageDir();
     this.loadStrategies();
     this.loadBrowserTemplates();
   }
 
   private ensureStorageDir(): void {
-    const dirs = ['', 'strategies', 'browser-templates'];
+    const dirs = ["", "strategies", "browser-templates"];
     for (const dir of dirs) {
       const fullPath = path.join(this.storageDir, dir);
       if (!fs.existsSync(fullPath)) {
@@ -85,12 +86,12 @@ export class ProgramMemory {
    * 加载策略
    */
   private loadStrategies(): void {
-    const strategiesDir = path.join(this.storageDir, 'strategies');
-    const files = fs.readdirSync(strategiesDir).filter(f => f.endsWith('.json'));
-    
+    const strategiesDir = path.join(this.storageDir, "strategies");
+    const files = fs.readdirSync(strategiesDir).filter((f) => f.endsWith(".json"));
+
     for (const file of files) {
       try {
-        const strategy = JSON.parse(fs.readFileSync(path.join(strategiesDir, file), 'utf-8'));
+        const strategy = JSON.parse(fs.readFileSync(path.join(strategiesDir, file), "utf-8"));
         this.strategies.set(strategy.id, strategy);
       } catch (e) {
         console.error(`[ProgramMemory] Failed to load strategy ${file}:`, e);
@@ -102,12 +103,12 @@ export class ProgramMemory {
    * 加载浏览器模板
    */
   private loadBrowserTemplates(): void {
-    const templatesDir = path.join(this.storageDir, 'browser-templates');
-    const files = fs.readdirSync(templatesDir).filter(f => f.endsWith('.json'));
-    
+    const templatesDir = path.join(this.storageDir, "browser-templates");
+    const files = fs.readdirSync(templatesDir).filter((f) => f.endsWith(".json"));
+
     for (const file of files) {
       try {
-        const template = JSON.parse(fs.readFileSync(path.join(templatesDir, file), 'utf-8'));
+        const template = JSON.parse(fs.readFileSync(path.join(templatesDir, file), "utf-8"));
         this.browserTemplates.set(template.id, template);
       } catch (e) {
         console.error(`[ProgramMemory] Failed to load template ${file}:`, e);
@@ -119,8 +120,8 @@ export class ProgramMemory {
    * 存储学习策略
    */
   async storeStrategy(name: string, content: Record<string, any>): Promise<LearningStrategy> {
-    const existing = Array.from(this.strategies.values()).find(s => s.name === name);
-    
+    const existing = Array.from(this.strategies.values()).find((s) => s.name === name);
+
     const strategy: LearningStrategy = {
       id: existing?.id || `strategy_${Date.now()}`,
       name,
@@ -132,7 +133,7 @@ export class ProgramMemory {
       createdAt: existing?.createdAt || Date.now(),
       updatedAt: Date.now(),
       tags: this.extractTags(content),
-      isOptimal: false
+      isOptimal: false,
     };
 
     this.strategies.set(strategy.id, strategy);
@@ -145,7 +146,7 @@ export class ProgramMemory {
    * 获取策略
    */
   async getStrategy(name: string): Promise<LearningStrategy | null> {
-    return Array.from(this.strategies.values()).find(s => s.name === name) || null;
+    return Array.from(this.strategies.values()).find((s) => s.name === name) || null;
   }
 
   /**
@@ -159,16 +160,15 @@ export class ProgramMemory {
    * 更新策略使用效果
    */
   async updateStrategyEffect(name: string, success: boolean): Promise<void> {
-    const strategy = Array.from(this.strategies.values()).find(s => s.name === name);
+    const strategy = Array.from(this.strategies.values()).find((s) => s.name === name);
     if (!strategy) return;
 
     const newUsageCount = strategy.usageCount + 1;
     const successDelta = success ? 1 : 0;
-    
+
     // 加权平均计算成功率
-    const newSuccessRate = (
-      (strategy.successRate * strategy.usageCount) + successDelta
-    ) / newUsageCount;
+    const newSuccessRate =
+      (strategy.successRate * strategy.usageCount + successDelta) / newUsageCount;
 
     strategy.successRate = newSuccessRate;
     strategy.usageCount = newUsageCount;
@@ -183,7 +183,7 @@ export class ProgramMemory {
    * 标记为最优策略
    */
   async markOptimal(name: string): Promise<void> {
-    const strategy = Array.from(this.strategies.values()).find(s => s.name === name);
+    const strategy = Array.from(this.strategies.values()).find((s) => s.name === name);
     if (!strategy) return;
 
     // 取消其他同类型策略的最优标记
@@ -204,9 +204,9 @@ export class ProgramMemory {
    */
   async getOptimalStrategy(type?: string): Promise<LearningStrategy | null> {
     let candidates = Array.from(this.strategies.values());
-    
+
     if (type) {
-      candidates = candidates.filter(s => s.type === type);
+      candidates = candidates.filter((s) => s.type === type);
     }
 
     // 按成功率和使用次数排序
@@ -224,8 +224,8 @@ export class ProgramMemory {
    */
   async storeBrowserTemplate(template: BrowserTemplate): Promise<void> {
     this.browserTemplates.set(template.id, template);
-    
-    const templateFile = path.join(this.storageDir, 'browser-templates', `${template.id}.json`);
+
+    const templateFile = path.join(this.storageDir, "browser-templates", `${template.id}.json`);
     fs.writeFileSync(templateFile, JSON.stringify(template, null, 2));
   }
 
@@ -233,9 +233,7 @@ export class ProgramMemory {
    * 获取浏览器模板
    */
   async getBrowserTemplate(siteName: string): Promise<BrowserTemplate | null> {
-    return Array.from(this.browserTemplates.values()).find(t => 
-      t.siteName === siteName
-    ) || null;
+    return Array.from(this.browserTemplates.values()).find((t) => t.siteName === siteName) || null;
   }
 
   /**
@@ -243,11 +241,11 @@ export class ProgramMemory {
    */
   async getMatchingTemplate(url: string): Promise<BrowserTemplate | null> {
     for (const template of this.browserTemplates.values()) {
-      if (template.urlPatterns.some(pattern => this.matchUrl(url, pattern))) {
+      if (template.urlPatterns.some((pattern) => this.matchUrl(url, pattern))) {
         return template;
-    return null;
       }
     }
+    return null;
   }
 
   /**
@@ -289,7 +287,7 @@ export class ProgramMemory {
       for (let i = 0; i < strategies.length; i++) {
         const strategy = strategies[i];
         const shouldBeOptimal = i < optimalCount && strategy.successRate > 0.3;
-        
+
         if (shouldBeOptimal && !strategy.isOptimal) {
           strategy.isOptimal = true;
           promoted.push(strategy.name);
@@ -304,7 +302,7 @@ export class ProgramMemory {
         if (strategy.successRate < 0.1 && strategy.usageCount > 10) {
           this.strategies.delete(strategy.id);
           removed.push(strategy.name);
-          const filePath = path.join(this.storageDir, 'strategies', `${strategy.id}.json`);
+          const filePath = path.join(this.storageDir, "strategies", `${strategy.id}.json`);
           if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
       }
@@ -317,18 +315,18 @@ export class ProgramMemory {
    * 保存策略到文件
    */
   private saveStrategy(strategy: LearningStrategy): void {
-    const filePath = path.join(this.storageDir, 'strategies', `${strategy.id}.json`);
+    const filePath = path.join(this.storageDir, "strategies", `${strategy.id}.json`);
     fs.writeFileSync(filePath, JSON.stringify(strategy, null, 2));
   }
 
   /**
    * 推断策略类型
    */
-  private inferStrategyType(content: Record<string, any>): LearningStrategy['type'] {
-    if (content.apiParams || content.endpoint) return 'api';
-    if (content.actions || content.urlPatterns) return 'browser';
-    if (content.extractionRule || content.pattern) return 'extraction';
-    return 'evaluation';
+  private inferStrategyType(content: Record<string, any>): LearningStrategy["type"] {
+    if (content.apiParams || content.endpoint) return "api";
+    if (content.actions || content.urlPatterns) return "browser";
+    if (content.extractionRule || content.pattern) return "extraction";
+    return "evaluation";
   }
 
   /**
@@ -336,12 +334,12 @@ export class ProgramMemory {
    */
   private extractTags(content: Record<string, any>): string[] {
     const tags = new Set<string>();
-    
+
     // 从内容中提取关键词作为标签
     const extractFrom = JSON.stringify(content).toLowerCase();
     const techTerms = extractFrom.match(/[a-z]+(?:\d+\.\d+)?/g) || [];
-    tags.add(...techTerms.slice(0, 5));
-    
+    techTerms.slice(0, 5).forEach((term) => tags.add(term));
+
     return Array.from(tags);
   }
 
@@ -349,8 +347,8 @@ export class ProgramMemory {
    * URL匹配
    */
   private matchUrl(url: string, pattern: string): boolean {
-    if (pattern.includes('*')) {
-      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+    if (pattern.includes("*")) {
+      const regex = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
       return regex.test(url);
     }
     return url.includes(pattern);

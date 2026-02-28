@@ -262,10 +262,9 @@ describe("runGatewayUpdate", () => {
       "pnpm install": { stdout: "" },
       "pnpm build": { stdout: "" },
       "pnpm ui:build": { stdout: "" },
-      [`${process.execPath} ${path.join(tempDir, "resonix.mjs")} doctor --non-interactive --fix`]:
-        {
-          stdout: "",
-        },
+      [`${process.execPath} ${path.join(tempDir, "resonix.mjs")} doctor --non-interactive --fix`]: {
+        stdout: "",
+      },
     });
 
     const result = await runWithRunner(runner, { channel: "beta" });

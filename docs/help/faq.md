@@ -1267,9 +1267,9 @@ Related: [Agent workspace](/concepts/agent-workspace), [Memory](/concepts/memory
 
 Everything lives under `$RESONIX_STATE_DIR` (default: `~/.resonix`):
 
-| Path                                                            | Purpose                                                      |
-| --------------------------------------------------------------- | ------------------------------------------------------------ |
-| `$RESONIX_STATE_DIR/resonix.json`                             | Main config (JSON5)                                          |
+| Path                                                           | Purpose                                                      |
+| -------------------------------------------------------------- | ------------------------------------------------------------ |
+| `$RESONIX_STATE_DIR/resonix.json`                              | Main config (JSON5)                                          |
 | `$RESONIX_STATE_DIR/credentials/oauth.json`                    | Legacy OAuth import (copied into auth profiles on first use) |
 | `$RESONIX_STATE_DIR/agents/<agentId>/agent/auth-profiles.json` | Auth profiles (OAuth + API keys)                             |
 | `$RESONIX_STATE_DIR/agents/<agentId>/agent/auth.json`          | Runtime auth cache (managed automatically)                   |

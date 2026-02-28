@@ -34,7 +34,10 @@ export function createTextPrompter(): WizardPrompter {
         console.log(`  ${i + 1}. ${label}`);
       });
       const answer = await askQuestion(`Enter numbers: `);
-      const indices = answer.split(",").map((s) => parseInt(s.trim()) - 1).filter((i) => i >= 0);
+      const indices = answer
+        .split(",")
+        .map((s) => parseInt(s.trim()) - 1)
+        .filter((i) => i >= 0);
       return params.options.filter((_, i) => indices.includes(i)).map((opt) => opt.value);
     },
     text: async (params) => {
@@ -86,12 +89,17 @@ export function createPrompterWithFallback(): WizardPrompter {
 
   if (hasTTY()) {
     // Use clack prompter when TTY is available
-    const { createClackPrompter } = require("./clack-prompter.js");
-    cachedPrompter = createClackPrompter();
+    try {
+      const { createClackPrompter } = require("./clack-prompter.js");
+      cachedPrompter = createClackPrompter();
+    } catch {
+      // Fall back to text prompter if clack is not available
+      cachedPrompter = createTextPrompter();
+    }
   } else {
     // Use text prompter when no TTY
     cachedPrompter = createTextPrompter();
   }
 
-  return cachedPrompter;
+  return cachedPrompter!;
 }

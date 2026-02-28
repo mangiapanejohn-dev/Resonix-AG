@@ -296,7 +296,7 @@ function warnWhenAllowlistIsOpen(params: {
     .map((entry) => `${entry.id} (${entry.source})`)
     .join(", ");
   const extra = nonBundled.length > 6 ? ` (+${nonBundled.length - 6} more)` : "";
-  
+
   // Skip warning for cleaner onboarding flow
   // params.logger.warn(
   //   `[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: ${preview}${extra}. Set plugins.allow to explicit trusted ids.`,
@@ -375,7 +375,7 @@ export function loadResonixPlugins(options: PluginLoadOptions = {}): PluginRegis
     diagnostics: discovery.diagnostics,
   });
   pushDiagnostics(registry.diagnostics, manifestRegistry.diagnostics);
-  
+
   // Skip warning for cleaner onboarding flow
   // warnWhenAllowlistIsOpen({
   //   logger,
@@ -387,7 +387,7 @@ export function loadResonixPlugins(options: PluginLoadOptions = {}): PluginRegis
   //     origin: plugin.origin,
   //   })),
   // });
-  
+
   const provenance = buildProvenanceIndex({
     config: cfg,
     normalizedLoadPaths: normalized.loadPaths,

@@ -165,9 +165,7 @@ export function extractHookToken(req: IncomingMessage): string | undefined {
     }
   }
   const headerToken =
-    typeof req.headers["x-resonix-token"] === "string"
-      ? req.headers["x-resonix-token"].trim()
-      : "";
+    typeof req.headers["x-resonix-token"] === "string" ? req.headers["x-resonix-token"].trim() : "";
   if (headerToken) {
     return headerToken;
   }

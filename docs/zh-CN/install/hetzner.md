@@ -323,15 +323,15 @@ ssh -N -L 18789:127.0.0.1:18789 root@YOUR_VPS_IP
 Resonix 在 Docker 中运行，但 Docker 不是事实来源。
 所有长期状态必须在重启、重建和重启后保留。
 
-| 组件             | 位置                              | 持久化机制    | 说明                        |
-| ---------------- | --------------------------------- | ------------- | --------------------------- |
-| Gateway 网关配置 | `/home/node/.resonix/`           | 主机卷挂载    | 包括 `resonix.json`、令牌  |
+| 组件             | 位置                             | 持久化机制    | 说明                        |
+| ---------------- | -------------------------------- | ------------- | --------------------------- |
+| Gateway 网关配置 | `/home/node/.resonix/`           | 主机卷挂载    | 包括 `resonix.json`、令牌   |
 | 模型认证配置文件 | `/home/node/.resonix/`           | 主机卷挂载    | OAuth 令牌、API 密钥        |
 | Skill 配置       | `/home/node/.resonix/skills/`    | 主机卷挂载    | Skill 级别状态              |
 | 智能体工作区     | `/home/node/.resonix/workspace/` | 主机卷挂载    | 代码和智能体产物            |
 | WhatsApp 会话    | `/home/node/.resonix/`           | 主机卷挂载    | 保留二维码登录              |
 | Gmail 密钥环     | `/home/node/.resonix/`           | 主机卷 + 密码 | 需要 `GOG_KEYRING_PASSWORD` |
-| 外部二进制文件   | `/usr/local/bin/`                 | Docker 镜像   | 必须在构建时烘焙            |
-| Node 运行时      | 容器文件系统                      | Docker 镜像   | 每次镜像构建时重建          |
-| 操作系统包       | 容器文件系统                      | Docker 镜像   | 不要在运行时安装            |
-| Docker 容器      | 临时的                            | 可重启        | 可以安全销毁                |
+| 外部二进制文件   | `/usr/local/bin/`                | Docker 镜像   | 必须在构建时烘焙            |
+| Node 运行时      | 容器文件系统                     | Docker 镜像   | 每次镜像构建时重建          |
+| 操作系统包       | 容器文件系统                     | Docker 镜像   | 不要在运行时安装            |
+| Docker 容器      | 临时的                           | 可重启        | 可以安全销毁                |

@@ -87,7 +87,7 @@ clawdock-approve <request-id>
 | Command                   | Description                                    |
 | ------------------------- | ---------------------------------------------- |
 | `clawdock-shell`          | Interactive shell inside the gateway container |
-| `clawdock-cli <command>`  | Run Resonix CLI commands                      |
+| `clawdock-cli <command>`  | Run Resonix CLI commands                       |
 | `clawdock-exec <command>` | Execute arbitrary commands in the container    |
 
 ### Web UI & Devices
@@ -117,8 +117,8 @@ clawdock-approve <request-id>
 | -------------------- | ----------------------------------------- |
 | `clawdock-health`    | Run gateway health check                  |
 | `clawdock-token`     | Display the gateway authentication token  |
-| `clawdock-cd`        | Jump to the Resonix project directory    |
-| `clawdock-config`    | Open the Resonix config directory        |
+| `clawdock-cd`        | Jump to the Resonix project directory     |
+| `clawdock-config`    | Open the Resonix config directory         |
 | `clawdock-workspace` | Open the workspace directory              |
 | `clawdock-help`      | Show all available commands with examples |
 

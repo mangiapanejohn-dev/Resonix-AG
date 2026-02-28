@@ -1,29 +1,29 @@
 /**
  * Resonix 自主认知体系 - 自我感知模块
- * 
+ *
  * 核心能力：知道"自己会什么、不会什么、会的东西是否过时"
  * 生成能力画像，基于永久记忆的检索+量化评分
  */
 
-import { SemanticMemory } from "./semantic-memory.js";
-import { ProgramMemory } from "./program-memory.js";
+import { ProgramMemory } from "../memory/program-memory.js";
+import { SemanticMemory } from "../memory/semantic-memory.js";
 
 export interface CapabilityDimension {
-  domain: string;                    // 领域（如：前端/后端/AI）
-  masteryScore: number;              // 掌握度评分 (0-10)
-  skillLevel: 'theory' | 'practical' | 'mastered'; // 技能熟练度
-  timeliness: 'latest' | 'valid' | 'outdated';    // 时效性
-  lastUsed: number;                 // 最后使用时间戳
-  usageCount: number;               // 使用次数
+  domain: string; // 领域（如：前端/后端/AI）
+  masteryScore: number; // 掌握度评分 (0-10)
+  skillLevel: "theory" | "practical" | "mastered"; // 技能熟练度
+  timeliness: "latest" | "valid" | "outdated"; // 时效性
+  lastUsed: number; // 最后使用时间戳
+  usageCount: number; // 使用次数
 }
 
 export interface CapabilityProfile {
-  overallScore: number;              // 整体评分
+  overallScore: number; // 整体评分
   dimensions: Map<string, CapabilityDimension>;
-  gaps: string[];                   // 知识缺口列表
-  outdated: string[];                // 过时知识列表
-  strengths: string[];               // 优势领域
-  generatedAt: number;              // 生成时间
+  gaps: string[]; // 知识缺口列表
+  outdated: string[]; // 过时知识列表
+  strengths: string[]; // 优势领域
+  generatedAt: number; // 生成时间
 }
 
 export interface KnowledgeBenchmark {
@@ -53,30 +53,33 @@ export class SelfPerception {
     const allKnowledge = await this.semanticMemory.searchAll();
 
     // 按领域分组计算掌握度
-    const domainStats = new Map<string, {
-      totalScore: number;
-      count: number;
-      topics: string[];
-      latestUpdate: number;
-      outdated: string[];
-    }>();
+    const domainStats = new Map<
+      string,
+      {
+        totalScore: number;
+        count: number;
+        topics: string[];
+        latestUpdate: number;
+        outdated: string[];
+      }
+    >();
 
     for (const knowledge of allKnowledge) {
-      const domain = knowledge.domain || 'general';
+      const domain = knowledge.domain || "general";
       const stats = domainStats.get(domain) || {
         totalScore: 0,
         count: 0,
         topics: [],
         latestUpdate: 0,
-        outdated: []
+        outdated: [],
       };
 
       stats.totalScore += knowledge.mastery_score || 0;
       stats.count++;
       stats.topics.push(knowledge.id);
       stats.latestUpdate = Math.max(stats.latestUpdate, knowledge.update_time || 0);
-      
-      if (knowledge.timeliness === 'outdated') {
+
+      if (knowledge.timeliness === "outdated") {
         stats.outdated.push(knowledge.id);
       }
 
@@ -92,13 +95,15 @@ export class SelfPerception {
 
     for (const [domain, stats] of domainStats) {
       const avgScore = stats.count > 0 ? stats.totalScore / stats.count : 0;
-      
+
       // 判断是否为缺口（评分 < 6）
       if (avgScore < 6) {
-        gaps.push(...stats.topics.filter(t => {
-          const kn = allKnowledge.find(k => k.id === t);
-          return kn && (kn.mastery_score || 0) < 6;
-        }));
+        gaps.push(
+          ...stats.topics.filter((t) => {
+            const kn = allKnowledge.find((k: any) => k.id === t);
+            return kn && (kn.mastery_score || 0) < 6;
+          }),
+        );
       }
 
       // 判断是否过时
@@ -112,11 +117,15 @@ export class SelfPerception {
       const dimension: CapabilityDimension = {
         domain,
         masteryScore: Math.round(avgScore * 10) / 10,
-        skillLevel: avgScore >= 8 ? 'mastered' : avgScore >= 5 ? 'practical' : 'theory',
-        timeliness: stats.outdated.length > 0 ? 'outdated' : 
-                   (Date.now() - stats.latestUpdate < 90*24*60*60*1000) ? 'latest' : 'valid',
+        skillLevel: avgScore >= 8 ? "mastered" : avgScore >= 5 ? "practical" : "theory",
+        timeliness:
+          stats.outdated.length > 0
+            ? "outdated"
+            : Date.now() - stats.latestUpdate < 90 * 24 * 60 * 60 * 1000
+              ? "latest"
+              : "valid",
         lastUsed: stats.latestUpdate,
-        usageCount: stats.count
+        usageCount: stats.count,
       };
 
       dimensions.set(domain, dimension);
@@ -132,13 +141,13 @@ export class SelfPerception {
       gaps,
       outdated,
       strengths,
-      generatedAt: Date.now()
+      generatedAt: Date.now(),
     };
 
     // 缓存到程序记忆
-    await this.programMemory.storeStrategy('capability_profile', {
+    await this.programMemory.storeStrategy("capability_profile", {
       profile: this.profile,
-      benchmarks: this.benchmarkCache
+      benchmarks: this.benchmarkCache,
     });
 
     return this.profile;
@@ -163,7 +172,7 @@ export class SelfPerception {
    * 识别知识缺口
    */
   async identifyGaps(): Promise<string[]> {
-    if (!this.profile || Date.now() - this.profile.generatedAt > 60*60*1000) {
+    if (!this.profile || Date.now() - this.profile.generatedAt > 60 * 60 * 1000) {
       await this.generateCapabilityProfile();
     }
     return this.profile?.gaps || [];
@@ -173,7 +182,7 @@ export class SelfPerception {
    * 识别过时知识
    */
   async identifyOutdated(): Promise<string[]> {
-    if (!this.profile || Date.now() - this.profile.generatedAt > 60*60*1000) {
+    if (!this.profile || Date.now() - this.profile.generatedAt > 60 * 60 * 1000) {
       await this.generateCapabilityProfile();
     }
     return this.profile?.outdated || [];
@@ -183,7 +192,7 @@ export class SelfPerception {
    * 获取优势领域
    */
   async getStrengths(): Promise<string[]> {
-    if (!this.profile || Date.now() - this.profile.generatedAt > 60*60*1000) {
+    if (!this.profile || Date.now() - this.profile.generatedAt > 60 * 60 * 1000) {
       await this.generateCapabilityProfile();
     }
     return this.profile?.strengths || [];
@@ -198,9 +207,9 @@ export class SelfPerception {
       const newScore = Math.min(10, Math.max(0, (knowledge.mastery_score || 0) + delta));
       await this.semanticMemory.update(knowledgeId, {
         mastery_score: newScore,
-        update_time: Date.now()
+        update_time: Date.now(),
       });
-      
+
       // 标记需要重新生成画像
       this.profile = null;
     }

@@ -24,7 +24,7 @@ async function requireRiskAcknowledgement(params: {
   config: ResonixConfig;
 }) {
   // Check if risk was already accepted in config
-  if (params.config.core?.acceptedRisk === true || params.opts.acceptRisk === true) {
+  if (params.opts.acceptRisk === true) {
     return params.config;
   }
 
@@ -62,14 +62,8 @@ async function requireRiskAcknowledgement(params: {
     throw new WizardCancelledError("risk not accepted");
   }
 
-  // Update config to mark risk as accepted
-  const updatedConfig = { ...params.config };
-  if (!updatedConfig.core) {
-    updatedConfig.core = {};
-  }
-  updatedConfig.core.acceptedRisk = true;
-  
-  return updatedConfig;
+  // Return original config since we're not storing risk acceptance in config
+  return params.config;
 }
 
 export async function runOnboardingWizard(
@@ -80,11 +74,11 @@ export async function runOnboardingWizard(
   const onboardHelpers = await import("../commands/onboard-helpers.js");
   onboardHelpers.printWizardHeader(runtime);
   await prompter.intro("Resonix onboarding");
-  
+
   // Read config first to check if risk was already accepted
   const snapshot = await readConfigFileSnapshot();
   let baseConfig: ResonixConfig = snapshot.valid ? snapshot.config : {};
-  
+
   // Check and accept risk if needed
   const riskConfig = await requireRiskAcknowledgement({ opts, prompter, config: baseConfig });
   baseConfig = riskConfig;
@@ -471,7 +465,10 @@ export async function runOnboardingWizard(
   const settings = gateway.settings;
 
   if (opts.skipChannels ?? opts.skipProviders) {
-    await prompter.note("Skipping channel setup for now. You can add channels anytime.", "Channels");
+    await prompter.note(
+      "Skipping channel setup for now. You can add channels anytime.",
+      "Channels",
+    );
   } else {
     const { listChannelPlugins } = await import("../channels/plugins/index.js");
     const { setupChannels } = await import("../commands/onboard-channels.js");

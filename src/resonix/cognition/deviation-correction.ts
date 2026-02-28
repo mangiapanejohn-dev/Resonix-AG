@@ -1,23 +1,23 @@
 /**
  * Resonix 自主认知体系 - 偏差修正模块
- * 
+ *
  * 核心能力：知道"自己学的东西对不对、有没有遗漏"
  * 基于多源验证+用户反馈，识别认知偏差并触发二次学习
  */
 
-import { SemanticMemory, KnowledgeCard } from '../memory/semantic-memory.js';
-import { EpisodicMemory } from '../memory/episodic-memory.js';
-import { ProgramMemory } from '../memory/program-memory.js';
+import { EpisodicMemory } from "../memory/episodic-memory.js";
+import { ProgramMemory } from "../memory/program-memory.js";
+import { SemanticMemory, KnowledgeCard } from "../memory/semantic-memory.js";
 
 export interface DeviationRecord {
   id: string;
   knowledgeId: string;
-  type: 'factual' | 'completeness' | 'timeliness' | 'accuracy';
-  severity: 'high' | 'medium' | 'low';
+  type: "factual" | "completeness" | "timeliness" | "accuracy";
+  severity: "high" | "medium" | "low";
   description: string;
   detectedAt: number;
   sources: string[];
-  status: 'detected' | 'verifying' | 'corrected' | 'dismissed';
+  status: "detected" | "verifying" | "corrected" | "dismissed";
 }
 
 export interface MultiSourceValidation {
@@ -29,7 +29,7 @@ export interface MultiSourceValidation {
     confidence: number;
   }[];
   deviationRate: number;
-  verdict: 'consistent' | 'warning' | 'deviation';
+  verdict: "consistent" | "warning" | "deviation";
 }
 
 export class DeviationCorrection {
@@ -41,7 +41,7 @@ export class DeviationCorrection {
   constructor(
     semanticMemory: SemanticMemory,
     episodicMemory: EpisodicMemory,
-    programMemory: ProgramMemory
+    programMemory: ProgramMemory,
   ) {
     this.semanticMemory = semanticMemory;
     this.episodicMemory = episodicMemory;
@@ -51,44 +51,49 @@ export class DeviationCorrection {
   /**
    * 多源验证：学习成果沉淀前自动对比3个以上权威源
    */
-  async multiSourceValidation(knowledgeId: string, newContent: string): Promise<MultiSourceValidation> {
+  async multiSourceValidation(
+    knowledgeId: string,
+    newContent: string,
+  ): Promise<MultiSourceValidation> {
     const knowledge = await this.semanticMemory.get(knowledgeId);
     const existingSources = knowledge?.sources || [];
-    
+
     // 获取验证源（现有源 + 新源）
-    const validationSources = [
-      ...existingSources,
-      'new_learning_result'
-    ].slice(0, 5);
+    const validationSources = [...existingSources, "new_learning_result"].slice(0, 5);
 
     // 模拟多源验证（实际需要调用外部API或浏览器抓取）
-    const sources = validationSources.map(source => ({
-      source,
-      content: source === 'new_learning_result' ? newContent : await this.fetchSourceContent(source),
-      matches: true, // 实际需要语义对比
-      confidence: 0.8 + Math.random() * 0.2
-    }));
+    const sources = await Promise.all(
+      validationSources.map(async (source) => ({
+        source,
+        content:
+          source === "new_learning_result" ? newContent : await this.fetchSourceContent(source),
+        matches: true, // 实际需要语义对比
+        confidence: 0.8 + Math.random() * 0.2,
+      })),
+    );
 
     // 计算偏差率
-    const matchingSources = sources.filter(s => s.matches).length;
-    const deviationRate = 1 - (matchingSources / sources.length);
+    const matchingSources = sources.filter((s) => s.matches).length;
+    const deviationRate = 1 - matchingSources / sources.length;
 
-    const verdict: 'consistent' | 'warning' | 'deviation' = 
-      deviationRate > 0.3 ? 'deviation' :
-      deviationRate > 0.15 ? 'warning' : 'consistent';
+    const verdict: "consistent" | "warning" | "deviation" =
+      deviationRate > 0.3 ? "deviation" : deviationRate > 0.15 ? "warning" : "consistent";
 
     return {
       knowledgeId,
       sources,
       deviationRate,
-      verdict
+      verdict,
     };
   }
 
   /**
    * 基于用户反馈检测偏差
    */
-  async detectFromUserFeedback(feedback: string, relatedKnowledgeId?: string): Promise<DeviationRecord | null> {
+  async detectFromUserFeedback(
+    feedback: string,
+    relatedKnowledgeId?: string,
+  ): Promise<DeviationRecord | null> {
     // 简单的反馈解析（实际需要NLP）
     const isError = /错误|不对|有问题|遗漏/i.test(feedback);
     if (!isError) return null;
@@ -101,16 +106,16 @@ export class DeviationCorrection {
       description: feedback,
       detectedAt: Date.now(),
       sources: [],
-      status: 'detected'
+      status: "detected",
     };
 
     this.activeDeviations.set(deviation.id, deviation);
 
     // 记录到情景记忆
     await this.episodicMemory.log({
-      event_type: 'deviation_detected',
+      event_type: "deviation_detected",
       content: `检测到认知偏差: ${deviation.type}`,
-      metadata: deviation
+      metadata: deviation,
     });
 
     return deviation;
@@ -123,13 +128,13 @@ export class DeviationCorrection {
     const deviation = this.activeDeviations.get(deviationId);
     if (!deviation) return;
 
-    deviation.status = 'verifying';
+    deviation.status = "verifying";
 
     // 记录触发修正学习
     await this.episodicMemory.log({
-      event_type: 'correction_learning_triggered',
+      event_type: "correction_learning_triggered",
       content: `触发修正学习: ${deviation.knowledgeId}`,
-      metadata: { deviationId, deviation }
+      metadata: { deviationId, deviation },
     });
 
     // 更新状态
@@ -143,27 +148,29 @@ export class DeviationCorrection {
     const deviation = this.activeDeviations.get(deviationId);
     if (!deviation) return;
 
-    deviation.status = 'corrected';
+    deviation.status = "corrected";
 
     // 更新知识卡的关联
     const knowledge = await this.semanticMemory.get(correctedKnowledgeId);
     if (knowledge) {
       await this.semanticMemory.update(correctedKnowledgeId, {
-        update_time: Date.now()
+        update_time: Date.now(),
       });
     }
 
     // 记录修正完成
     await this.episodicMemory.log({
-      event_type: 'deviation_corrected',
+      event_type: "deviation_corrected",
       content: `认知偏差已修正: ${deviation.knowledgeId}`,
-      metadata: { deviationId, correctedKnowledgeId }
+      metadata: { deviationId, correctedKnowledgeId },
     });
 
     // 更新策略（增加该类型检查的权重）
     await this.programMemory.storeStrategy(`deviation_check_${deviation.type}`, {
       lastDeviation: Date.now(),
-      frequency: ((await this.programMemory.getStrategy(`deviation_check_${deviation.type}`))?.frequency || 0) + 1
+      usageCount:
+        ((await this.programMemory.getStrategy(`deviation_check_${deviation.type}`))?.usageCount ||
+          0) + 1,
     });
   }
 
@@ -174,12 +181,12 @@ export class DeviationCorrection {
     const deviation = this.activeDeviations.get(deviationId);
     if (!deviation) return;
 
-    deviation.status = 'dismissed';
+    deviation.status = "dismissed";
 
     await this.episodicMemory.log({
-      event_type: 'deviation_dismissed',
+      event_type: "deviation_dismissed",
       content: `偏差已忽略: ${reason}`,
-      metadata: { deviationId, reason }
+      metadata: { deviationId, reason },
     });
   }
 
@@ -187,8 +194,9 @@ export class DeviationCorrection {
    * 获取所有活跃偏差
    */
   getActiveDeviations(): DeviationRecord[] {
-    return Array.from(this.activeDeviations.values())
-      .filter(d => d.status === 'detected' || d.status === 'verifying');
+    return Array.from(this.activeDeviations.values()).filter(
+      (d) => d.status === "detected" || d.status === "verifying",
+    );
   }
 
   /**
@@ -200,16 +208,16 @@ export class DeviationCorrection {
 
     for (const knowledge of allKnowledge) {
       // 检查时效性
-      if (knowledge.timeliness === 'outdated') {
+      if (knowledge.timeliness === "outdated") {
         const deviation: DeviationRecord = {
           id: `time_dev_${knowledge.id}`,
           knowledgeId: knowledge.id,
-          type: 'timeliness',
-          severity: 'medium',
+          type: "timeliness",
+          severity: "medium",
           description: `知识 "${knowledge.title}" 已过时`,
           detectedAt: Date.now(),
           sources: knowledge.sources || [],
-          status: 'detected'
+          status: "detected",
         };
         deviations.push(deviation);
         this.activeDeviations.set(deviation.id, deviation);
@@ -220,12 +228,12 @@ export class DeviationCorrection {
         const deviation: DeviationRecord = {
           id: `acc_dev_${knowledge.id}`,
           knowledgeId: knowledge.id,
-          type: 'accuracy',
-          severity: 'low',
+          type: "accuracy",
+          severity: "low",
           description: `知识 "${knowledge.title}" 置信度较低`,
           detectedAt: Date.now(),
           sources: knowledge.sources || [],
-          status: 'detected'
+          status: "detected",
         };
         deviations.push(deviation);
         this.activeDeviations.set(deviation.id, deviation);
@@ -241,26 +249,26 @@ export class DeviationCorrection {
   private extractRelatedKnowledge(feedback: string): string {
     // 简单提取，实际需要NLP
     const match = feedback.match(/(?:关于|关于)([\u4e00-\u9fa5a-zA-Z0-9]+)/);
-    return match ? match[1] : 'unknown';
+    return match ? match[1] : "unknown";
   }
 
   /**
    * 分类偏差类型
    */
-  private classifyDeviation(feedback: string): DeviationRecord['type'] {
-    if (/遗漏|不全|少/i.test(feedback)) return 'completeness';
-    if (/过时|老|i.test(feedback)) return 'timeliness';
-    if (/错误|不对|假/i.test(feedback)) return 'factual';
-    return 'accuracy';
+  private classifyDeviation(feedback: string): DeviationRecord["type"] {
+    if (/遗漏|不全|少/i.test(feedback)) return "completeness";
+    if (/过时|老/i.test(feedback)) return "timeliness";
+    if (/错误|不对|假/i.test(feedback)) return "factual";
+    return "accuracy";
   }
 
   /**
    * 评估严重程度
    */
-  private assessSeverity(feedback: string): DeviationRecord['severity'] {
-    if (/严重|重大|完全错误/i.test(feedback)) return 'high';
-    if (/轻微|有点|不太/i.test(feedback)) return 'low';
-    return 'medium';
+  private assessSeverity(feedback: string): DeviationRecord["severity"] {
+    if (/严重|重大|完全错误/i.test(feedback)) return "high";
+    if (/轻微|有点|不太/i.test(feedback)) return "low";
+    return "medium";
   }
 
   /**

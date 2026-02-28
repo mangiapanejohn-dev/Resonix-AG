@@ -11,6 +11,7 @@ import { createDefaultDeps } from "../cli/deps.js";
 import { isRestartEnabled } from "../config/commands.js";
 import {
   CONFIG_PATH,
+  type ResonixConfig,
   isNixMode,
   loadConfig,
   migrateLegacyConfig,
@@ -18,6 +19,7 @@ import {
   writeConfigFile,
 } from "../config/config.js";
 import { applyPluginAutoEnable } from "../config/plugin-auto-enable.js";
+import { resolveMainSessionKey } from "../config/sessions.js";
 import { clearAgentRunContext, onAgentEvent } from "../infra/agent-events.js";
 import {
   ensureControlUiAssetsBuilt,
@@ -37,6 +39,7 @@ import {
   refreshRemoteBinsForConnectedNodes,
   setSkillsRemoteRegistry,
 } from "../infra/skills-remote.js";
+import { enqueueSystemEvent } from "../infra/system-events.js";
 import { scheduleGatewayUpdateCheck } from "../infra/update-startup.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
@@ -107,8 +110,24 @@ const logReload = log.child("reload");
 const logHooks = log.child("hooks");
 const logPlugins = log.child("plugins");
 const logWsControl = log.child("ws");
+const logSecrets = log.child("secrets");
 const gatewayRuntime = runtimeForLogger(log);
 const canvasRuntime = runtimeForLogger(logCanvas);
+
+type AuthRateLimitConfig = Parameters<typeof createAuthRateLimiter>[0];
+
+function createGatewayAuthRateLimiters(rateLimitConfig: AuthRateLimitConfig | undefined): {
+  rateLimiter?: AuthRateLimiter;
+  browserRateLimiter: AuthRateLimiter;
+} {
+  const rateLimiter = rateLimitConfig ? createAuthRateLimiter(rateLimitConfig) : undefined;
+  // Browser-origin WS auth attempts always use loopback-non-exempt throttling.
+  const browserRateLimiter = createAuthRateLimiter({
+    ...rateLimitConfig,
+    exemptLoopback: false,
+  });
+  return { rateLimiter, browserRateLimiter };
+}
 
 export type GatewayServer = {
   close: (opts?: { reason?: string; restartExpectedMs?: number | null }) => Promise<void>;
@@ -233,7 +252,22 @@ export async function startGatewayServer(
     }
   }
 
-  let cfgAtStart = loadConfig();
+  // Fail fast before startup if required refs are unresolved.
+  let cfgAtStart: ResonixConfig;
+  {
+    const freshSnapshot = await readConfigFileSnapshot();
+    if (!freshSnapshot.valid) {
+      const issues =
+        freshSnapshot.issues.length > 0
+          ? freshSnapshot.issues
+              .map((issue) => `${issue.path || "<root>"}: ${issue.message}`)
+              .join("\n")
+          : "Unknown validation issue.";
+      throw new Error(`Invalid config at ${freshSnapshot.path}.\n${issues}`);
+    }
+  }
+
+  cfgAtStart = loadConfig();
   const authBootstrap = await ensureGatewayStartupAuth({
     cfg: cfgAtStart,
     env: process.env,
@@ -310,11 +344,10 @@ export async function startGatewayServer(
   let hooksConfig = runtimeConfig.hooksConfig;
   const canvasHostEnabled = runtimeConfig.canvasHostEnabled;
 
-  // Create auth rate limiter only when explicitly configured.
+  // Create auth rate limiters used by connect/auth flows.
   const rateLimitConfig = cfgAtStart.gateway?.auth?.rateLimit;
-  const authRateLimiter: AuthRateLimiter | undefined = rateLimitConfig
-    ? createAuthRateLimiter(rateLimitConfig)
-    : undefined;
+  const { rateLimiter: authRateLimiter, browserRateLimiter: browserAuthRateLimiter } =
+    createGatewayAuthRateLimiters(rateLimitConfig);
 
   let controlUiRootState: ControlUiRootState | undefined;
   if (controlUiRootOverride) {
@@ -572,6 +605,7 @@ export async function startGatewayServer(
     canvasHostServerPort,
     resolvedAuth,
     rateLimiter: authRateLimiter,
+    browserRateLimiter: browserAuthRateLimiter,
     gatewayMethods,
     events: GATEWAY_EVENTS,
     logGateway: log,
@@ -602,6 +636,17 @@ export async function startGatewayServer(
       nodeUnsubscribe,
       nodeUnsubscribeAll,
       hasConnectedMobileNode: hasMobileNodeConnected,
+      hasExecApprovalClients: () => {
+        for (const gatewayClient of clients) {
+          const scopes = Array.isArray(gatewayClient.connect.scopes)
+            ? gatewayClient.connect.scopes
+            : [];
+          if (scopes.includes("operator.admin") || scopes.includes("operator.approvals")) {
+            return true;
+          }
+        }
+        return false;
+      },
       nodeRegistry,
       agentRunSeq,
       chatAbortControllers,
@@ -763,6 +808,7 @@ export async function startGatewayServer(
       }
       skillsChangeUnsub();
       authRateLimiter?.dispose();
+      browserAuthRateLimiter.dispose();
       channelHealthMonitor?.stop();
       await close(opts);
     },

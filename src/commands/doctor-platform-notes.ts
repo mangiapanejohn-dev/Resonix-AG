@@ -87,9 +87,7 @@ export async function noteMacLaunchctlGatewayEnvOverrides(
     (deps?.noteFn ?? note)(lines.join("\n"), "Gateway (macOS)");
   }
 
-  const tokenEntries = [
-    ["RESONIX_GATEWAY_TOKEN", await getenv("RESONIX_GATEWAY_TOKEN")],
-  ] as const;
+  const tokenEntries = [["RESONIX_GATEWAY_TOKEN", await getenv("RESONIX_GATEWAY_TOKEN")]] as const;
   const passwordEntries = [
     ["RESONIX_GATEWAY_PASSWORD", await getenv("RESONIX_GATEWAY_PASSWORD")],
   ] as const;

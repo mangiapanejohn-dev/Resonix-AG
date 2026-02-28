@@ -104,7 +104,11 @@ export function formatCliBannerArt(options: BannerOptions = {}): string {
         theme.accent("👾")
       );
     }
-    return splitGraphemes(line).map((ch, i) => colorChar(ch, i + lineIndex)).join("") + "\x1b[0m";
+    return (
+      splitGraphemes(line)
+        .map((ch, i) => colorChar(ch, i + lineIndex))
+        .join("") + "\x1b[0m"
+    );
   });
 
   return colored.join("\n");

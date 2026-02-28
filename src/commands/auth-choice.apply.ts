@@ -39,7 +39,10 @@ export type ApplyAuthChoiceResult = {
 };
 
 // Direct dispatch map - only loads the selected handler
-const HANDLERS: Record<string, (p: ApplyAuthChoiceParams) => Promise<ApplyAuthChoiceResult | null>> = {
+const HANDLERS: Record<
+  string,
+  (p: ApplyAuthChoiceParams) => Promise<ApplyAuthChoiceResult | null>
+> = {
   anthropic: applyAuthChoiceAnthropic,
   "api-key": applyAuthChoiceApiProviders,
   "cloudflare-aigateway": applyAuthChoiceApiProviders,
@@ -52,7 +55,7 @@ const HANDLERS: Record<string, (p: ApplyAuthChoiceParams) => Promise<ApplyAuthCh
   "minimax-api": applyAuthChoiceMiniMax,
   "minimax-api-key-cn": applyAuthChoiceMiniMax,
   "minimax-api-lightning": applyAuthChoiceMiniMax,
-  "minimax": applyAuthChoiceMiniMax,
+  minimax: applyAuthChoiceMiniMax,
   oauth: applyAuthChoiceOAuth,
   "oauth-cn": applyAuthChoiceOAuth,
   openai: applyAuthChoiceOpenAI,

@@ -219,13 +219,22 @@ export async function loginMiniMaxPortalOAuth(params: {
   ];
   await params.note(noteLines.join("\n"), "MiniMax OAuth");
 
-  // Avoid blocking OAuth flow on browser-launch command timeouts.
-  void params.openUrl(verificationUrl).catch(() => {
-    // Fall back to manual copy/paste if browser open fails.
-  });
+  // Try to open browser, but don't block flow
+  try {
+    await params.openUrl(verificationUrl);
+  } catch (error) {
+    console.error("Failed to open browser:", error);
+  }
+
+  // Always show manual instructions in case browser open fails
+  await params.note(
+    `Please manually open ${verificationUrl} and enter code ${oauth.user_code}`,
+    "MiniMax OAuth - Manual Setup",
+  );
 
   let pollIntervalMs = oauth.interval ? oauth.interval : 2000;
-  const expireTimeMs = oauth.expired_in;
+  // Calculate expiration timestamp (current time + expired_in seconds)
+  const expireTimeMs = Date.now() + oauth.expired_in * 1000;
 
   params.progress.update("Waiting for MiniMax OAuth approval…");
 

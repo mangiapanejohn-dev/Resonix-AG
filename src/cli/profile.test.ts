@@ -94,9 +94,7 @@ describe("applyCliProfileEnv", () => {
 
     const resolvedHome = path.resolve("/srv/resonix-home");
     expect(env.RESONIX_STATE_DIR).toBe(path.join(resolvedHome, ".resonix-work"));
-    expect(env.RESONIX_CONFIG_PATH).toBe(
-      path.join(resolvedHome, ".resonix-work", "resonix.json"),
-    );
+    expect(env.RESONIX_CONFIG_PATH).toBe(path.join(resolvedHome, ".resonix-work", "resonix.json"));
   });
 });
 
@@ -155,9 +153,7 @@ describe("formatCliCommand", () => {
   });
 
   it("handles command with no args after resonix", () => {
-    expect(formatCliCommand("resonix", { RESONIX_PROFILE: "test" })).toBe(
-      "resonix --profile test",
-    );
+    expect(formatCliCommand("resonix", { RESONIX_PROFILE: "test" })).toBe("resonix --profile test");
   });
 
   it("handles pnpm wrapper", () => {

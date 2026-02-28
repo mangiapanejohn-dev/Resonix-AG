@@ -1,10 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createResonixTools } from "../agents/resonix-tools.js";
 import {
   resolveEffectiveToolPolicy,
   resolveGroupToolPolicy,
   resolveSubagentToolPolicy,
 } from "../agents/pi-tools.policy.js";
+import { createResonixTools } from "../agents/resonix-tools.js";
 import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
@@ -200,9 +200,7 @@ export async function handleToolsInvokeHttpRequest(
     !rawSessionKey || rawSessionKey === "main" ? resolveMainSessionKey(cfg) : rawSessionKey;
 
   // Resolve message channel/account hints (optional headers) for policy inheritance.
-  const messageChannel = normalizeMessageChannel(
-    getHeader(req, "x-resonix-message-channel") ?? "",
-  );
+  const messageChannel = normalizeMessageChannel(getHeader(req, "x-resonix-message-channel") ?? "");
   const accountId = getHeader(req, "x-resonix-account-id")?.trim() || undefined;
 
   const {

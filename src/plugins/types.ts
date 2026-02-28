@@ -102,6 +102,10 @@ export type ProviderAuthContext = {
   oauth: {
     createVpsAwareHandlers: typeof createVpsAwareOAuthHandlers;
   };
+  progress?: {
+    update: (message: string) => void;
+    stop: (message?: string) => void;
+  };
 };
 
 export type ProviderAuthMethod = {

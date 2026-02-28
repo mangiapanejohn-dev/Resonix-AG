@@ -6,9 +6,10 @@ import {
 } from "../agents/agent-scope.js";
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
+import { withProgress } from "../cli/progress.js";
 import { enablePluginInConfig } from "../plugins/enable.js";
-import { loadSinglePlugin } from "../plugins/single-loader.js";
 import { resolvePluginProviders } from "../plugins/providers.js";
+import { loadSinglePlugin } from "../plugins/single-loader.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { isRemoteEnvironment } from "./oauth-env.js";
 import { createVpsAwareOAuthHandlers } from "./oauth-flow.js";
@@ -55,47 +56,82 @@ export async function applyAuthChoicePluginProvider(
   const workspaceDir =
     resolveAgentWorkspaceDir(nextConfig, agentId) ?? resolveDefaultAgentWorkspaceDir();
 
-  // Try lightweight single-plugin loader first (faster)
-  let provider = await loadSinglePlugin({ pluginId: options.pluginId, config: nextConfig });
-
-  // Fallback to full provider resolution if lightweight loader fails
-  if (!provider) {
-    const providers = resolvePluginProviders({ config: nextConfig, workspaceDir });
-    provider = resolveProviderMatch(providers, options.providerId);
-  } else {
-    // Ensure we get the correct method
-    provider = resolveProviderMatch([provider], options.providerId) ?? provider;
-  }
-
-  if (!provider) {
-    await params.prompter.note(
-      `${options.label} auth plugin is not available. Enable it and re-run the wizard.`,
-      options.label,
-    );
-    return { config: nextConfig };
-  }
-
-  const method = pickAuthMethod(provider, options.methodId) ?? provider.auth[0];
-  if (!method) {
-    await params.prompter.note(`${options.label} auth method missing.`, options.label);
-    return { config: nextConfig };
-  }
-
   const isRemote = isRemoteEnvironment();
-  const result = await method.run({
-    config: nextConfig,
-    agentDir,
-    workspaceDir,
-    prompter: params.prompter,
-    runtime: params.runtime,
-    isRemote,
-    openUrl: async (url) => {
-      await openUrl(url);
+  const result = await withProgress(
+    {
+      label: `Authenticating with ${options.label}...`,
+      indeterminate: true,
     },
-    oauth: {
-      createVpsAwareHandlers: (opts) => createVpsAwareOAuthHandlers(opts),
+    async (progress) => {
+      progress.setLabel(`Loading ${options.label} authentication plugin...`);
+
+      // Try lightweight single-plugin loader first (faster)
+      let provider = await loadSinglePlugin({ pluginId: options.pluginId, config: nextConfig });
+
+      // Fallback to full provider resolution if lightweight loader fails
+      if (!provider) {
+        progress.setLabel(`Falling back to full provider resolution...`);
+        const providers = resolvePluginProviders({ config: nextConfig, workspaceDir });
+        provider = resolveProviderMatch(providers, options.providerId);
+      } else {
+        // Ensure we get the correct method
+        provider = resolveProviderMatch([provider], options.providerId) ?? provider;
+      }
+
+      if (!provider) {
+        progress.setLabel(`Plugin not found...`);
+        return {
+          configPatch: undefined,
+          profiles: [],
+          defaultModel: undefined,
+          notes: [
+            `${options.label} auth plugin is not available. Enable it and re-run the wizard.`,
+          ],
+        };
+      }
+
+      const method = pickAuthMethod(provider, options.methodId) ?? provider.auth[0];
+      if (!method) {
+        progress.setLabel(`Auth method missing...`);
+        return {
+          configPatch: undefined,
+          profiles: [],
+          defaultModel: undefined,
+          notes: [`${options.label} auth method missing.`],
+        };
+      }
+
+      progress.setLabel(`Initializing ${options.label} authorization...`);
+      const result = await method.run({
+        config: nextConfig,
+        agentDir,
+        workspaceDir,
+        prompter: params.prompter,
+        runtime: params.runtime,
+        isRemote,
+        openUrl: async (url) => {
+          progress.setLabel(`Opening ${options.label} authorization page...`);
+          await openUrl(url);
+          progress.setLabel(`Waiting for ${options.label} authorization...`);
+        },
+        oauth: {
+          createVpsAwareHandlers: (opts) => createVpsAwareOAuthHandlers(opts),
+        },
+        progress: {
+          update: (message) => progress.setLabel(message),
+          stop: (message) => {},
+        },
+      });
+      progress.setLabel(`${options.label} authentication completed!`);
+      return result;
     },
-  });
+  );
+
+  // Handle plugin not found or auth method missing
+  if (result.notes && result.notes.length > 0) {
+    await params.prompter.note(result.notes.join("\n"), options.label);
+    return { config: nextConfig };
+  }
 
   if (result.configPatch) {
     nextConfig = mergeConfigPatch(nextConfig, result.configPatch);
@@ -128,11 +164,6 @@ export async function applyAuthChoicePluginProvider(
       // Skip note for cleaner flow
     }
   }
-
-  // Skip provider notes for cleaner flow
-  // if (result.notes && result.notes.length > 0) {
-  //   await params.prompter.note(result.notes.join("\n"), "Provider notes");
-  // }
 
   return { config: nextConfig, agentModelOverride };
 }

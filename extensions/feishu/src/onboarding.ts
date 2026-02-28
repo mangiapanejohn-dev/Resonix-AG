@@ -121,7 +121,10 @@ function setFeishuGroupPolicy(
   };
 }
 
-function setFeishuGroupAllowFrom(cfg: ResonixdbotConfig, groupAllowFrom: string[]): ResonixdbotConfig {
+function setFeishuGroupAllowFrom(
+  cfg: ResonixdbotConfig,
+  groupAllowFrom: string[],
+): ResonixdbotConfig {
   return {
     ...cfg,
     channels: {

@@ -9,6 +9,7 @@ import type {
 import { chromium } from "playwright-core";
 import { formatErrorMessage } from "../infra/errors.js";
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
+import { applyAntiCrawlerSettings, simulateHumanBrowsing } from "./anti-crawler.js";
 import { appendCdpPath, fetchJson, getHeadersWithAuth, withCdpSocket } from "./cdp.helpers.js";
 import { normalizeCdpWsUrl } from "./cdp.js";
 import { getChromeWebSocketUrl } from "./chrome.js";
@@ -736,6 +737,9 @@ export async function createPageViaPlaywright(opts: {
   const page = await context.newPage();
   ensurePageState(page);
 
+  // Apply anti-crawler settings
+  await applyAntiCrawlerSettings(page);
+
   // Navigate to the URL
   const targetUrl = opts.url.trim() || "about:blank";
   if (targetUrl !== "about:blank") {
@@ -748,6 +752,9 @@ export async function createPageViaPlaywright(opts: {
     await page.goto(targetUrl, { timeout: 30_000 }).catch(() => {
       // Navigation might fail for some URLs, but page is still created
     });
+
+    // Simulate human browsing behavior after navigation
+    await simulateHumanBrowsing(page);
   }
 
   // Get the targetId for this page

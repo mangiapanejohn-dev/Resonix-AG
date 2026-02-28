@@ -44,6 +44,53 @@ export type AgentHealthSummary = {
   sessions: HealthSummary["sessions"];
 };
 
+export type SystemMetrics = {
+  memory: {
+    total: number;
+    used: number;
+    free: number;
+    usagePercent: number;
+  };
+  cpu: {
+    usagePercent: number;
+    cores: number;
+  };
+  disk: {
+    total: number;
+    used: number;
+    free: number;
+    usagePercent: number;
+  };
+  network: {
+    interfaces: Record<
+      string,
+      {
+        bytesSent: number;
+        bytesReceived: number;
+      }
+    >;
+  };
+};
+
+export type GatewayMetrics = {
+  websocket: {
+    connections: number;
+    messagesSent: number;
+    messagesReceived: number;
+  };
+  rateLimiter: {
+    totalChecks: number;
+    allowedChecks: number;
+    blockedChecks: number;
+  };
+  plugins: {
+    total: number;
+    loaded: number;
+    failed: number;
+  };
+  uptimeMs: number;
+};
+
 export type HealthSummary = {
   /**
    * Convenience top-level flag for UIs (e.g. WebChat) that only need a binary
@@ -67,6 +114,19 @@ export type HealthSummary = {
       key: string;
       updatedAt: number | null;
       age: number | null;
+    }>;
+  };
+  system?: SystemMetrics;
+  gateway?: GatewayMetrics;
+  diagnostics?: {
+    errors: Array<{
+      message: string;
+      timestamp: number;
+      severity: "error" | "warn" | "info";
+    }>;
+    warnings: Array<{
+      message: string;
+      timestamp: number;
     }>;
   };
 };

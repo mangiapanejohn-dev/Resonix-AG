@@ -34,3 +34,27 @@ export const TICK_INTERVAL_MS = 30_000;
 export const HEALTH_REFRESH_INTERVAL_MS = 60_000;
 export const DEDUPE_TTL_MS = 5 * 60_000;
 export const DEDUPE_MAX = 1000;
+
+// Heartbeat configuration
+export const DEFAULT_HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
+export const DEFAULT_HEARTBEAT_TIMEOUT_MS = 60_000; // 60 seconds
+
+export const getHeartbeatIntervalMs = () => {
+  if (process.env.VITEST && process.env.RESONIX_TEST_HEARTBEAT_INTERVAL_MS) {
+    const parsed = Number(process.env.RESONIX_TEST_HEARTBEAT_INTERVAL_MS);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return DEFAULT_HEARTBEAT_INTERVAL_MS;
+};
+
+export const getHeartbeatTimeoutMs = () => {
+  if (process.env.VITEST && process.env.RESONIX_TEST_HEARTBEAT_TIMEOUT_MS) {
+    const parsed = Number(process.env.RESONIX_TEST_HEARTBEAT_TIMEOUT_MS);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+  return DEFAULT_HEARTBEAT_TIMEOUT_MS;
+};

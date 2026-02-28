@@ -2,15 +2,13 @@ import { spawn } from "node:child_process";
 import os from "node:os";
 import type { ResonixPluginApi } from "resonix/plugin-sdk";
 
-type ListDevicePairingFn = typeof import("resonix/plugin-sdk")["listDevicePairing"];
-type ApproveDevicePairingFn = typeof import("resonix/plugin-sdk")["approveDevicePairing"];
+type ListDevicePairingFn = (typeof import("resonix/plugin-sdk"))["listDevicePairing"];
+type ApproveDevicePairingFn = (typeof import("resonix/plugin-sdk"))["approveDevicePairing"];
 
-let pairingApiPromise:
-  | Promise<{
-      listDevicePairing: ListDevicePairingFn;
-      approveDevicePairing: ApproveDevicePairingFn;
-    }>
-  | null = null;
+let pairingApiPromise: Promise<{
+  listDevicePairing: ListDevicePairingFn;
+  approveDevicePairing: ApproveDevicePairingFn;
+}> | null = null;
 
 async function loadPairingApi(): Promise<{
   listDevicePairing: ListDevicePairingFn;

@@ -91,30 +91,28 @@ export function registerGatewayCli(program: Command) {
     program
       .command("gateway")
       .description("Run, inspect, and query the WebSocket Gateway")
-      .addHelpText(
-        "before",
-        () =>
-          [
-            "",
-            "+----------------------------------------------------------------+",
-            "|        RESONIX SYSTEM LAYER - GATEWAY STATUS                  |",
-            "+----------------------------------------------------------------+",
-            "|                                                                |",
-            "|  Core modules report: online, awake, and slightly caffeinated |",
-            "|                                                                |",
-            "|  [OK] Memory System - long-term memory standing by            |",
-            "|  [OK] Working Memory - real-time reasoning warmed up          |",
-            "|  [OK] Self-Cognition Engine - capability map loaded           |",
-            "|  [OK] Browser Control - Playwright ready for adventures       |",
-            "|  [OK] File Sandbox - isolation shields active                 |",
-            "|  [OK] Feishu Integration - document tools online              |",
-            "|                                                                |",
-            "|  Gateway is ready to accept connections and run agents.       |",
-            "|                                                                |",
-            "|  Docs: https://docs.resonix.ai/cli/gateway                    |",
-            "+----------------------------------------------------------------+",
-            "",
-          ].join("\n"),
+      .addHelpText("before", () =>
+        [
+          "",
+          "+----------------------------------------------------------------+",
+          "|        RESONIX SYSTEM LAYER - GATEWAY STATUS                  |",
+          "+----------------------------------------------------------------+",
+          "|                                                                |",
+          "|  Core modules report: online, awake, and slightly caffeinated |",
+          "|                                                                |",
+          "|  [OK] Memory System - long-term memory standing by            |",
+          "|  [OK] Working Memory - real-time reasoning warmed up          |",
+          "|  [OK] Self-Cognition Engine - capability map loaded           |",
+          "|  [OK] Browser Control - Playwright ready for adventures       |",
+          "|  [OK] File Sandbox - isolation shields active                 |",
+          "|  [OK] Feishu Integration - document tools online              |",
+          "|                                                                |",
+          "|  Gateway is ready to accept connections and run agents.       |",
+          "|                                                                |",
+          "|  Docs: https://docs.resonix.ai/cli/gateway                    |",
+          "+----------------------------------------------------------------+",
+          "",
+        ].join("\n"),
       )
       .addHelpText(
         "afterAll",

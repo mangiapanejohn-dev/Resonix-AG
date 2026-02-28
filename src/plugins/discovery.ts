@@ -565,29 +565,31 @@ export function discoverResonixPlugins(params: {
   }
   if (workspaceDir) {
     const workspaceRoot = resolveUserPath(workspaceDir);
-    const workspaceExtDirs = [path.join(workspaceRoot, ".resonix", "extensions")];
-    for (const dir of workspaceExtDirs) {
-      discoverInDirectory({
-        dir,
-        origin: "workspace",
-        ownershipUid: params.ownershipUid,
-        workspaceDir: workspaceRoot,
-        candidates,
-        diagnostics,
-        seen,
-      });
-    }
+    // Skip workspace extensions directory to avoid duplicate plugins
+    // const workspaceExtDirs = [path.join(workspaceRoot, ".resonix", "extensions")];
+    // for (const dir of workspaceExtDirs) {
+    //   discoverInDirectory({
+    //     dir,
+    //     origin: "workspace",
+    //     ownershipUid: params.ownershipUid,
+    //     workspaceDir: workspaceRoot,
+    //     candidates,
+    //     diagnostics,
+    //     seen,
+    //   });
+    // }
   }
 
-  const globalDir = path.join(resolveConfigDir(), "extensions");
-  discoverInDirectory({
-    dir: globalDir,
-    origin: "global",
-    ownershipUid: params.ownershipUid,
-    candidates,
-    diagnostics,
-    seen,
-  });
+  // Skip global extensions directory to avoid duplicate plugins
+  // const globalDir = path.join(resolveConfigDir(), "extensions");
+  // discoverInDirectory({
+  //   dir: globalDir,
+  //   origin: "global",
+  //   ownershipUid: params.ownershipUid,
+  //   candidates,
+  //   diagnostics,
+  //   seen,
+  // });
 
   const bundledDir = resolveBundledPluginsDir();
   if (bundledDir) {

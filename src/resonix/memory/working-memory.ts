@@ -1,13 +1,13 @@
 /**
  * Resonix 永久记忆体系 - 工作记忆（学习临时缓冲区）
- * 
+ *
  * 核心定位：学习过程中的原始数据、临时参数、未校验的内容
  * 任务完成后清理，不持久化
  */
 
 export interface WorkingMemoryItem {
   id: string;
-  type: 'raw_data' | 'temp_param' | 'unchecked_content' | 'learning_progress';
+  type: "raw_data" | "temp_param" | "unchecked_content" | "learning_progress";
   content: any;
   createdAt: number;
   expiresAt: number;
@@ -18,7 +18,7 @@ export interface LearningProgress {
   demandId: string;
   currentStep: number;
   totalSteps: number;
-  status: 'pending' | 'in_progress' | 'validating' | 'completed' | 'failed';
+  status: "pending" | "in_progress" | "validating" | "completed" | "failed";
   data: Record<string, any>;
 }
 
@@ -36,20 +36,20 @@ export class WorkingMemory {
    * 存储临时数据
    */
   store(
-    type: WorkingMemoryItem['type'],
+    type: WorkingMemoryItem["type"],
     content: any,
     ttl: number = this.defaultTTL,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): string {
     const id = `wm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const item: WorkingMemoryItem = {
       id,
       type,
       content,
       createdAt: Date.now(),
       expiresAt: Date.now() + ttl,
-      metadata
+      metadata,
     };
 
     this.items.set(id, item);
@@ -61,9 +61,9 @@ export class WorkingMemory {
    */
   get(id: string): WorkingMemoryItem | null {
     const item = this.items.get(id);
-    
+
     if (!item) return null;
-    
+
     if (Date.now() > item.expiresAt) {
       this.items.delete(id);
       return null;
@@ -75,7 +75,7 @@ export class WorkingMemory {
   /**
    * 获取特定类型的所有项
    */
-  getByType(type: WorkingMemoryItem['type']): WorkingMemoryItem[] {
+  getByType(type: WorkingMemoryItem["type"]): WorkingMemoryItem[] {
     const now = Date.now();
     const results: WorkingMemoryItem[] = [];
 
@@ -109,7 +109,7 @@ export class WorkingMemory {
   /**
    * 批量删除（按类型）
    */
-  deleteByType(type: WorkingMemoryItem['type']): number {
+  deleteByType(type: WorkingMemoryItem["type"]): number {
     let count = 0;
     for (const [id, item] of this.items) {
       if (item.type === type) {
@@ -130,8 +130,8 @@ export class WorkingMemory {
       demandId,
       currentStep: 0,
       totalSteps,
-      status: 'pending',
-      data: {}
+      status: "pending",
+      data: {},
     };
 
     this.learningProgress.set(demandId, progress);
@@ -148,10 +148,7 @@ export class WorkingMemory {
   /**
    * 更新学习进度
    */
-  updateLearningProgress(
-    demandId: string, 
-    updates: Partial<LearningProgress>
-  ): boolean {
+  updateLearningProgress(demandId: string, updates: Partial<LearningProgress>): boolean {
     const progress = this.learningProgress.get(demandId);
     if (!progress) return false;
 
@@ -167,13 +164,13 @@ export class WorkingMemory {
     if (!progress) return false;
 
     progress.currentStep++;
-    
+
     if (stepData) {
       progress.data[`step_${progress.currentStep}`] = stepData;
     }
 
     if (progress.currentStep >= progress.totalSteps) {
-      progress.status = 'completed';
+      progress.status = "completed";
     }
 
     this.learningProgress.set(demandId, progress);
@@ -187,9 +184,9 @@ export class WorkingMemory {
     const progress = this.learningProgress.get(demandId);
     if (!progress) return false;
 
-    progress.status = 'failed';
+    progress.status = "failed";
     if (error) {
-      progress.data['error'] = error;
+      progress.data["error"] = error;
     }
 
     this.learningProgress.set(demandId, progress);
@@ -200,8 +197,9 @@ export class WorkingMemory {
    * 获取所有活跃的学习进度
    */
   getActiveLearningProgress(): LearningProgress[] {
-    return Array.from(this.learningProgress.values())
-      .filter(p => p.status === 'pending' || p.status === 'in_progress');
+    return Array.from(this.learningProgress.values()).filter(
+      (p) => p.status === "pending" || p.status === "in_progress",
+    );
   }
 
   /**
@@ -210,7 +208,7 @@ export class WorkingMemory {
   cleanupLearningProgress(): number {
     let count = 0;
     for (const [id, progress] of this.learningProgress) {
-      if (progress.status === 'completed' || progress.status === 'failed') {
+      if (progress.status === "completed" || progress.status === "failed") {
         this.learningProgress.delete(id);
         count++;
       }
@@ -258,7 +256,7 @@ export class WorkingMemory {
       totalItems: this.items.size,
       byType,
       activeLearning: this.learningProgress.size,
-      averageAge: this.items.size > 0 ? totalAge / this.items.size : 0
+      averageAge: this.items.size > 0 ? totalAge / this.items.size : 0,
     };
   }
 
@@ -276,7 +274,7 @@ export class WorkingMemory {
   export(): { items: WorkingMemoryItem[]; progress: LearningProgress[] } {
     return {
       items: Array.from(this.items.values()),
-      progress: Array.from(this.learningProgress.values())
+      progress: Array.from(this.learningProgress.values()),
     };
   }
 }

@@ -110,8 +110,8 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 
 | `checkId`                                     | Severity      | Why it matters                                                          | Primary fix key/path                                          | Auto-fix |
 | --------------------------------------------- | ------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- | -------- |
-| `fs.state_dir.perms_world_writable`           | critical      | Other users/processes can modify full Resonix state                    | filesystem perms on `~/.resonix`                             | yes      |
-| `fs.config.perms_writable`                    | critical      | Others can change auth/tool policy/config                               | filesystem perms on `~/.resonix/resonix.json`               | yes      |
+| `fs.state_dir.perms_world_writable`           | critical      | Other users/processes can modify full Resonix state                     | filesystem perms on `~/.resonix`                              | yes      |
+| `fs.config.perms_writable`                    | critical      | Others can change auth/tool policy/config                               | filesystem perms on `~/.resonix/resonix.json`                 | yes      |
 | `fs.config.perms_world_readable`              | critical      | Config can expose tokens/settings                                       | filesystem perms on config file                               | yes      |
 | `gateway.bind_no_auth`                        | critical      | Remote bind without shared secret                                       | `gateway.bind`, `gateway.auth.*`                              | no       |
 | `gateway.loopback_no_auth`                    | critical      | Reverse-proxied loopback may become unauthenticated                     | `gateway.auth.*`, proxy setup                                 | no       |

@@ -324,23 +324,31 @@ export async function setupChannels(
     label: meta.label,
     blurb: meta.blurb,
   }));
-  
+
   // Only show Telegram and Feishu channels
   const ENABLED_CHANNELS = new Set<ChannelChoice>(["telegram", "feishu"]);
-  const filteredPrimer = corePrimer.filter((channel) => ENABLED_CHANNELS.has(channel.id as ChannelChoice));
-  
+  const filteredPrimer = corePrimer.filter((channel) =>
+    ENABLED_CHANNELS.has(channel.id as ChannelChoice),
+  );
+
   const coreIds = new Set(filteredPrimer.map((entry) => entry.id));
   const primerChannels = [
     ...filteredPrimer,
     ...installedPlugins
-      .filter((plugin) => !coreIds.has(plugin.id) && ENABLED_CHANNELS.has(plugin.id as ChannelChoice))
+      .filter(
+        (plugin) => !coreIds.has(plugin.id) && ENABLED_CHANNELS.has(plugin.id as ChannelChoice),
+      )
       .map((plugin) => ({
         id: plugin.id,
         label: plugin.meta.label,
         blurb: plugin.meta.blurb,
       })),
     ...catalogEntries
-      .filter((entry) => !coreIds.has(entry.id as ChannelChoice) && ENABLED_CHANNELS.has(entry.id as ChannelChoice))
+      .filter(
+        (entry) =>
+          !coreIds.has(entry.id as ChannelChoice) &&
+          ENABLED_CHANNELS.has(entry.id as ChannelChoice),
+      )
       .map((entry) => ({
         id: entry.id as ChannelChoice,
         label: entry.meta.label,
@@ -432,15 +440,15 @@ export async function setupChannels(
         metaById.set(entry.id, entry.meta);
       }
     }
-    
+
     // Only include Telegram and Feishu
     const ENABLED_CHANNELS = new Set<ChannelChoice>(["telegram", "feishu"]);
-    
+
     const entries = Array.from(metaById, ([id, meta]) => ({
       id: id as ChannelChoice,
       meta,
     })).filter((entry) => ENABLED_CHANNELS.has(entry.id));
-    
+
     return {
       entries,
       catalog,

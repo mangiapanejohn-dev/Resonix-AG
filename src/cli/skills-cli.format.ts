@@ -19,16 +19,10 @@ export type SkillsCheckOptions = {
 };
 
 // Resonix system layer skills - these are built-in core capabilities
-const RESONIX_SYSTEM_SKILLS = new Set([
-  "feishu-doc",
-  "feishu-drive", 
-  "feishu-perm",
-  "feishu-wiki",
-]);
+const RESONIX_SYSTEM_SKILLS = new Set(["feishu-doc", "feishu-drive", "feishu-perm", "feishu-wiki"]);
 
 function isResonixSystemSkill(skill: SkillStatusEntry): boolean {
-  return RESONIX_SYSTEM_SKILLS.has(skill.name) || 
-         RESONIX_SYSTEM_SKILLS.has(skill.skillKey ?? "");
+  return RESONIX_SYSTEM_SKILLS.has(skill.name) || RESONIX_SYSTEM_SKILLS.has(skill.skillKey ?? "");
 }
 
 function formatSkillSource(source: string | undefined, skill: SkillStatusEntry): string {
@@ -126,7 +120,7 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   const eligible = sortedSkills.filter((s) => s.eligible);
   const systemSkills = sortedSkills.filter((s) => isResonixSystemSkill(s));
   const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
-  
+
   const rows = sortedSkills.map((skill) => {
     const missing = formatSkillMissingSummary(skill);
     return {
@@ -149,7 +143,7 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   }
 
   const lines: string[] = [];
-  
+
   // Add system skills header if there are any
   if (systemSkills.length > 0) {
     lines.push("+----------------------------------------------------------------+");
@@ -163,7 +157,7 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
     lines.push("+----------------------------------------------------------------+");
     lines.push("");
   }
-  
+
   lines.push(
     `${theme.heading("Skills")} ${theme.muted(`(${eligible.length}/${sortedSkills.length} ready)`)}`,
   );

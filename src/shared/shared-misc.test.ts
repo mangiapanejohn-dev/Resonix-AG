@@ -75,9 +75,7 @@ describe("shared/frontmatter", () => {
 
   test("resolveResonixManifestBlock returns undefined for invalid input", () => {
     expect(resolveResonixManifestBlock({ frontmatter: {} })).toBeUndefined();
-    expect(
-      resolveResonixManifestBlock({ frontmatter: { metadata: "not-json5" } }),
-    ).toBeUndefined();
+    expect(resolveResonixManifestBlock({ frontmatter: { metadata: "not-json5" } })).toBeUndefined();
     expect(
       resolveResonixManifestBlock({ frontmatter: { metadata: "{ nope: { a: 1 } }" } }),
     ).toBeUndefined();

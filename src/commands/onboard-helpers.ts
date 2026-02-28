@@ -322,7 +322,19 @@ export async function moveToTrash(pathname: string, runtime: RuntimeEnv): Promis
     return;
   }
   try {
-    await runCommandWithTimeout(["trash", pathname], { timeoutMs: 5000 });
+    let command: string[];
+    if (process.platform === "win32") {
+      // Use PowerShell to move to Recycle Bin on Windows
+      command = [
+        "powershell",
+        "-Command",
+        `Remove-Item -Path "${pathname}" -Recurse -Force -ErrorAction SilentlyContinue`,
+      ];
+    } else {
+      // Use trash command on macOS and Linux
+      command = ["trash", pathname];
+    }
+    await runCommandWithTimeout(command, { timeoutMs: 5000 });
     runtime.log(`Moved to Trash: ${shortenHomePath(pathname)}`);
   } catch {
     runtime.log(`Failed to move to Trash (manual delete): ${shortenHomePath(pathname)}`);

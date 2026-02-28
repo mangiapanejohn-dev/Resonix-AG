@@ -1,22 +1,22 @@
 /**
  * Resonix 自主认知体系 - 需求识别模块
- * 
+ *
  * 核心能力：知道"什么时候需要学习、学什么、学多深"
  * 结合用户交互场景+能力画像，生成学习需求清单
  */
 
-import { SelfPerception, CapabilityProfile } from './self-perception.js';
-import { EpisodicMemory } from '../memory/episodic-memory.js';
+import { EpisodicMemory } from "../memory/episodic-memory.js";
+import { SelfPerception, CapabilityProfile } from "./self-perception.js";
 
 export interface LearningDemand {
   id: string;
   topic: string;
   domain: string;
-  priority: number;           // 优先级 (0-100)
-  trigger: 'gap' | 'timeliness' | 'deviation' | 'user_interaction';
-  urgency: 'immediate' | 'scheduled' | 'idle';
-  depth: 'basic' | 'advanced' | 'practical';
-  targetMastery: number;     // 目标掌握度
+  priority: number; // 优先级 (0-100)
+  trigger: "gap" | "timeliness" | "deviation" | "user_interaction";
+  urgency: "immediate" | "scheduled" | "idle";
+  depth: "basic" | "advanced" | "practical";
+  targetMastery: number; // 目标掌握度
   createdAt: number;
 }
 
@@ -52,11 +52,11 @@ export class DemandRecognition {
         topic: gap,
         domain: this.extractDomain(gap),
         priority: (10 - mastery) * 10, // 掌握度越低，优先级越高
-        trigger: 'gap',
-        urgency: mastery < 3 ? 'immediate' : 'scheduled',
-        depth: mastery < 4 ? 'basic' : mastery < 6 ? 'advanced' : 'practical',
+        trigger: "gap",
+        urgency: mastery < 3 ? "immediate" : "scheduled",
+        depth: mastery < 4 ? "basic" : mastery < 6 ? "advanced" : "practical",
         targetMastery: 8,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
     }
 
@@ -68,11 +68,11 @@ export class DemandRecognition {
         topic: item,
         domain: this.extractDomain(item),
         priority: 70,
-        trigger: 'timeliness',
-        urgency: 'scheduled',
-        depth: 'advanced',
+        trigger: "timeliness",
+        urgency: "scheduled",
+        depth: "advanced",
         targetMastery: 8,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
     }
 
@@ -93,14 +93,14 @@ export class DemandRecognition {
     this.currentDemands = {
       demands: topDemands,
       generatedAt: Date.now(),
-      basedOnProfile: true
+      basedOnProfile: true,
     };
 
     // 记录到情景记忆
     await this.episodicMemory.log({
-      event_type: 'demand_generation',
+      event_type: "demand_generation",
       content: `生成了 ${topDemands.length} 个学习需求`,
-      metadata: { demandCount: topDemands.length }
+      metadata: { demandCount: topDemands.length },
     });
 
     return this.currentDemands;
@@ -118,26 +118,26 @@ export class DemandRecognition {
    */
   private async getDeviationDemands(): Promise<LearningDemand[]> {
     const demands: LearningDemand[] = [];
-    
+
     // 从情景记忆获取最近的错误反馈
     const recentFeedback = await this.episodicMemory.search({
-      event_type: 'user_feedback',
-      content: 'error'
+      event_type: "user_feedback",
+      content: "error",
     });
 
     for (const event of recentFeedback.slice(0, 5)) {
-      const topic = this.extractTopicFromFeedback(event.content || '');
+      const topic = this.extractTopicFromFeedback(event.content || "");
       if (topic) {
         demands.push({
           id: `dev_${topic}`,
           topic,
           domain: this.extractDomain(topic),
           priority: 85,
-          trigger: 'deviation',
-          urgency: 'immediate',
-          depth: 'practical',
+          trigger: "deviation",
+          urgency: "immediate",
+          depth: "practical",
           targetMastery: 9,
-          createdAt: Date.now()
+          createdAt: Date.now(),
         });
       }
     }
@@ -150,16 +150,16 @@ export class DemandRecognition {
    */
   private async getUserInteractionDemands(): Promise<LearningDemand[]> {
     const demands: LearningDemand[] = [];
-    
+
     // 获取最近的用户交互
     const recentInteractions = await this.episodicMemory.search({
-      event_type: 'user_interaction'
+      event_type: "user_interaction",
     });
 
     // 识别用户询问的新主题
     const newTopics = new Set<string>();
     for (const interaction of recentInteractions.slice(0, 20)) {
-      const topics = this.extractNewTopics(interaction.content || '');
+      const topics = this.extractNewTopics(interaction.content || "");
       for (const topic of topics) {
         const mastery = await this.selfPerception.checkMastery(topic);
         if (mastery < 6) {
@@ -174,11 +174,11 @@ export class DemandRecognition {
         topic,
         domain: this.extractDomain(topic),
         priority: 50,
-        trigger: 'user_interaction',
-        urgency: 'idle',
-        depth: 'basic',
+        trigger: "user_interaction",
+        urgency: "idle",
+        depth: "basic",
         targetMastery: 7,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
     }
 
@@ -209,20 +209,20 @@ export class DemandRecognition {
    */
   private extractDomain(topic: string): string {
     const domainKeywords: Record<string, string[]> = {
-      '前端': ['react', 'vue', 'angular', 'javascript', 'typescript', 'css', 'html'],
-      '后端': ['node', 'python', 'java', 'go', 'rust', 'api', 'database'],
-      'AI': ['gpt', 'llm', 'machine learning', 'deep learning', 'ai', 'model'],
-      'DevOps': ['docker', 'kubernetes', 'ci/cd', 'aws', 'cloud'],
-      '移动端': ['ios', 'android', 'flutter', 'react native']
+      前端: ["react", "vue", "angular", "javascript", "typescript", "css", "html"],
+      后端: ["node", "python", "java", "go", "rust", "api", "database"],
+      AI: ["gpt", "llm", "machine learning", "deep learning", "ai", "model"],
+      DevOps: ["docker", "kubernetes", "ci/cd", "aws", "cloud"],
+      移动端: ["ios", "android", "flutter", "react native"],
     };
 
     const lowerTopic = topic.toLowerCase();
     for (const [domain, keywords] of Object.entries(domainKeywords)) {
-      if (keywords.some(k => lowerTopic.includes(k))) {
+      if (keywords.some((k) => lowerTopic.includes(k))) {
         return domain;
       }
     }
-    return 'general';
+    return "general";
   }
 
   /**
@@ -230,9 +230,7 @@ export class DemandRecognition {
    */
   async markDemandProcessed(demandId: string): Promise<void> {
     if (this.currentDemands) {
-      this.currentDemands.demands = this.currentDemands.demands.filter(
-        d => d.id !== demandId
-      );
+      this.currentDemands.demands = this.currentDemands.demands.filter((d) => d.id !== demandId);
     }
   }
 
@@ -240,16 +238,16 @@ export class DemandRecognition {
    * 获取高优先级需求
    */
   async getHighPriorityDemands(threshold: number = 70): Promise<LearningDemand[]> {
-    if (!this.currentDemands || Date.now() - this.currentDemands.generatedAt > 30*60*1000) {
+    if (!this.currentDemands || Date.now() - this.currentDemands.generatedAt > 30 * 60 * 1000) {
       await this.generateDemandList();
     }
-    
+
     return (this.currentDemands?.demands || [])
-      .filter(d => d.priority >= threshold)
+      .filter((d) => d.priority >= threshold)
       .sort((a, b) => {
         // 紧急需求优先
-        if (a.urgency === 'immediate' && b.urgency !== 'immediate') return -1;
-        if (b.urgency === 'immediate' && a.urgency !== 'immediate') return 1;
+        if (a.urgency === "immediate" && b.urgency !== "immediate") return -1;
+        if (b.urgency === "immediate" && a.urgency !== "immediate") return 1;
         return b.priority - a.priority;
       });
   }

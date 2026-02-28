@@ -286,29 +286,27 @@ export function registerConfigCli(program: Command) {
     .description(
       "Non-interactive config helpers (get/set/unset). Run without subcommand for the setup wizard.",
     )
-    .addHelpText(
-      "before",
-      () =>
-        [
-          "",
-          "+----------------------------------------------------------------+",
-          "|        RESONIX SYSTEM LAYER - CONFIGURATION                   |",
-          "+----------------------------------------------------------------+",
-          "|                                                                |",
-          "|  Config modules are online and politely judging your YAML.     |",
-          "|                                                                |",
-          "|  o Model Providers - Anthropic, OpenAI, MiniMax, Qwen, etc.   |",
-          "|  o Channel Settings - Telegram, Feishu integration             |",
-          "|  o Plugin Management - bundled plugins auto-loaded             |",
-          "|  o Security Policies - access control + sandbox rules          |",
-          "|  o Memory Configuration - semantic + episodic memory           |",
-          "|                                                                |",
-          "|  Changes stay synchronized with the running system layer.      |",
-          "|                                                                |",
-          "|  Docs: https://docs.resonix.ai/cli/config                      |",
-          "+----------------------------------------------------------------+",
-          "",
-        ].join("\n"),
+    .addHelpText("before", () =>
+      [
+        "",
+        "+----------------------------------------------------------------+",
+        "|        RESONIX SYSTEM LAYER - CONFIGURATION                   |",
+        "+----------------------------------------------------------------+",
+        "|                                                                |",
+        "|  Config modules are online and politely judging your YAML.     |",
+        "|                                                                |",
+        "|  o Model Providers - Anthropic, OpenAI, MiniMax, Qwen, etc.   |",
+        "|  o Channel Settings - Telegram, Feishu integration             |",
+        "|  o Plugin Management - bundled plugins auto-loaded             |",
+        "|  o Security Policies - access control + sandbox rules          |",
+        "|  o Memory Configuration - semantic + episodic memory           |",
+        "|                                                                |",
+        "|  Changes stay synchronized with the running system layer.      |",
+        "|                                                                |",
+        "|  Docs: https://docs.resonix.ai/cli/config                      |",
+        "+----------------------------------------------------------------+",
+        "",
+      ].join("\n"),
     )
     .option(
       "--section <section>",

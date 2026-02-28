@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, createSign, createVerify, generateKeyPairSync } from "node:crypto";
 import { normalizeDeviceAuthScopes } from "../shared/device-auth.js";
 import {
   createAsyncLock,
@@ -550,4 +550,35 @@ export async function revokeDeviceToken(params: {
     await persistState(state, params.baseDir);
     return entry;
   });
+}
+
+export function verifyDeviceSignature(
+  publicKey: string,
+  payload: string,
+  signature: string,
+): boolean {
+  try {
+    const verify = createVerify("RSA-SHA256");
+    verify.write(payload);
+    verify.end();
+    return verify.verify(publicKey, signature, "base64");
+  } catch (error) {
+    console.error("Error verifying device signature:", error);
+    return false;
+  }
+}
+
+export function generateDeviceKeyPair(): { privateKey: string; publicKey: string } {
+  const { privateKey, publicKey } = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: {
+      type: "spki",
+      format: "pem",
+    },
+    privateKeyEncoding: {
+      type: "pkcs8",
+      format: "pem",
+    },
+  });
+  return { privateKey, publicKey };
 }

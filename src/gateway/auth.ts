@@ -8,9 +8,11 @@ import { readTailscaleWhoisIdentity, type TailscaleWhoisIdentity } from "../infr
 import { safeEqualSecret } from "../security/secret-equal.js";
 import {
   AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET,
+  AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN,
   type AuthRateLimiter,
   type RateLimitCheckResult,
 } from "./auth-rate-limit.js";
+import { buildDeviceAuthPayload } from "./device-auth.js";
 import {
   isLoopbackAddress,
   isTrustedProxyAddress,
@@ -34,7 +36,10 @@ export type ResolvedGatewayAuth = {
   password?: string;
   allowTailscale: boolean;
   trustedProxy?: GatewayTrustedProxyConfig;
+  rateLimit?: import("../config/config.js").GatewayAuthRateLimitConfig;
 };
+
+export type GatewayAuthSurface = "http" | "ws-control-ui";
 
 export type GatewayAuthResult = {
   ok: boolean;
@@ -68,6 +73,53 @@ function headerValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function parseDeviceAuthHeader(req?: IncomingMessage): {
+  signature?: string;
+  signedAt?: number;
+  id?: string;
+  role?: string;
+  scopes?: string[];
+  nonce?: string;
+} {
+  if (!req) {
+    return {};
+  }
+  const header = headerValue(req.headers["x-device-auth"]);
+  if (!header) {
+    return {};
+  }
+  const parts = header.split(" ");
+  if (parts.length < 2) {
+    return {};
+  }
+  const [scheme, ...rest] = parts;
+  if (scheme !== "Device") {
+    return {};
+  }
+  const params = rest.join(" ").split(",");
+  const parsed: Record<string, string> = {};
+  for (const param of params) {
+    const [key, value] = param.split("=");
+    if (key && value) {
+      parsed[key.trim()] = value.trim();
+    }
+  }
+  return {
+    signature: parsed.signature,
+    signedAt: parsed.signedAt ? parseInt(parsed.signedAt, 10) : undefined,
+    id: parsed.id,
+    role: parsed.role,
+    scopes: parsed.scopes ? parsed.scopes.split(" ") : undefined,
+    nonce: parsed.nonce,
+  };
+}
+
+function isDevicePairingExpired(signedAt: number): boolean {
+  const now = Date.now();
+  const maxAge = 5 * 60 * 1000; // 5 minutes
+  return now - signedAt > maxAge;
+}
+
 function resolveTailscaleClientIp(req?: IncomingMessage): string | undefined {
   if (!req) {
     return undefined;
@@ -79,6 +131,7 @@ function resolveTailscaleClientIp(req?: IncomingMessage): string | undefined {
 function resolveRequestClientIp(
   req?: IncomingMessage,
   trustedProxies?: string[],
+  allowRealIpFallback = false,
 ): string | undefined {
   if (!req) {
     return undefined;
@@ -88,6 +141,7 @@ function resolveRequestClientIp(
     forwardedFor: headerValue(req.headers?.["x-forwarded-for"]),
     realIp: headerValue(req.headers?.["x-real-ip"]),
     trustedProxies,
+    allowRealIpFallback,
   });
 }
 
@@ -216,6 +270,7 @@ export function resolveGatewayAuth(params: {
   const token = authConfig.token ?? env.RESONIX_GATEWAY_TOKEN ?? undefined;
   const password = authConfig.password ?? env.RESONIX_GATEWAY_PASSWORD ?? undefined;
   const trustedProxy = authConfig.trustedProxy;
+  const rateLimit = authConfig.rateLimit;
 
   let mode: ResolvedGatewayAuth["mode"];
   let modeSource: ResolvedGatewayAuth["modeSource"];
@@ -247,6 +302,7 @@ export function resolveGatewayAuth(params: {
     password,
     allowTailscale,
     trustedProxy,
+    rateLimit,
   };
 }
 
@@ -319,21 +375,38 @@ function authorizeTrustedProxy(params: {
   return { user };
 }
 
-export async function authorizeGatewayConnect(params: {
+export type AuthorizeGatewayConnectParams = {
   auth: ResolvedGatewayAuth;
   connectAuth?: ConnectAuth | null;
   req?: IncomingMessage;
   trustedProxies?: string[];
   tailscaleWhois?: TailscaleWhoisLookup;
+  /**
+   * Explicit auth surface. HTTP keeps Tailscale forwarded-header auth disabled.
+   * WS Control UI enables it intentionally for tokenless trusted-host login.
+   */
+  authSurface?: GatewayAuthSurface;
   /** Optional rate limiter instance; when provided, failed attempts are tracked per IP. */
   rateLimiter?: AuthRateLimiter;
   /** Client IP used for rate-limit tracking. Falls back to proxy-aware request IP resolution. */
   clientIp?: string;
   /** Optional limiter scope; defaults to shared-secret auth scope. */
   rateLimitScope?: string;
-}): Promise<GatewayAuthResult> {
+  /** Trust X-Real-IP only when explicitly enabled. */
+  allowRealIpFallback?: boolean;
+};
+
+function shouldAllowTailscaleHeaderAuth(authSurface: GatewayAuthSurface): boolean {
+  return authSurface === "ws-control-ui";
+}
+
+export async function authorizeGatewayConnect(
+  params: AuthorizeGatewayConnectParams,
+): Promise<GatewayAuthResult> {
   const { auth, connectAuth, req, trustedProxies } = params;
   const tailscaleWhois = params.tailscaleWhois ?? readTailscaleWhoisIdentity;
+  const authSurface = params.authSurface ?? "http";
+  const allowTailscaleHeaderAuth = shouldAllowTailscaleHeaderAuth(authSurface);
   const localDirect = isLocalDirectRequest(req, trustedProxies);
 
   if (auth.mode === "trusted-proxy") {
@@ -362,7 +435,9 @@ export async function authorizeGatewayConnect(params: {
 
   const limiter = params.rateLimiter;
   const ip =
-    params.clientIp ?? resolveRequestClientIp(req, trustedProxies) ?? req?.socket?.remoteAddress;
+    params.clientIp ??
+    resolveRequestClientIp(req, trustedProxies, params.allowRealIpFallback === true) ??
+    req?.socket?.remoteAddress;
   const rateLimitScope = params.rateLimitScope ?? AUTH_RATE_LIMIT_SCOPE_SHARED_SECRET;
   if (limiter) {
     const rlCheck: RateLimitCheckResult = limiter.check(ip, rateLimitScope);
@@ -376,7 +451,7 @@ export async function authorizeGatewayConnect(params: {
     }
   }
 
-  if (auth.allowTailscale && !localDirect) {
+  if (allowTailscaleHeaderAuth && auth.allowTailscale && !localDirect) {
     const tailscaleCheck = await resolveVerifiedTailscaleUser({
       req,
       tailscaleWhois,
@@ -424,6 +499,129 @@ export async function authorizeGatewayConnect(params: {
     return { ok: true, method: "password" };
   }
 
+  // Special case: allow device auth when no explicit auth mode was requested
+  // (enables shared-token + device-token mode).
+  const { signature, signedAt, id, role, scopes, nonce } = parseDeviceAuthHeader(req);
+  if (id && signature) {
+    if (auth.allowTailscale) {
+      return await authorizeGatewayDevice(
+        auth,
+        {
+          id,
+          signature,
+          signedAt: signedAt!,
+          role: role!,
+          scopes: scopes!,
+          nonce,
+          clientIp: ip,
+        },
+        limiter,
+      );
+    } else {
+      return {
+        ok: false,
+        method: "device-token",
+        reason: "device_auth_disabled",
+      };
+    }
+  }
+
   limiter?.recordFailure(ip, rateLimitScope);
   return { ok: false, reason: "unauthorized" };
+}
+
+export async function authorizeHttpGatewayConnect(
+  params: Omit<AuthorizeGatewayConnectParams, "authSurface">,
+): Promise<GatewayAuthResult> {
+  return authorizeGatewayConnect({
+    ...params,
+    authSurface: "http",
+  });
+}
+
+export async function authorizeWsControlUiGatewayConnect(
+  params: Omit<AuthorizeGatewayConnectParams, "authSurface">,
+): Promise<GatewayAuthResult> {
+  return authorizeGatewayConnect({
+    ...params,
+    authSurface: "ws-control-ui",
+  });
+}
+
+async function authorizeGatewayDevice(
+  auth: ResolvedGatewayAuth,
+  device: {
+    id: string;
+    signature: string;
+    signedAt: number;
+    role: string;
+    scopes: string[];
+    nonce?: string;
+    clientIp: string | undefined;
+  },
+  rateLimiter?: AuthRateLimiter,
+): Promise<GatewayAuthResult> {
+  const { verifyDeviceSignature, getPairedDevice } = await import("../infra/device-pairing.js");
+
+  if (auth.rateLimit) {
+    const limiter =
+      rateLimiter ?? (await import("./auth-rate-limit.js")).createAuthRateLimiter(auth.rateLimit);
+    const checkResult = limiter.check(device.clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
+    if (!checkResult.allowed) {
+      return {
+        ok: false,
+        method: "device-token",
+        reason: "auth_rate_limited",
+        rateLimited: true,
+        retryAfterMs: checkResult.retryAfterMs,
+      };
+    }
+  }
+
+  if (isDevicePairingExpired(device.signedAt)) {
+    return { ok: false, method: "device-token", reason: "device_token_expired" };
+  }
+
+  const devicePairing = await getPairedDevice(device.id);
+  if (!devicePairing) {
+    return { ok: false, method: "device-token", reason: "device_not_paired" };
+  }
+
+  const payload = buildDeviceAuthPayload({
+    deviceId: device.id,
+    clientId: "",
+    clientMode: "",
+    role: device.role,
+    scopes: device.scopes,
+    signedAtMs: device.signedAt,
+    token: auth.token,
+    nonce: device.nonce,
+  });
+  if (!verifyDeviceSignature(devicePairing.publicKey, payload, device.signature)) {
+    return { ok: false, method: "device-token", reason: "device_signature_invalid" };
+  }
+
+  const hasRequiredScopes = device.scopes.some(
+    (s) =>
+      s === "operator" ||
+      s === "operator.admin" ||
+      s === "operator.write" ||
+      (s === "webchat" && device.role === "operator"),
+  );
+  if (!hasRequiredScopes) {
+    return { ok: false, method: "device-token", reason: "device_scope_insufficient" };
+  }
+
+  if (auth.rateLimit) {
+    const limiter =
+      rateLimiter ?? (await import("./auth-rate-limit.js")).createAuthRateLimiter(auth.rateLimit);
+    limiter.recordFailure(device.clientIp, AUTH_RATE_LIMIT_SCOPE_DEVICE_TOKEN);
+  }
+
+  return {
+    ok: true,
+    method: "device-token",
+    user: devicePairing.displayName ?? "device",
+    reason: "verified_by_gateway",
+  };
 }
