@@ -33,6 +33,19 @@ curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/
 iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
 ```
 
+---
+## Star History
+
+<a href="https://www.star-history.com/#mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&theme=dark&logscale&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left" />
+ </picture>
+</a>
+
+---
+
 ### Start Resonix
 
 ```bash
