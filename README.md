@@ -26,6 +26,8 @@ Resonix is a production-focused autonomous runtime derived from the OpenClaw eco
 
 Resonix is designed to feel like a long-term digital collaborator, not a stateless assistant.
 
+Professional by architecture, chill in tone.
+
 ## Core Capabilities
 
 | Capability | What it does | Why it matters |
@@ -37,30 +39,46 @@ Resonix is designed to feel like a long-term digital collaborator, not a statele
 | Auth and onboarding hardening | Dispatch fixes + timeout fallback | Reduces blocking and silent auth failures |
 | Cross-platform deploy paths | macOS/Linux/Windows/Termux one-line scripts | Fast setup in real environments |
 
-## Capability Mind Map
+## Capability Map (High Contrast)
 
 ```mermaid
-mindmap
-  root((Resonix))
-    Permanent Memory
-      System Permanent Profile
-      Desktop resonix-M Mirror
-      Retrieval Continuity
-    Autonomy and Growth
-      Task Retrospectives
-      Preference Adaptation
-      Self Correction Signals
-    Integrated Browser
-      Playwright Runtime
-      Profile Isolation
-      Tool Policy Guardrails
-    Operations
-      Cron Board Analytics
-      Gateway Observability
-      Multi Channel Delivery
+flowchart TB
+  R([Resonix Core])
+  R --> M[Permanent Memory]
+  R --> A[Autonomy and Growth]
+  R --> B[Integrated Browser]
+  R --> O[Operations]
+
+  M --> M1[System Permanent Profile]
+  M --> M2[Desktop resonix-M Mirror]
+  M --> M3[Retrieval Continuity]
+
+  A --> A1[Task Retrospectives]
+  A --> A2[Preference Adaptation]
+  A --> A3[Self Correction Signals]
+
+  B --> B1[Playwright Runtime]
+  B --> B2[Profile Isolation]
+  B --> B3[Tool Policy Guardrails]
+
+  O --> O1[Cron Board Analytics]
+  O --> O2[Gateway Observability]
+  O --> O3[Multi Channel Delivery]
+
+  classDef core fill:#0f172a,color:#f8fafc,stroke:#38bdf8,stroke-width:2px;
+  classDef memory fill:#ecfeff,color:#0f172a,stroke:#06b6d4,stroke-width:1px;
+  classDef growth fill:#f0fdf4,color:#0f172a,stroke:#22c55e,stroke-width:1px;
+  classDef browser fill:#fff7ed,color:#0f172a,stroke:#f97316,stroke-width:1px;
+  classDef ops fill:#f5f3ff,color:#0f172a,stroke:#8b5cf6,stroke-width:1px;
+
+  class R core;
+  class M,M1,M2,M3 memory;
+  class A,A1,A2,A3 growth;
+  class B,B1,B2,B3 browser;
+  class O,O1,O2,O3 ops;
 ```
 
-### Capability Mind Map (Plain Text Fallback)
+### Capability Map (Plain Text Fallback)
 
 ```text
 Resonix
@@ -150,7 +168,7 @@ Resonix memory is a **dual-plane permanent system**, not temporary in-memory con
 | Windows | PowerShell installer | `install.ps1` |
 | Termux (Android) | Termux installer | `install-termux.sh` |
 
-### Copy Ready Install Commands
+### Copy and Run
 
 macOS / Linux:
 
@@ -193,7 +211,10 @@ iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/i
 **`resonix` command not found after install**
 
 - Open a new terminal session first.
-- If still missing, run with absolute path from installer output.
+- If still missing, run from the launcher path:
+  - macOS/Linux default: `~/.local/bin/resonix -v`
+  - Windows default: `%LOCALAPPDATA%\\Resonix\\bin\\resonix.cmd -v`
+  - Termux default: `$PREFIX/bin/resonix -v`
 - Re-run installer if launcher file is missing.
 
 **Termux script fails on desktop OS**
