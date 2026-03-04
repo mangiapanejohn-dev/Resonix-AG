@@ -168,13 +168,12 @@ install_or_update_source() {
     clone_fresh
 }
 
-# === 核心修改区域 ===
+# === END OF PART 1 ===
+# === 核心动画与安装逻辑 ===
 
 # 启动动画
 start_spinner() {
-    # 在后台运行动画函数
     _spinner "👾" "Resonix 正在赶到你家的路上..." "预计几分钟到达？" &
-        # 保存后台进程的 PID，以便后续杀死
     SPINNER_PID=$!
 }
 
@@ -183,13 +182,13 @@ kill_spinner() {
     if [[ -n "${SPINNER_PID:-}" ]] && kill $SPINNER_PID 2>/dev/null; then
         wait $SPINNER_PID 2>/dev/null || true
         # 清理动画留下的行
-        printf "\r\033[K\033[A\033[K\033[A\033[K"
+        printf "\r\033[K\033[A\033[K"
         echo ""
         SPINNER_PID=""
     fi
 }
 
-# 实际的动画逻辑 (这里使用了圆圈旋转 ◐◓◑◒)
+# 旋转动画函数 (原地覆盖模式)
 _spinner() {
     local emoji="$1"
     local line1="$2"
@@ -199,44 +198,35 @@ _spinner() {
     local spin='◐◓◑◒'
     local i=0
 
-    # 主循环
     while true; do
-        # \033[K 清除当前行
-        # \033[A 光标上移
+        # \r 回到行首, \033[K 清除行尾
+        
+        # 第一行：Emoji + 旋转圆圈 + 文字
         printf "\r\033[K"
+        printf " ${ACCENT}%s %s${NC} %s" "$emoji" "${spin:$i:1}" "$line1"
         
-        # 第一行：紫色 Emoji + 旋转圆圈 + 文字
-        printf " ${ACCENT}%s %s${NC} %s\n" "$emoji" "${spin:$i:1}" "$line1"
+        # 第二行：提示语
+        printf "\r\033[K"
+        printf "   ${MUTED}%s${NC}" "$line2"
         
-        # 第二行：浅紫色提示语
-        printf "\r\033[K ${MUTED}%s${NC}\n" "$line2"
-        
-        # 更新索引，实现旋转
         i=$(( (i + 1) % ${#spin} ))
-        
-        # 休眠一小会儿
         sleep 0.1
     done
 }
 
-# === 修改 run_install 函数以使用动画 ===
+# 修改后的安装函数
 run_install() {
     cd "$SOURCE_DIR"
     
     if [[ "$PM_KIND" == "pnpm" ]]; then
-        # 1. 启动动画
         start_spinner
         
-        # 2. 执行安装命令
-        # 将输出重定向到临时文件，避免干扰动画
         if ! setsid "${PM_CMD[@]}" install --frozen-lockfile > /tmp/resonix_install.log 2>&1; then
-            # 如果失败，重试
             "${PM_CMD[@]}" install > /tmp/resonix_install.log 2>&1
         fi
         
-        # 3. 安装完成，停止动画
         kill_spinner
-        
+        echo ""
         ui_success "Dependencies installed."
     else
         npm install
@@ -323,10 +313,7 @@ main() {
     check_requirements
     setup_package_manager
     install_or_update_source
-    
-    # 这里会触发带动画的安装
     run_install
-    
     ui_info "Building Resonix-AG..."
     run_build
     install_launcher
@@ -339,5 +326,3 @@ main() {
 }
 
 main "$@"
-
- 
