@@ -76,6 +76,8 @@ import {
   ConnectParamsSchema,
   type CronAddParams,
   CronAddParamsSchema,
+  type CronBoardParams,
+  CronBoardParamsSchema,
   type CronJob,
   CronJobSchema,
   type CronListParams,
@@ -326,6 +328,7 @@ export const validateSkillsUpdateParams = ajv.compile<SkillsUpdateParams>(Skills
 export const validateCronListParams = ajv.compile<CronListParams>(CronListParamsSchema);
 export const validateCronStatusParams = ajv.compile<CronStatusParams>(CronStatusParamsSchema);
 export const validateCronAddParams = ajv.compile<CronAddParams>(CronAddParamsSchema);
+export const validateCronBoardParams = ajv.compile<CronBoardParams>(CronBoardParamsSchema);
 export const validateCronUpdateParams = ajv.compile<CronUpdateParams>(CronUpdateParamsSchema);
 export const validateCronRemoveParams = ajv.compile<CronRemoveParams>(CronRemoveParamsSchema);
 export const validateCronRunParams = ajv.compile<CronRunParams>(CronRunParamsSchema);
@@ -493,6 +496,7 @@ export {
   CronListParamsSchema,
   CronStatusParamsSchema,
   CronAddParamsSchema,
+  CronBoardParamsSchema,
   CronUpdateParamsSchema,
   CronRemoveParamsSchema,
   CronRunParamsSchema,
@@ -598,6 +602,7 @@ export type {
   CronListParams,
   CronStatusParams,
   CronAddParams,
+  CronBoardParams,
   CronUpdateParams,
   CronRemoveParams,
   CronRunParams,

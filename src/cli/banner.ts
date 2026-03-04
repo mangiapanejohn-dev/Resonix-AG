@@ -1,8 +1,12 @@
+import fs from "node:fs";
+import os from "node:os";
+import JSON5 from "json5";
+import { resolveConfigPath, resolveStateDir } from "../config/paths.js";
 import { resolveCommitHash } from "../infra/git-commit.js";
 import { visibleWidth } from "../terminal/ansi.js";
 import { isRich, theme } from "../terminal/theme.js";
 import { hasRootVersionAlias } from "./argv.js";
-import { pickTagline, type TaglineOptions } from "./tagline.js";
+import { pickTagline, type TaglineMode, type TaglineOptions } from "./tagline.js";
 
 type BannerOptions = TaglineOptions & {
   argv?: string[];
@@ -12,6 +16,53 @@ type BannerOptions = TaglineOptions & {
 };
 
 let bannerEmitted = false;
+let cachedConfigTaglineMode: TaglineMode | null | undefined;
+
+function parseTaglineMode(value: unknown): TaglineMode | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "quiet" || normalized === "hint" || normalized === "playful") {
+    return normalized;
+  }
+  return undefined;
+}
+
+function readConfigTaglineMode(env: NodeJS.ProcessEnv): TaglineMode | undefined {
+  if (cachedConfigTaglineMode !== undefined) {
+    return cachedConfigTaglineMode ?? undefined;
+  }
+  try {
+    const stateDir = resolveStateDir(env, os.homedir);
+    const configPath = resolveConfigPath(env, stateDir, os.homedir);
+    if (!fs.existsSync(configPath)) {
+      cachedConfigTaglineMode = null;
+      return undefined;
+    }
+    const parsed = JSON5.parse(fs.readFileSync(configPath, "utf-8"));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      cachedConfigTaglineMode = null;
+      return undefined;
+    }
+    const cliRaw = (parsed as Record<string, unknown>).cli;
+    if (!cliRaw || typeof cliRaw !== "object" || Array.isArray(cliRaw)) {
+      cachedConfigTaglineMode = null;
+      return undefined;
+    }
+    const bannerRaw = (cliRaw as Record<string, unknown>).banner;
+    if (!bannerRaw || typeof bannerRaw !== "object" || Array.isArray(bannerRaw)) {
+      cachedConfigTaglineMode = null;
+      return undefined;
+    }
+    const mode = parseTaglineMode((bannerRaw as Record<string, unknown>).taglineMode);
+    cachedConfigTaglineMode = mode ?? null;
+    return mode;
+  } catch {
+    cachedConfigTaglineMode = null;
+    return undefined;
+  }
+}
 
 const graphemeSegmenter =
   typeof Intl !== "undefined" && "Segmenter" in Intl
@@ -36,17 +87,24 @@ const hasVersionFlag = (argv: string[]) =>
   argv.some((arg) => arg === "--version" || arg === "-V") || hasRootVersionAlias(argv);
 
 export function formatCliBannerLine(version: string, options: BannerOptions = {}): string {
+  const env = options.env ?? process.env;
+  const mode = options.mode ?? readConfigTaglineMode(env);
   const commit = options.commit ?? resolveCommitHash({ env: options.env });
   const commitLabel = commit ?? "unknown";
-  const tagline = pickTagline(options);
+  const tagline = pickTagline({ ...options, mode });
+  const hasTagline = tagline.trim().length > 0;
   const rich = options.richTty ?? isRich();
   const title = "👾 Resonix";
   const prefix = "👾 ";
   const columns = options.columns ?? process.stdout.columns ?? 120;
-  const plainFullLine = `${title} ${version} (${commitLabel}) — ${tagline}`;
+  const plainBaseLine = `${title} ${version} (${commitLabel})`;
+  const plainFullLine = hasTagline ? `${plainBaseLine} — ${tagline}` : plainBaseLine;
   const fitsOnOneLine = visibleWidth(plainFullLine) <= columns;
   if (rich) {
     if (fitsOnOneLine) {
+      if (!hasTagline) {
+        return `${theme.heading(title)} ${theme.info(version)} ${theme.muted(`(${commitLabel})`)}`;
+      }
       return `${theme.heading(title)} ${theme.info(version)} ${theme.muted(
         `(${commitLabel})`,
       )} ${theme.muted("—")} ${theme.accentDim(tagline)}`;
@@ -54,25 +112,27 @@ export function formatCliBannerLine(version: string, options: BannerOptions = {}
     const line1 = `${theme.heading(title)} ${theme.info(version)} ${theme.muted(
       `(${commitLabel})`,
     )}`;
+    if (!hasTagline) {
+      return line1;
+    }
     const line2 = `${" ".repeat(prefix.length)}${theme.accentDim(tagline)}`;
     return `${line1}\n${line2}`;
   }
-  if (fitsOnOneLine) {
+  if (fitsOnOneLine || !hasTagline) {
     return plainFullLine;
   }
-  const line1 = `${title} ${version} (${commitLabel})`;
+  const line1 = plainBaseLine;
   const line2 = `${" ".repeat(prefix.length)}${tagline}`;
   return `${line1}\n${line2}`;
 }
 
 const RESONIX_ASCII = [
-  "██████╗ ███████╗███████╗ ██████╗ ███╗ ██╗██╗██╗ ██╗ ██╔══██╗██╔════╝██╔════╝██╔═══██╗████╗ ██║██║╚██╗██╔╝",
-  "██████╗ ███████╗███████╗█████╗  ████╗ ██║██║╚██╗██║██║ ██╔██╗███████╗███████║╚██████╔╝██║ ╚████║██║██╔╝ ██╗",
-  "██╔══██╗██╔════╝██╔════╝██╔══██╗██╔██╗ ██║██║ ╚████║██║ ██╔╝ ██║╚════██║╚════██║ ╚═══██║██║ ╚███╔╝██║",
-  "██║  ██║█████╗  █████╗  ██████╔╝██║╚██╗██║██║  ╚██╔╝██║     ███████╗███████║ ██║   ██║██║ ██╔██╗ ██║",
-  "██║  ██║██╔══╝  ██╔══╝  ██╔══██╗██║ ╚████║██║   ██║  ██║     ██╔══██║██╔══██║ ██║   ██║██║██╔╝ ██╗",
-  "██████╔╝███████╗███████╗██║  ██║██║  ╚═══╝╚═╝   ╚═╝  ╚═╝     ██║  ██║██║  ██║ ██║   ██║██║╚═╝  ╚═╝",
-  "╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝                       ╚═╝  ╚═╝╚══════╝ ╚═╝   ╚═╝╚═╝       ",
+  "██████╗ ███████╗███████╗ ██████╗ ███╗   ██╗██╗██╗  ██╗",
+  "██╔══██╗██╔════╝██╔════╝██╔═══██╗████╗  ██║██║╚██╗██╔╝",
+  "██████╔╝█████╗  ███████╗██║   ██║██╔██╗ ██║██║ ╚███╔╝ ",
+  "██╔══██╗██╔══╝  ╚════██║██║   ██║██║╚██╗██║██║ ██╔██╗ ",
+  "██║  ██║███████╗███████║╚██████╔╝██║ ╚████║██║██╔╝╚██╗",
+  "╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝",
 ];
 
 export function formatCliBannerArt(options: BannerOptions = {}): string {

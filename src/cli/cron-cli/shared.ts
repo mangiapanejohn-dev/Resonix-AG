@@ -1,4 +1,5 @@
 import { listChannelPlugins } from "../../channels/plugins/index.js";
+import type { CronBoardMetrics, CronBoardSummary } from "../../cron/board.js";
 import { parseAbsoluteTimeMs } from "../../cron/parse.js";
 import { resolveCronStaggerMs } from "../../cron/stagger.js";
 import type { CronJob, CronSchedule } from "../../cron/types.js";
@@ -230,5 +231,161 @@ export function printCronList(jobs: CronJob[], runtime = defaultRuntime) {
     ].join(" ");
 
     runtime.log(line.trimEnd());
+  }
+}
+
+export type CronBoardRow = {
+  job: CronJob;
+  metrics: CronBoardMetrics;
+  memoryTemplate?: {
+    tokenCount: number;
+    scopes: string[];
+  };
+};
+
+export type CronBoardPayload = {
+  generatedAtMs?: number;
+  windowHours?: number;
+  runLimit?: number;
+  summary?: CronBoardSummary;
+  insights?: string[];
+  rows?: CronBoardRow[];
+};
+
+const CRON_BOARD_JOB_PAD = 24;
+const CRON_BOARD_NEXT_PAD = 10;
+const CRON_BOARD_DUE_PAD = 10;
+const CRON_BOARD_RUNS_PAD = 8;
+const CRON_BOARD_ERR_PAD = 8;
+const CRON_BOARD_OK_PAD = 8;
+const CRON_BOARD_AVG_PAD = 10;
+const CRON_BOARD_STREAK_PAD = 8;
+const CRON_BOARD_STATE_PAD = 10;
+
+function formatPercent(ratio: number | null | undefined): string {
+  if (typeof ratio !== "number" || !Number.isFinite(ratio)) {
+    return "-";
+  }
+  return `${Math.round(ratio * 100)}%`;
+}
+
+function formatDurationCell(ms: number | null | undefined): string {
+  if (typeof ms !== "number" || !Number.isFinite(ms)) {
+    return "-";
+  }
+  return formatDurationHuman(Math.max(0, Math.floor(ms)));
+}
+
+function formatDue(deltaMs: number | null | undefined): string {
+  if (typeof deltaMs !== "number" || !Number.isFinite(deltaMs)) {
+    return "-";
+  }
+  const label = formatSpan(Math.abs(deltaMs));
+  return deltaMs >= 0 ? `in ${label}` : `${label} late`;
+}
+
+export function printCronBoard(payload: CronBoardPayload, runtime = defaultRuntime) {
+  const rows = payload.rows ?? [];
+  if (rows.length === 0) {
+    runtime.log("No cron jobs.");
+    return;
+  }
+  const rich = isRich();
+  const nowMs = Date.now();
+  const header = [
+    pad("Job", CRON_BOARD_JOB_PAD),
+    pad("Next", CRON_BOARD_NEXT_PAD),
+    pad("Due", CRON_BOARD_DUE_PAD),
+    pad("Runs", CRON_BOARD_RUNS_PAD),
+    pad("Err(win)", CRON_BOARD_ERR_PAD),
+    pad("OK%", CRON_BOARD_OK_PAD),
+    pad("Avg", CRON_BOARD_AVG_PAD),
+    pad("Streak", CRON_BOARD_STREAK_PAD),
+    pad("State", CRON_BOARD_STATE_PAD),
+  ].join(" ");
+  runtime.log(rich ? theme.heading(header) : header);
+
+  for (const row of rows) {
+    const job = row.job;
+    const metrics = row.metrics;
+    const state = formatStatus(job);
+    const memorySuffix = (row.memoryTemplate?.tokenCount ?? 0) > 0 ? " [mem]" : "";
+    const jobLabel = `${job.name}${memorySuffix} (${job.id.slice(0, 8)})`;
+    const statusLabel = pad(state, CRON_BOARD_STATE_PAD);
+    const statusColored = (() => {
+      if (state === "ok") {
+        return colorize(rich, theme.success, statusLabel);
+      }
+      if (state === "error") {
+        return colorize(rich, theme.error, statusLabel);
+      }
+      if (state === "running") {
+        return colorize(rich, theme.warn, statusLabel);
+      }
+      return colorize(rich, theme.muted, statusLabel);
+    })();
+    const line = [
+      colorize(rich, theme.info, pad(truncate(jobLabel, CRON_BOARD_JOB_PAD), CRON_BOARD_JOB_PAD)),
+      colorize(
+        rich,
+        theme.muted,
+        pad(job.enabled ? formatRelative(job.state.nextRunAtMs, nowMs) : "-", CRON_BOARD_NEXT_PAD),
+      ),
+      colorize(rich, theme.muted, pad(formatDue(metrics.dueInMs), CRON_BOARD_DUE_PAD)),
+      colorize(rich, theme.muted, pad(String(metrics.windowRuns), CRON_BOARD_RUNS_PAD)),
+      colorize(rich, theme.muted, pad(String(metrics.windowErrorRuns), CRON_BOARD_ERR_PAD)),
+      colorize(rich, theme.muted, pad(formatPercent(metrics.successRate), CRON_BOARD_OK_PAD)),
+      colorize(
+        rich,
+        theme.muted,
+        pad(formatDurationCell(metrics.averageDurationMs), CRON_BOARD_AVG_PAD),
+      ),
+      colorize(
+        rich,
+        theme.muted,
+        pad(`e${metrics.consecutiveErrors}/o${metrics.consecutiveOk}`, CRON_BOARD_STREAK_PAD),
+      ),
+      statusColored,
+    ].join(" ");
+    runtime.log(line.trimEnd());
+    if (metrics.lastError && state === "error") {
+      runtime.log(
+        colorize(rich, theme.error, `  last error: ${truncate(metrics.lastError, 120)}`),
+      );
+    }
+    if ((row.memoryTemplate?.tokenCount ?? 0) > 0) {
+      runtime.log(
+        colorize(
+          rich,
+          theme.muted,
+          `  memory template: ${row.memoryTemplate?.scopes.join(", ")} (${row.memoryTemplate?.tokenCount} token${row.memoryTemplate?.tokenCount === 1 ? "" : "s"})`,
+        ),
+      );
+    }
+  }
+
+  const summary = payload.summary;
+  if (summary) {
+    const windowHours = payload.windowHours ?? 24 * 7;
+    runtime.log("");
+    runtime.log(
+      colorize(
+        rich,
+        theme.muted,
+        [
+          `Summary: ${summary.totalJobs} jobs`,
+          `${summary.enabledJobs} enabled`,
+          `${summary.runningJobs} running`,
+          `${summary.dueNowJobs} due now`,
+          `${summary.recentErrorJobs} with errors in last ${windowHours}h`,
+        ].join(" · "),
+      ),
+    );
+  }
+  if (payload.insights?.length) {
+    runtime.log(colorize(rich, theme.warn, "Insights:"));
+    for (const insight of payload.insights) {
+      runtime.log(colorize(rich, theme.muted, `- ${insight}`));
+    }
   }
 }

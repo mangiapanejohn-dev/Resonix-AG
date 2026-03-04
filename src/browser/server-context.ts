@@ -12,10 +12,6 @@ import {
 import type { ResolvedBrowserProfile } from "./config.js";
 import { resolveProfile } from "./config.js";
 import {
-  ensureChromeExtensionRelayServer,
-  stopChromeExtensionRelayServer,
-} from "./extension-relay.js";
-import {
   assertBrowserNavigationAllowed,
   InvalidBrowserNavigationUrlError,
   withBrowserNavigationPolicy,
@@ -276,36 +272,8 @@ function createProfileContext(
   const ensureBrowserAvailable = async (): Promise<void> => {
     const current = state();
     const remoteCdp = !profile.cdpIsLoopback;
-    const isExtension = profile.driver === "extension";
     const profileState = getProfileState();
     const httpReachable = await isHttpReachable();
-
-    if (isExtension && remoteCdp) {
-      throw new Error(
-        `Profile "${profile.name}" uses driver=extension but cdpUrl is not loopback (${profile.cdpUrl}).`,
-      );
-    }
-
-    if (isExtension) {
-      if (!httpReachable) {
-        await ensureChromeExtensionRelayServer({ cdpUrl: profile.cdpUrl });
-        if (await isHttpReachable(1200)) {
-          // continue: we still need the extension to connect for CDP websocket.
-        } else {
-          throw new Error(
-            `Chrome extension relay for profile "${profile.name}" is not reachable at ${profile.cdpUrl}.`,
-          );
-        }
-      }
-
-      if (await isReachable(600)) {
-        return;
-      }
-      // Relay server is up, but no attached tab yet. Prompt user to attach.
-      throw new Error(
-        `Chrome extension relay is running, but no tab is connected. Click the Resonix Chrome extension icon on a tab to attach it (profile "${profile.name}").`,
-      );
-    }
 
     if (!httpReachable) {
       if ((current.resolved.attachOnly || remoteCdp) && opts.onEnsureAttachTarget) {
@@ -372,22 +340,13 @@ function createProfileContext(
     const profileState = getProfileState();
     const tabs1 = await listTabs();
     if (tabs1.length === 0) {
-      if (profile.driver === "extension") {
-        throw new Error(
-          `tab not found (no attached Chrome tabs for profile "${profile.name}"). ` +
-            "Click the Resonix Browser Relay toolbar icon on the tab you want to control (badge ON).",
-        );
-      }
       await openTab("about:blank");
     }
 
     const tabs = await listTabs();
     // For remote profiles using Playwright's persistent connection, we don't need wsUrl
     // because we access pages directly through Playwright, not via individual WebSocket URLs.
-    const candidates =
-      profile.driver === "extension" || !profile.cdpIsLoopback
-        ? tabs
-        : tabs.filter((t) => Boolean(t.wsUrl));
+    const candidates = !profile.cdpIsLoopback ? tabs : tabs.filter((t) => Boolean(t.wsUrl));
 
     const resolveById = (raw: string) => {
       const resolved = resolveTargetIdFromTabs(raw, candidates);
@@ -412,9 +371,8 @@ function createProfileContext(
     };
 
     let chosen = targetId ? resolveById(targetId) : pickDefault();
-    if (!chosen && profile.driver === "extension" && candidates.length === 1) {
-      // If an agent passes a stale/foreign targetId but we only have a single attached tab,
-      // recover by using that tab instead of failing hard.
+    if (!chosen && candidates.length === 1) {
+      // If an agent passes a stale/foreign targetId but only one tab exists, recover gracefully.
       chosen = candidates[0] ?? null;
     }
 
@@ -486,12 +444,6 @@ function createProfileContext(
   };
 
   const stopRunningBrowser = async (): Promise<{ stopped: boolean }> => {
-    if (profile.driver === "extension") {
-      const stopped = await stopChromeExtensionRelayServer({
-        cdpUrl: profile.cdpUrl,
-      });
-      return { stopped };
-    }
     const profileState = getProfileState();
     if (!profileState.running) {
       return { stopped: false };
@@ -502,10 +454,6 @@ function createProfileContext(
   };
 
   const resetProfile = async () => {
-    if (profile.driver === "extension") {
-      await stopChromeExtensionRelayServer({ cdpUrl: profile.cdpUrl }).catch(() => {});
-      return { moved: false, from: profile.cdpUrl };
-    }
     if (!profile.cdpIsLoopback) {
       throw new Error(
         `reset-profile is only supported for local profiles (profile "${profile.name}" is remote).`,

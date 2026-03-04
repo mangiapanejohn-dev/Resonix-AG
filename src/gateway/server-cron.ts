@@ -1,4 +1,4 @@
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { CliDeps } from "../cli/deps.js";
 import { loadConfig } from "../config/config.js";
 import {
@@ -8,6 +8,7 @@ import {
 } from "../config/sessions.js";
 import { resolveStorePath } from "../config/sessions/paths.js";
 import { runCronIsolatedAgentTurn } from "../cron/isolated-agent.js";
+import { renderCronMemoryTemplate } from "../cron/memory-template.js";
 import { appendCronRunLog, resolveCronRunLogPath } from "../cron/run-log.js";
 import { CronService } from "../cron/service.js";
 import { resolveCronStorePath } from "../cron/store.js";
@@ -19,6 +20,8 @@ import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { SsrFBlockedError } from "../infra/net/ssrf.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { getChildLogger } from "../logging.js";
+import { updatePermanentMemoryProfile } from "../memory/permanent-profile.js";
+import { syncResonixMFromEvent } from "../memory/resonix-m.js";
 import { normalizeAgentId, toAgentStoreSessionKey } from "../routing/session-key.js";
 import { defaultRuntime } from "../runtime.js";
 
@@ -29,6 +32,7 @@ export type GatewayCronState = {
 };
 
 const CRON_WEBHOOK_TIMEOUT_MS = 10_000;
+const CRON_MEMORY_SNIPPET_MAX_CHARS = 220;
 
 function redactWebhookUrl(url: string): string {
   try {
@@ -62,6 +66,42 @@ function resolveCronWebhookTarget(params: {
     }
   }
 
+  return null;
+}
+
+function truncateCronMemorySnippet(value: string): string {
+  const collapsed = value.replace(/\s+/g, " ").trim();
+  if (collapsed.length <= CRON_MEMORY_SNIPPET_MAX_CHARS) {
+    return collapsed;
+  }
+  if (CRON_MEMORY_SNIPPET_MAX_CHARS <= 3) {
+    return collapsed.slice(0, CRON_MEMORY_SNIPPET_MAX_CHARS);
+  }
+  return `${collapsed.slice(0, CRON_MEMORY_SNIPPET_MAX_CHARS - 3)}...`;
+}
+
+function buildCronOutcomeMemoryContent(params: {
+  jobName: string;
+  status?: "ok" | "error" | "skipped";
+  summary?: string;
+  error?: string;
+}): string | null {
+  const jobName = params.jobName.trim() || "unnamed cron job";
+  if (params.status === "ok") {
+    const summary =
+      typeof params.summary === "string" ? truncateCronMemorySnippet(params.summary) : "";
+    if (!summary) {
+      return null;
+    }
+    return `user: I use scheduled job "${jobName}" and its latest run summary is ${summary}.`;
+  }
+  if (params.status === "error") {
+    const error = typeof params.error === "string" ? truncateCronMemorySnippet(params.error) : "";
+    if (!error) {
+      return null;
+    }
+    return `user: I need to fix scheduled job "${jobName}" because it failed with ${error}.`;
+  }
   return null;
 }
 
@@ -158,6 +198,43 @@ export function buildGatewayCronService(params: {
     defaultAgentId,
     resolveSessionStorePath,
     sessionStorePath,
+    resolveCronText: async ({ job, text, target }) => {
+      if (!text.includes("{{memory")) {
+        return text;
+      }
+      const { agentId, cfg: runtimeConfig } = resolveCronAgent(job.agentId);
+      const workspaceDir = resolveAgentWorkspaceDir(runtimeConfig, agentId);
+      try {
+        const rendered = await renderCronMemoryTemplate({
+          text,
+          workspaceDir,
+        });
+        if (rendered.replaced > 0) {
+          cronLogger.debug(
+            {
+              jobId: job.id,
+              target,
+              replacedTokens: rendered.replaced,
+              profileExists: rendered.profileExists,
+              entryCount: rendered.entryCount,
+            },
+            "cron: rendered permanent-memory template",
+          );
+        }
+        return rendered.text;
+      } catch (err) {
+        cronLogger.warn(
+          {
+            jobId: job.id,
+            target,
+            err: formatErrorMessage(err),
+            workspaceDir,
+          },
+          "cron: failed rendering permanent-memory template",
+        );
+        return text;
+      }
+    },
     enqueueSystemEvent: (text, opts) => {
       const { agentId, cfg: runtimeConfig } = resolveCronAgent(opts?.agentId);
       const sessionKey = resolveCronSessionKey({
@@ -305,6 +382,54 @@ export function buildGatewayCronService(params: {
           usage: evt.usage,
         }).catch((err) => {
           cronLogger.warn({ err: String(err), logPath }, "cron: run log append failed");
+        });
+
+        const memoryContent = buildCronOutcomeMemoryContent({
+          jobName: job?.name ?? evt.jobId,
+          status: evt.status,
+          summary: evt.summary,
+          error: evt.error,
+        });
+        const sourceLabel = `cron:${evt.jobId}`;
+        const { agentId, cfg: runtimeConfig } = resolveCronAgent(job?.agentId);
+        const workspaceDir = resolveAgentWorkspaceDir(runtimeConfig, agentId);
+        if (memoryContent) {
+          void updatePermanentMemoryProfile({
+            workspaceDir,
+            sessionContent: memoryContent,
+            sourceLabel,
+          }).catch((err) => {
+            cronLogger.warn(
+              {
+                jobId: evt.jobId,
+                sourceLabel,
+                workspaceDir,
+                err: formatErrorMessage(err),
+              },
+              "cron: failed to update permanent memory from run outcome",
+            );
+          });
+        }
+        void syncResonixMFromEvent({
+          workspaceDir,
+          source: sourceLabel,
+          taskOutcome: {
+            status: evt.status === "error" ? "error" : evt.status === "ok" ? "ok" : "skipped",
+            summary:
+              evt.summary ??
+              evt.error ??
+              `Scheduled job "${job?.name ?? evt.jobId}" finished with status ${evt.status}.`,
+          },
+        }).catch((err) => {
+          cronLogger.warn(
+            {
+              jobId: evt.jobId,
+              sourceLabel,
+              workspaceDir,
+              err: formatErrorMessage(err),
+            },
+            "cron: failed to sync resonix-M from run outcome",
+          );
         });
       }
     },

@@ -1,6 +1,6 @@
 import { formatTerminalLink } from "../utils.js";
 
-export const DOCS_ROOT = "https://docs.resonix.ai";
+export const DOCS_ROOT = "https://resonix.milcorx.com";
 
 export function formatDocsLink(
   path: string,

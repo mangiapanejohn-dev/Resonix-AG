@@ -75,6 +75,12 @@ export type ResonixConfig = {
       avatar?: string;
     };
   };
+  cli?: {
+    banner?: {
+      /** CLI tagline style (quiet hides it, hint shows stable text, playful rotates). */
+      taglineMode?: "quiet" | "hint" | "playful";
+    };
+  };
   skills?: SkillsConfig;
   plugins?: PluginsConfig;
   models?: ModelsConfig;

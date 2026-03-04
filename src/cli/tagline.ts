@@ -1,4 +1,6 @@
 const DEFAULT_TAGLINE = "All your chats, one Resonix.";
+const DEFAULT_TAGLINE_MODE = "playful";
+const TAGLINE_MODES = new Set(["quiet", "hint", "playful"]);
 
 const HOLIDAY_TAGLINES = {
   newYear:
@@ -240,6 +242,20 @@ export interface TaglineOptions {
   env?: NodeJS.ProcessEnv;
   random?: () => number;
   now?: () => Date;
+  mode?: TaglineMode;
+}
+
+export type TaglineMode = "quiet" | "hint" | "playful";
+
+function resolveTaglineMode(options: TaglineOptions): TaglineMode {
+  const env = options.env ?? process.env;
+  const raw = String(options.mode ?? env?.RESONIX_CLI_TAGLINE_MODE ?? "")
+    .trim()
+    .toLowerCase();
+  if (TAGLINE_MODES.has(raw)) {
+    return raw as TaglineMode;
+  }
+  return DEFAULT_TAGLINE_MODE;
 }
 
 export function activeTaglines(options: TaglineOptions = {}): string[] {
@@ -252,6 +268,14 @@ export function activeTaglines(options: TaglineOptions = {}): string[] {
 }
 
 export function pickTagline(options: TaglineOptions = {}): string {
+  const mode = resolveTaglineMode(options);
+  if (mode === "quiet") {
+    return "";
+  }
+  if (mode === "hint") {
+    return DEFAULT_TAGLINE;
+  }
+
   const env = options.env ?? process.env;
   const override = env?.RESONIX_TAGLINE_INDEX;
   if (override !== undefined) {

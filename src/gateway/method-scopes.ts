@@ -60,6 +60,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "sessions.usage.timeseries",
     "sessions.usage.logs",
     "cron.list",
+    "cron.board",
     "cron.status",
     "cron.runs",
     "system-presence",

@@ -5,6 +5,7 @@ import {
   expandTextLinks,
   normalizeForwardedContext,
   resolveTelegramForumThreadId,
+  resolveTelegramStreamMode,
 } from "./helpers.js";
 
 describe("resolveTelegramForumThreadId", () => {
@@ -23,6 +24,25 @@ describe("resolveTelegramForumThreadId", () => {
     { isForum: true, messageThreadId: 99, expected: 99 },
   ])("resolves forum topic ids", ({ expected, ...params }) => {
     expect(resolveTelegramForumThreadId(params)).toBe(expected);
+  });
+});
+
+describe("resolveTelegramStreamMode", () => {
+  it("prefers explicit streamMode values", () => {
+    expect(resolveTelegramStreamMode({ streamMode: "off", streaming: true })).toBe("off");
+    expect(resolveTelegramStreamMode({ streamMode: "partial", streaming: false })).toBe("partial");
+    expect(resolveTelegramStreamMode({ streamMode: "block", streaming: false })).toBe("block");
+  });
+
+  it("accepts legacy streaming alias when streamMode is unset", () => {
+    expect(resolveTelegramStreamMode({ streaming: false })).toBe("off");
+    expect(resolveTelegramStreamMode({ streaming: true })).toBe("partial");
+  });
+
+  it("defaults to partial for unset/invalid values", () => {
+    // oxlint-disable-next-line typescript/no-explicit-any
+    expect(resolveTelegramStreamMode({ streamMode: "invalid" as any })).toBe("partial");
+    expect(resolveTelegramStreamMode()).toBe("partial");
   });
 });
 

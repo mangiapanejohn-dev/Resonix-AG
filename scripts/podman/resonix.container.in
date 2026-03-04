@@ -1,0 +1,26 @@
+# Resonix gateway — Podman Quadlet (rootless)
+# Installed by setup-podman.sh into resonix user's ~/.config/containers/systemd/
+# {{RESONIX_HOME}} is replaced at install time.
+
+[Unit]
+Description=Resonix gateway (rootless Podman)
+
+[Container]
+Image=resonix:local
+ContainerName=resonix
+UserNS=keep-id
+Volume={{RESONIX_HOME}}/.resonix:/home/node/.resonix
+EnvironmentFile={{RESONIX_HOME}}/.resonix/.env
+Environment=HOME=/home/node
+Environment=TERM=xterm-256color
+PublishPort=18789:18789
+PublishPort=18790:18790
+Pull=never
+Exec=node dist/index.js gateway --bind lan --port 18789
+
+[Service]
+TimeoutStartSec=300
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

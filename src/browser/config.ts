@@ -14,7 +14,7 @@ import {
   DEFAULT_BROWSER_DEFAULT_PROFILE_NAME,
   DEFAULT_RESONIX_BROWSER_PROFILE_NAME,
 } from "./constants.js";
-import { CDP_PORT_RANGE_START, getUsedPorts } from "./profiles.js";
+import { CDP_PORT_RANGE_START } from "./profiles.js";
 
 export type ResolvedBrowserConfig = {
   enabled: boolean;
@@ -43,7 +43,7 @@ export type ResolvedBrowserProfile = {
   cdpHost: string;
   cdpIsLoopback: boolean;
   color: string;
-  driver: "resonix" | "extension";
+  driver: "resonix";
 };
 
 function normalizeHexColor(raw: string | undefined) {
@@ -138,36 +138,6 @@ function ensureDefaultProfile(
   return result;
 }
 
-/**
- * Ensure a built-in "chrome" profile exists for the Chrome extension relay.
- *
- * Note: this is an Resonix browser profile (routing config), not a Chrome user profile.
- * It points at the local relay CDP endpoint (controlPort + 1).
- */
-function ensureDefaultChromeExtensionProfile(
-  profiles: Record<string, BrowserProfileConfig>,
-  controlPort: number,
-): Record<string, BrowserProfileConfig> {
-  const result = { ...profiles };
-  if (result.chrome) {
-    return result;
-  }
-  const relayPort = controlPort + 1;
-  if (!Number.isFinite(relayPort) || relayPort <= 0 || relayPort > 65535) {
-    return result;
-  }
-  // Avoid adding the built-in profile if the derived relay port is already used by another profile
-  // (legacy single-profile configs may use controlPort+1 for resonix/resonix CDP).
-  if (getUsedPorts(result).has(relayPort)) {
-    return result;
-  }
-  result.chrome = {
-    driver: "extension",
-    cdpUrl: `http://127.0.0.1:${relayPort}`,
-    color: "#00AA00",
-  };
-  return result;
-}
 export function resolveBrowserConfig(
   cfg: BrowserConfig | undefined,
   rootConfig?: ResonixConfig,
@@ -218,9 +188,11 @@ export function resolveBrowserConfig(
   const defaultProfileFromConfig = cfg?.defaultProfile?.trim() || undefined;
   // Use legacy cdpUrl port for backward compatibility when no profiles configured
   const legacyCdpPort = rawCdpUrl ? cdpInfo.port : undefined;
-  const profiles = ensureDefaultChromeExtensionProfile(
-    ensureDefaultProfile(cfg?.profiles, defaultColor, legacyCdpPort, derivedCdpRange.start),
-    controlPort,
+  const profiles = ensureDefaultProfile(
+    cfg?.profiles,
+    defaultColor,
+    legacyCdpPort,
+    derivedCdpRange.start,
   );
   const cdpProtocol = cdpInfo.parsed.protocol === "https:" ? "https" : "http";
   const defaultProfile =
@@ -272,7 +244,8 @@ export function resolveProfile(
   let cdpHost = resolved.cdpHost;
   let cdpPort = profile.cdpPort ?? 0;
   let cdpUrl = "";
-  const driver = profile.driver === "extension" ? "extension" : "resonix";
+  // Legacy configs may still carry driver metadata; runtime always uses the built-in Resonix browser.
+  const driver = "resonix";
 
   if (rawProfileUrl) {
     const parsed = parseHttpUrl(rawProfileUrl, `browser.profiles.${profileName}.cdpUrl`);

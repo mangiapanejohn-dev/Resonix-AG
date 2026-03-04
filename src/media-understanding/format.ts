@@ -2,6 +2,7 @@ import type { MediaUnderstandingOutput } from "./types.js";
 
 const MEDIA_PLACEHOLDER_RE = /^<media:[^>]+>(\s*\([^)]*\))?$/i;
 const MEDIA_PLACEHOLDER_TOKEN_RE = /^<media:[^>]+>(\s*\([^)]*\))?\s*/i;
+const DEFAULT_AUDIO_ECHO_FORMAT = "Heard: {transcript}";
 
 export function extractMediaUserText(body?: string): string | undefined {
   const trimmed = body?.trim() ?? "";
@@ -95,4 +96,16 @@ export function formatAudioTranscripts(outputs: MediaUnderstandingOutput[]): str
     return outputs[0].text;
   }
   return outputs.map((output, index) => `Audio ${index + 1}:\n${output.text}`).join("\n\n");
+}
+
+export function formatAudioTranscriptEcho(params: { transcript: string; format?: string }): string {
+  const transcript = params.transcript.trim();
+  if (!transcript) {
+    return "";
+  }
+  const template = params.format?.trim() || DEFAULT_AUDIO_ECHO_FORMAT;
+  if (template.includes("{transcript}")) {
+    return template.replaceAll("{transcript}", transcript).trim();
+  }
+  return `${template}\n${transcript}`.trim();
 }

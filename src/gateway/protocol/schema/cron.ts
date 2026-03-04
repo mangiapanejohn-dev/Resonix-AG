@@ -232,6 +232,15 @@ export const CronRunsParamsSchema = cronIdOrJobIdParams({
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 5000 })),
 });
 
+export const CronBoardParamsSchema = Type.Object(
+  {
+    includeDisabled: Type.Optional(Type.Boolean()),
+    runLimit: Type.Optional(Type.Integer({ minimum: 1, maximum: 5000 })),
+    windowHours: Type.Optional(Type.Integer({ minimum: 1, maximum: 24 * 90 })),
+  },
+  { additionalProperties: false },
+);
+
 export const CronRunLogEntrySchema = Type.Object(
   {
     ts: Type.Integer({ minimum: 0 }),

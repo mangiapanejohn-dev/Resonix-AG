@@ -3,8 +3,8 @@ export type BrowserProfileConfig = {
   cdpPort?: number;
   /** CDP URL for this profile (use for remote Chrome). */
   cdpUrl?: string;
-  /** Profile driver (default: resonix). */
-  driver?: "resonix" | "extension";
+  /** Profile driver (default: resonix). Legacy values are normalized to resonix on load. */
+  driver?: "resonix";
   /** Profile color (hex). Auto-assigned at creation. */
   color: string;
 };
@@ -46,7 +46,7 @@ export type BrowserConfig = {
   noSandbox?: boolean;
   /** If true: never launch; only attach to an existing browser. Default: false */
   attachOnly?: boolean;
-  /** Default profile to use when profile param is omitted. Default: "chrome" */
+  /** Default profile to use when profile param is omitted. Default: "resonix" */
   defaultProfile?: string;
   /** Named browser profiles with explicit CDP ports or URLs. */
   profiles?: Record<string, BrowserProfileConfig>;

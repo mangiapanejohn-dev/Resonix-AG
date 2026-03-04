@@ -17,12 +17,25 @@ import { isPlainObject } from "../infra/plain-object.js";
  */
 
 const ENV_VAR_PATTERN = /\$\{[A-Z_][A-Z0-9_]*\}/;
+const ENV_VAR_NAME = /^[A-Z_][A-Z0-9_]*$/;
+
+function parseSecretRefVarName(value: string): string | null {
+  if (!value.toLowerCase().startsWith("secretref:")) {
+    return null;
+  }
+  const remainder = value.slice("secretref:".length);
+  const candidate = remainder.startsWith("//") ? remainder.slice(2) : remainder;
+  if (!ENV_VAR_NAME.test(candidate)) {
+    return null;
+  }
+  return candidate;
+}
 
 /**
  * Check if a string contains any `${VAR}` env var references.
  */
 function hasEnvVarRef(value: string): boolean {
-  return ENV_VAR_PATTERN.test(value);
+  return ENV_VAR_PATTERN.test(value) || parseSecretRefVarName(value) !== null;
 }
 
 /**
@@ -34,7 +47,12 @@ function hasEnvVarRef(value: string): boolean {
  * - `$${VAR}` → literal `${VAR}` (escape sequence)
  */
 function tryResolveString(template: string, env: NodeJS.ProcessEnv): string | null {
-  const ENV_VAR_NAME = /^[A-Z_][A-Z0-9_]*$/;
+  const secretRefVar = parseSecretRefVarName(template);
+  if (secretRefVar) {
+    const val = env[secretRefVar];
+    return val === undefined || val === "" ? null : val;
+  }
+
   const chunks: string[] = [];
 
   for (let i = 0; i < template.length; i++) {

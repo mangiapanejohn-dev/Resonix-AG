@@ -1,4 +1,4 @@
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import { resolveAgentWorkspaceDir, resolveSessionAgentId } from "../../agents/agent-scope.js";
 import type { ResonixConfig } from "../../config/config.js";
 import { loadSessionStore, resolveStorePath } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
@@ -9,6 +9,7 @@ import {
   logMessageQueued,
   logSessionStateChange,
 } from "../../logging/diagnostic.js";
+import { syncResonixMFromEvent } from "../../memory/resonix-m.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { maybeApplyTtsToPayload, normalizeTtsAutoMode, resolveTtsConfig } from "../../tts/tts.js";
 import { getReplyFromConfig } from "../reply.js";
@@ -165,6 +166,19 @@ export async function dispatchReplyFromConfig(params: {
           : "";
   const channelId = (ctx.OriginatingChannel ?? ctx.Surface ?? ctx.Provider ?? "").toLowerCase();
   const conversationId = ctx.OriginatingTo ?? ctx.To ?? ctx.From ?? undefined;
+  const agentIdForMemory = resolveSessionAgentId({ sessionKey, config: cfg });
+  const workspaceDirForMemory = resolveAgentWorkspaceDir(cfg, agentIdForMemory);
+
+  if (content.trim()) {
+    void syncResonixMFromEvent({
+      workspaceDir: workspaceDirForMemory,
+      source: "message:received",
+      inboundText: content,
+      nowMs: timestamp,
+    }).catch((err) => {
+      logVerbose(`dispatch-from-config: resonix-M sync failed: ${String(err)}`);
+    });
+  }
 
   // Trigger plugin hooks (fire-and-forget)
   if (hookRunner?.hasHooks("message_received")) {

@@ -2,6 +2,9 @@ import type { Command } from "commander";
 import { danger } from "../../globals.js";
 import { defaultRuntime } from "../../runtime.js";
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
+import { parsePositiveIntOrUndefined } from "../program/helpers.js";
+import type { CronBoardPayload } from "./shared.js";
+import { printCronBoard } from "./shared.js";
 import { warnIfCronSchedulerDisabled } from "./shared.js";
 
 function registerCronToggleCommand(params: {
@@ -32,6 +35,35 @@ function registerCronToggleCommand(params: {
 }
 
 export function registerCronSimpleCommands(cron: Command) {
+  addGatewayClientOptions(
+    cron
+      .command("board")
+      .description("Show cron board (health + run metrics)")
+      .option("--all", "Include disabled jobs", false)
+      .option("--run-limit <n>", "Runs loaded per job (default 200)")
+      .option("--window-hours <n>", "Metrics window in hours (default 168)")
+      .option("--json", "Output JSON", false)
+      .action(async (opts) => {
+        try {
+          const runLimit = parsePositiveIntOrUndefined(opts.runLimit) ?? 200;
+          const windowHours = parsePositiveIntOrUndefined(opts.windowHours) ?? 24 * 7;
+          const res = (await callGatewayFromCli("cron.board", opts, {
+            includeDisabled: Boolean(opts.all),
+            runLimit,
+            windowHours,
+          })) as CronBoardPayload;
+          if (opts.json) {
+            defaultRuntime.log(JSON.stringify(res, null, 2));
+            return;
+          }
+          printCronBoard(res, defaultRuntime);
+        } catch (err) {
+          defaultRuntime.error(danger(String(err)));
+          defaultRuntime.exit(1);
+        }
+      }),
+  );
+
   addGatewayClientOptions(
     cron
       .command("rm")

@@ -96,4 +96,9 @@ describe("markdownToSlackMrkdwn", () => {
       "*Important:* Check the _docs_ at <https://example.com|link>\n\n• first\n• second",
     );
   });
+
+  it("handles non-string markdown input without throwing", () => {
+    expect(markdownToSlackMrkdwn(123 as unknown as string)).toBe("123");
+    expect(markdownToSlackMrkdwn({ value: "bad" } as unknown as string)).toBe("");
+  });
 });

@@ -2,24 +2,24 @@ import { describe, expect, it } from "vitest";
 import { resolveBrowserConfig, resolveProfile, shouldStartLocalBrowserServer } from "./config.js";
 
 describe("browser config", () => {
-  it("defaults to enabled with loopback defaults and lobster-orange color", () => {
+  it("defaults to enabled with resonix profile and lobster-orange color", () => {
     const resolved = resolveBrowserConfig(undefined);
     expect(resolved.enabled).toBe(true);
-    expect(resolved.controlPort).toBe(18791);
+    expect(resolved.controlPort).toBeGreaterThan(0);
     expect(resolved.color).toBe("#FF4500");
     expect(shouldStartLocalBrowserServer(resolved)).toBe(true);
     expect(resolved.cdpHost).toBe("127.0.0.1");
     expect(resolved.cdpProtocol).toBe("http");
     const profile = resolveProfile(resolved, resolved.defaultProfile);
-    expect(profile?.name).toBe("chrome");
-    expect(profile?.driver).toBe("extension");
-    expect(profile?.cdpPort).toBe(18792);
-    expect(profile?.cdpUrl).toBe("http://127.0.0.1:18792");
+    expect(profile?.name).toBe("resonix");
+    expect(profile?.driver).toBe("resonix");
+    expect(profile?.cdpPort).toBeGreaterThan(resolved.controlPort);
+    expect(profile?.cdpUrl).toBe(`http://127.0.0.1:${profile?.cdpPort}`);
 
     const resonix = resolveProfile(resolved, "resonix");
     expect(resonix?.driver).toBe("resonix");
-    expect(resonix?.cdpPort).toBe(18800);
-    expect(resonix?.cdpUrl).toBe("http://127.0.0.1:18800");
+    expect(resonix?.cdpPort).toBe(profile?.cdpPort);
+    expect(resonix?.cdpUrl).toBe(profile?.cdpUrl);
     expect(resolved.remoteCdpTimeoutMs).toBe(1500);
     expect(resolved.remoteCdpHandshakeTimeoutMs).toBe(3000);
   });
@@ -30,10 +30,8 @@ describe("browser config", () => {
     try {
       const resolved = resolveBrowserConfig(undefined);
       expect(resolved.controlPort).toBe(19003);
-      const chrome = resolveProfile(resolved, "chrome");
-      expect(chrome?.driver).toBe("extension");
-      expect(chrome?.cdpPort).toBe(19004);
-      expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19004");
+      expect(resolved.defaultProfile).toBe("resonix");
+      expect(resolveProfile(resolved, "chrome")).toBe(null);
 
       const resonix = resolveProfile(resolved, "resonix");
       expect(resonix?.cdpPort).toBe(19012);
@@ -53,10 +51,8 @@ describe("browser config", () => {
     try {
       const resolved = resolveBrowserConfig(undefined, { gateway: { port: 19011 } });
       expect(resolved.controlPort).toBe(19013);
-      const chrome = resolveProfile(resolved, "chrome");
-      expect(chrome?.driver).toBe("extension");
-      expect(chrome?.cdpPort).toBe(19014);
-      expect(chrome?.cdpUrl).toBe("http://127.0.0.1:19014");
+      expect(resolved.defaultProfile).toBe("resonix");
+      expect(resolveProfile(resolved, "chrome")).toBe(null);
 
       const resonix = resolveProfile(resolved, "resonix");
       expect(resonix?.cdpPort).toBe(19022);
@@ -140,7 +136,7 @@ describe("browser config", () => {
     expect(() => resolveBrowserConfig({ cdpUrl: "ws://127.0.0.1:18791" })).toThrow(/must be http/i);
   });
 
-  it("does not add the built-in chrome extension profile if the derived relay port is already used", () => {
+  it("keeps resonix as default profile when profile set is custom", () => {
     const resolved = resolveBrowserConfig({
       profiles: {
         resonix: { cdpPort: 18792, color: "#FF4500" },

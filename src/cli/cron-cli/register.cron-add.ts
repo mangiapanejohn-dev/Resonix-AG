@@ -78,8 +78,14 @@ export function registerCronAddCommand(cron: Command) {
       .option("--tz <iana>", "Timezone for cron expressions (IANA)", "")
       .option("--stagger <duration>", "Cron stagger window (e.g. 30s, 5m)")
       .option("--exact", "Disable cron staggering (set stagger to 0)", false)
-      .option("--system-event <text>", "System event payload (main session)")
-      .option("--message <text>", "Agent message payload")
+      .option(
+        "--system-event <text>",
+        "System event payload (main session). Supports {{memory.top}}/{{memory.tasks}} templates.",
+      )
+      .option(
+        "--message <text>",
+        "Agent message payload. Supports {{memory.top}}/{{memory.tasks}} templates.",
+      )
       .option("--thinking <level>", "Thinking level for agent jobs (off|minimal|low|medium|high)")
       .option("--model <model>", "Model override for agent jobs (provider/model or alias)")
       .option("--timeout-seconds <n>", "Timeout seconds for agent jobs")

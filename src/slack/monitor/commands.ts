@@ -1,18 +1,28 @@
 import type { SlackSlashCommandConfig } from "../../config/config.js";
 
+function normalizeSlackText(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+    return String(value);
+  }
+  return "";
+}
+
 /**
  * Strip Slack mentions (<@U123>, <@U123|name>) so command detection works on
  * normalized text. Use in both prepare and debounce gate for consistency.
  */
 export function stripSlackMentionsForCommandDetection(text: string): string {
-  return (text ?? "")
+  return normalizeSlackText(text)
     .replace(/<@[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 export function normalizeSlackSlashCommandName(raw: string) {
-  return raw.replace(/^\/+/, "");
+  return normalizeSlackText(raw).replace(/^\/+/, "");
 }
 
 export function resolveSlackSlashCommandConfig(

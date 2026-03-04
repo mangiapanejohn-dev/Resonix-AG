@@ -71,6 +71,8 @@ import { monitorIMessageProvider } from "../../imessage/monitor.js";
 import { probeIMessage } from "../../imessage/probe.js";
 import { sendMessageIMessage } from "../../imessage/send.js";
 import { getChannelActivity, recordChannelActivity } from "../../infra/channel-activity.js";
+import { onAgentEvent } from "../../infra/agent-events.js";
+import { requestHeartbeatNow } from "../../infra/heartbeat-wake.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import {
   listLineAccountIds,
@@ -110,6 +112,7 @@ import { resolveAgentRoute } from "../../routing/resolve-route.js";
 import { monitorSignalProvider } from "../../signal/index.js";
 import { probeSignal } from "../../signal/probe.js";
 import { sendMessageSignal } from "../../signal/send.js";
+import { onSessionTranscriptUpdate } from "../../sessions/transcript-events.js";
 import {
   listSlackDirectoryGroupsLive,
   listSlackDirectoryPeersLive,
@@ -137,6 +140,7 @@ import {
   webAuthExists,
 } from "../../web/auth-store.js";
 import { loadWebMedia } from "../../web/media.js";
+import { transcribeAudioFile } from "../../media-understanding/stt-runtime.js";
 import { formatNativeDependencyHint } from "./native-deps.js";
 import type { PluginRuntime } from "./types.js";
 
@@ -241,7 +245,9 @@ export function createPluginRuntime(): PluginRuntime {
     version: resolveVersion(),
     config: createRuntimeConfig(),
     system: createRuntimeSystem(),
+    events: createRuntimeEvents(),
     media: createRuntimeMedia(),
+    stt: createRuntimeStt(),
     tts: { textToSpeechTelephony },
     tools: createRuntimeTools(),
     channel: createRuntimeChannel(),
@@ -260,8 +266,16 @@ function createRuntimeConfig(): PluginRuntime["config"] {
 function createRuntimeSystem(): PluginRuntime["system"] {
   return {
     enqueueSystemEvent,
+    requestHeartbeatNow,
     runCommandWithTimeout,
     formatNativeDependencyHint,
+  };
+}
+
+function createRuntimeEvents(): PluginRuntime["events"] {
+  return {
+    onAgentEvent,
+    onSessionTranscriptUpdate,
   };
 }
 
@@ -273,6 +287,12 @@ function createRuntimeMedia(): PluginRuntime["media"] {
     isVoiceCompatibleAudio,
     getImageMetadata,
     resizeToJpeg,
+  };
+}
+
+function createRuntimeStt(): PluginRuntime["stt"] {
+  return {
+    transcribeAudioFile,
   };
 }
 

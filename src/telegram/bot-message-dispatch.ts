@@ -32,7 +32,8 @@ import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
 const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 
 /** Minimum chars before sending first streaming message (improves push notification UX) */
-const DRAFT_MIN_INITIAL_CHARS = 30;
+const DRAFT_MIN_INITIAL_CHARS = 8;
+const DRAFT_THROTTLE_MS = 450;
 
 async function resolveStickerVisionSupport(cfg: ResonixConfig, agentId: string) {
   try {
@@ -98,12 +99,13 @@ export const dispatchTelegramMessage = async ({
   const draftReplyToMessageId =
     replyToMode !== "off" && typeof msg.message_id === "number" ? msg.message_id : undefined;
   const draftStream = canStreamDraft
-    ? createTelegramDraftStream({
+      ? createTelegramDraftStream({
         api: bot.api,
         chatId,
         maxChars: draftMaxChars,
         thread: threadSpec,
         replyToMessageId: draftReplyToMessageId,
+        throttleMs: DRAFT_THROTTLE_MS,
         minInitialChars: DRAFT_MIN_INITIAL_CHARS,
         log: logVerbose,
         warn: logVerbose,

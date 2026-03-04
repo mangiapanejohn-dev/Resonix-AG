@@ -244,7 +244,10 @@ export async function runEmbeddedPiAgent(
       if (hookRunner?.hasHooks("before_agent_start")) {
         try {
           const legacyResult = await hookRunner.runBeforeAgentStart(
-            { prompt: params.prompt },
+            {
+              prompt: params.prompt,
+              sessionKey: params.sessionKey,
+            },
             hookCtx,
           );
           modelResolveOverride = {

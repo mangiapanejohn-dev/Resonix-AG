@@ -61,6 +61,11 @@ export type CronServiceDeps = {
   wakeNowHeartbeatBusyMaxWaitMs?: number;
   /** WakeMode=now: delay between runHeartbeatOnce retries while busy. */
   wakeNowHeartbeatBusyRetryDelayMs?: number;
+  resolveCronText?: (params: {
+    job: CronJob;
+    text: string;
+    target: "main" | "isolated";
+  }) => Promise<string>;
   runIsolatedAgentJob: (params: { job: CronJob; message: string }) => Promise<
     {
       summary?: string;

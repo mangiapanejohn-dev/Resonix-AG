@@ -1,193 +1,167 @@
 <div align="center">
-  <h1>👾 Resonix-AG</h1>
+
+# 👾 Resonix
+
+**Version: `2026.3.4`**
+
+**Autonomous-first, memory-native agent runtime.**
+
+> "Heyy man ! I'm not some chatbot. I'm your digital roommate who happens to run on code. I browse the web when you're lazy, remember everything you forget, and occasionally reflect on life. Can't do your dishes, but I can definitely do your thinking."
+
+Built by **MarkEllington**.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Discord](https://img.shields.io/discord/FKXPBAtPwG?label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/FKXPBAtPwG)
+[![X](https://img.shields.io/twitter/follow/moralesjavx1032?logo=X&style=for-the-badge)](https://x.com/moralesjavx1032)
+
 </div>
 
-<p align="center">
-  <strong>Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory !</strong>
-</p>
-<p align="center">
-  <strong>Special thanks to OpenClaw for open-source code support !</strong>
-</p>
+## Why Resonix
 
-<p align="center">
-  <a href="https://discord.gg/FKXPBAtPwG"><img src="https://img.shields.io/discord/FKXPBAtPwG?label=Discord&logo=discord&style=for-the-badge" alt="Discord"></a>
-  <a href="https://x.com/moralesjavx1032"><img src="https://img.shields.io/twitter/follow/moralesjavx1032?logo=X&style=for-the-badge" alt="Twitter"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
-</p>
+Resonix is a production-oriented OpenClaw-derived runtime that focuses on four things:
 
----
+- **Fast onboarding and auth flow** (reduced blocking paths in provider auth loading)
+- **Two-layer persistent memory** (system profile + desktop knowledge mirror)
+- **Advanced cron operations** (metrics board, insights, run history, webhook rules)
+- **Cross-platform deployment reliability** (macOS/Linux/Windows installer paths + smoke coverage)
 
-## 🚀 Quick Install (Recommended)
+## Resonix vs OpenClaw (This Fork Focus)
 
-### One-Line Install
+This table is scoped to what **this Resonix repository adds on top of an OpenClaw base**.
 
-**macOS / Linux:**
+| Area | Resonix (`2026.3.4`) | Upstream OpenClaw baseline |
+| --- | --- | --- |
+| Identity layer | Explicit identity profile (`Resonix`, `MarkEllington`, about text, browser policy) wired into runtime | Not part of this fork-specific identity layer |
+| Persistent memory | `permanent-memory.json` + markdown mirror + memory scoring/retention | Fork-specific implementation |
+| Desktop memory workspace | Auto-scaffolded `~/Desktop/resonix-M` with identity/knowledge/retros/logs | Fork-specific implementation |
+| Cron observability | `cron board` with success rate, p95 duration, due/risk insights, memory-template stats | Fork-specific implementation |
+| Cron run governance | JSONL run history + webhook delivery guardrails + memory sync after runs | Fork-specific implementation |
+| Auth responsiveness | Provider auth dispatch hardening + plugin auth loader timeout fallback | Fork-specific implementation |
+| Installer compatibility | One-click installers + local smoke scripts + CI matrix (Ubuntu/macOS/Windows) | Fork-specific integration |
+
+## Quick Install
+
+### macOS / Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
 ```
 
-**Windows (PowerShell as Administrator):**
+### Windows (PowerShell)
 
 ```powershell
 iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
 ```
 
----
-## Star History
-
-<a href="https://www.star-history.com/#mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&theme=dark&logscale&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&logscale&legend=top-left" />
- </picture>
-</a>
-
----
-
-### Start Resonix
+### Verify
 
 ```bash
+resonix -v
 resonix onboard
 ```
 
-After installation, restart your terminal or run:
+If command is not found, open a new terminal first.
+
+## Deployment Modes
+
+- **One-click installer**: `install.sh` / `install.ps1`
+- **Source mode**: clone + `pnpm install` + `pnpm build`
+- **Container mode**: Docker / Podman flows under `docs/install/`
+
+## First Run
 
 ```bash
-source ~/.zshrc
-```
-
-Then use:
-
-```bash
-resonix onboard
-resonix gateway start
-resonix --help
-```
-
----
-
-## 📖 Getting Started
-
-After installation, run:
-
-```bash
-# Interactive onboarding wizard
+# Interactive setup
 resonix onboard
 
-# Start the gateway
+# Start gateway
 resonix gateway start
 
-# Check help
-resonix --help
+# Inspect cron health board
+resonix cron board
+
+# Inspect permanent memory profile
+resonix memory profile
 ```
 
----
+## What's New In `2026.3.4`
 
-## ✨ About Resonix-AG
+- Fixed auth-choice dispatch gaps so API/OAuth providers no longer silently skip handler logic.
+- Added safe timeout fallback for plugin auth loader to avoid onboarding/OAuth stalls.
+- Stabilized cron webhook e2e path and aligned webhook validation behavior.
+- Unified version metadata to `2026.3.4` across CLI + Android + iOS + macOS + release docs.
+- Kept permanent-memory and cron-board stacks validated with targeted test suites.
 
-**Resonix-AG** is an autonomous AI agent based on OpenClaw with enhanced memory and autonomous learning systems.
+## Memory Architecture (Resonix Core)
 
-Unlike traditional AI assistants that only respond to commands, Resonix-AG can:
+Resonix now uses a practical two-layer memory model:
 
-- 🧠 **Self-Cognition**: Knows what it knows, identifies knowledge gaps
-- 📚 **Autonomous Learning**: Actively learns new knowledge without manual prompts
-- 💾 **Permanent Memory**: Remembers learned information forever with smart retention
-- 🔄 **Continuous Evolution**: Improves itself over time through learning
+1. **System memory profile**
+   - Extracts durable signals from user turns (preferences/facts/projects/tasks/people).
+   - Maintains confidence, mention counts, timestamps, and source trace.
+   - Stores machine-readable and markdown mirrors for runtime + human audit.
 
-## Core Features
+2. **Desktop memory workspace (`resonix-M`)**
+   - Auto-created under Desktop on first sync.
+   - Organized structure:
+     - `identity/` (about, identity anchor)
+     - `knowledge/` (categorized memory mirrors)
+     - `autonomy/` (current plan)
+     - `retrospectives/` (task lessons)
+     - `logs/` (sync + event traces)
 
-### Self-Cognition System
+This keeps model context durable while giving users a visible, inspectable memory workspace.
 
-- Capability profiling (hourly updates)
-- Knowledge gap detection
-- Deviation correction with multi-source validation
-- Learning demand recognition
+## Advanced Cron Stack
 
-### 4-Layer Memory Architecture
+Resonix cron is not just scheduler CRUD.
 
-- **Working Memory**: Temporary buffer (30 min TTL)
-- **Episodic Memory**: Behavioral logs (1 year retention)
-- **Semantic Memory**: Knowledge cards (permanent)
-- **Program Memory**: Learning strategies (permanent)
+- `resonix cron board` exposes:
+  - Success/error rates in a rolling window
+  - Duration metrics (including p95)
+  - Consecutive failure streaks
+  - Due-now/risk insights
+  - Memory-template token visibility per job
+- `cron.runs` keeps JSONL run history per job for audit/debug.
+- Finished jobs can feed memory sync so repeated mistakes are less likely.
 
-### Autonomous Learning
+## Project Layout
 
-- Dynamic path planning (Basic → Advanced → Practical → Validation)
-- BrewAPI-first with browser fallback
-- Anti-crawling simulation
-- Results validation
+```text
+src/
+  commands/       # onboarding/auth/config flows
+  cron/           # scheduler, board metrics, run logs, webhook helpers
+  gateway/        # RPC methods, cron surface, runtime services
+  memory/         # permanent profile + resonix-M sync
+  identity/       # Resonix identity/about/browser policy
+  cli/            # CLI commands and UX
+```
 
----
-
-## 🔧 Installation (Detailed)
-
-### Prerequisites
-
-- Node.js 22+
-- npm or pnpm
-
-### From Source
+## Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/mangiapanejohn-dev/Resonix-AG.git
-cd Resonix-AG
-
-# Install dependencies
 pnpm install
-
-# Build
 pnpm build
-
-# Run
-node resonix.mjs --help
-# or use the CLI
-resonix --help
+pnpm test
 ```
 
----
+Useful focused checks:
 
-## 📂 Project Structure
-
-```
-src/resonix/
-├── cognition/           # Self-cognition modules
-│   ├── self-perception.ts
-│   ├── demand-recognition.ts
-│   └── deviation-correction.ts
-├── memory/             # 4-layer memory system
-│   ├── semantic-memory.ts
-│   ├── program-memory.ts
-│   ├── episodic-memory.ts
-│   └── working-memory.ts
-├── learning/           # Autonomous learning
-│   └── path-planner.ts
-└── index.ts           # Unified entry
+```bash
+pnpm test src/commands/auth-choice.e2e.test.ts
+pnpm test src/gateway/server.cron.e2e.test.ts
+pnpm test src/memory/permanent-profile.test.ts src/memory/resonix-m.test.ts
 ```
 
----
+## Community
 
-## 🎨 Theme
+- Discord: <https://discord.gg/FKXPBAtPwG>
+- X: <https://x.com/moralesjavx1032>
 
-- **Logo**: 👾 (Alien)
-- **Theme Color**: Blue-Purple Gradient
-- **Developer**: [MarkEllington](https://x.com/moralesjavx1032) (Do't thinking is younger than you ✌️)
+## License
 
----
-
-## 🤝 Community
-
-- **Discord**: https://discord.gg/FKXPBAtPwG
-- **Twitter**: https://x.com/moralesjavx1032
+MIT
 
 ---
 
-## 📄 License
-
-MIT License
-
----
-
-_Built with ❤️ by MarkEllington (✌️)_
+**Resonix is developed by MarkEllington.**

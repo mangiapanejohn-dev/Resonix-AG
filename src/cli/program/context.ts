@@ -1,4 +1,3 @@
-import { VERSION } from "../../version.js";
 import { resolveCliChannelOptions } from "../channel-options.js";
 
 export type ProgramContext = {
@@ -8,10 +7,14 @@ export type ProgramContext = {
   agentChannelOptions: string;
 };
 
+function formatDateVersion(now = new Date()): string {
+  return `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+}
+
 export function createProgramContext(): ProgramContext {
   const channelOptions = resolveCliChannelOptions();
   return {
-    programVersion: VERSION,
+    programVersion: formatDateVersion(),
     channelOptions,
     messageChannelOptions: channelOptions.join("|"),
     agentChannelOptions: ["last", ...channelOptions].join("|"),

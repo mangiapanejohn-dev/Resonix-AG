@@ -102,6 +102,17 @@ const HttpUrlSchema = z
     return protocol === "http:" || protocol === "https:";
   }, "Expected http:// or https:// URL");
 
+const BrowserProfileDriverSchema = z.preprocess((value) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "extension" || normalized === "clawd") {
+    return "resonix";
+  }
+  return value;
+}, z.literal("resonix"));
+
 export const ResonixSchema = z
   .object({
     $schema: z.string().optional(),
@@ -238,7 +249,7 @@ export const ResonixSchema = z
               .object({
                 cdpPort: z.number().int().min(1).max(65535).optional(),
                 cdpUrl: z.string().optional(),
-                driver: z.union([z.literal("clawd"), z.literal("extension")]).optional(),
+                driver: BrowserProfileDriverSchema.optional(),
                 color: HexColorSchema,
               })
               .strict()
@@ -257,6 +268,17 @@ export const ResonixSchema = z
           .object({
             name: z.string().max(50).optional(),
             avatar: z.string().max(200).optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
+    cli: z
+      .object({
+        banner: z
+          .object({
+            taglineMode: z.enum(["quiet", "hint", "playful"]).optional(),
           })
           .strict()
           .optional(),

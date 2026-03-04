@@ -185,4 +185,28 @@ describe("before_agent_start hook merger", () => {
     expect(result?.modelOverride).toBe("llama3.3:8b");
     expect(result?.providerOverride).toBe("ollama");
   });
+
+  it("passes sessionKey in before_agent_start event payload when provided", async () => {
+    let seenSessionKey: string | undefined;
+    registry.typedHooks.push({
+      pluginId: "capture-session-key",
+      hookName: "before_agent_start",
+      handler: (event) => {
+        seenSessionKey = event.sessionKey;
+        return {};
+      },
+      source: "test",
+    } as PluginHookRegistration);
+
+    const runner = createHookRunner(registry);
+    await runner.runBeforeAgentStart(
+      {
+        prompt: "hello",
+        sessionKey: "agent:main:main",
+      },
+      stubCtx,
+    );
+
+    expect(seenSessionKey).toBe("agent:main:main");
+  });
 });

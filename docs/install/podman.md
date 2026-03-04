@@ -83,6 +83,7 @@ To add quadlet **after** an initial setup that did not use it, re-run: `./setup-
 ## Environment and config
 
 - **Token:** Stored in `~resonix/.resonix/.env` as `RESONIX_GATEWAY_TOKEN`. `setup-podman.sh` and `run-resonix-podman.sh` generate it if missing (uses `openssl`, `python3`, or `od`).
+- **Template env file:** `resonix.podman.env` at repo root (copy and point with `RESONIX_PODMAN_ENV=/path/to/file`).
 - **Optional:** In that `.env` you can set provider keys (e.g. `GROQ_API_KEY`, `OLLAMA_API_KEY`) and other Resonix env vars.
 - **Host ports:** By default the script maps `18789` (gateway) and `18790` (bridge). Override the **host** port mapping with `RESONIX_PODMAN_GATEWAY_HOST_PORT` and `RESONIX_PODMAN_BRIDGE_HOST_PORT` when launching.
 - **Paths:** Host config and workspace default to `~resonix/.resonix` and `~resonix/.resonix/workspace`. Override the host paths used by the launch script with `RESONIX_CONFIG_DIR` and `RESONIX_WORKSPACE_DIR`.

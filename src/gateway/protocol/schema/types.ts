@@ -54,6 +54,7 @@ import type {
 } from "./config.js";
 import type {
   CronAddParamsSchema,
+  CronBoardParamsSchema,
   CronJobSchema,
   CronListParamsSchema,
   CronRemoveParamsSchema,
@@ -221,6 +222,7 @@ export type CronJob = Static<typeof CronJobSchema>;
 export type CronListParams = Static<typeof CronListParamsSchema>;
 export type CronStatusParams = Static<typeof CronStatusParamsSchema>;
 export type CronAddParams = Static<typeof CronAddParamsSchema>;
+export type CronBoardParams = Static<typeof CronBoardParamsSchema>;
 export type CronUpdateParams = Static<typeof CronUpdateParamsSchema>;
 export type CronRemoveParams = Static<typeof CronRemoveParamsSchema>;
 export type CronRunParams = Static<typeof CronRunParamsSchema>;

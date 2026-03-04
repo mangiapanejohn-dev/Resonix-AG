@@ -1,18 +1,21 @@
 import { isTruthyEnvValue } from "../infra/env.js";
 import { defaultRuntime } from "../runtime.js";
-import { VERSION } from "../version.js";
 import { getCommandPath, hasHelpOrVersion } from "./argv.js";
 import { emitCliBanner } from "./banner.js";
 import { ensurePluginRegistryLoaded } from "./plugin-registry.js";
 import { ensureConfigReady } from "./program/config-guard.js";
 import { findRoutedCommand } from "./program/routes.js";
 
+function formatDateVersion(now = new Date()): string {
+  return `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+}
+
 async function prepareRoutedCommand(params: {
   argv: string[];
   commandPath: string[];
   loadPlugins?: boolean;
 }) {
-  emitCliBanner(VERSION, { argv: params.argv });
+  emitCliBanner(formatDateVersion(), { argv: params.argv });
   await ensureConfigReady({ runtime: defaultRuntime, commandPath: params.commandPath });
   if (params.loadPlugins) {
     ensurePluginRegistryLoaded();

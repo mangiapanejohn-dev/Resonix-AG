@@ -7,6 +7,11 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 const getMemorySearchManager = vi.fn();
 const loadConfig = vi.fn(() => ({}));
 const resolveDefaultAgentId = vi.fn(() => "main");
+const resolveAgentWorkspaceDir = vi.fn((cfg: Record<string, unknown>) => {
+  const agents = cfg.agents as { defaults?: { workspace?: string } } | undefined;
+  const workspace = agents?.defaults?.workspace?.trim();
+  return workspace || "/tmp/resonix";
+});
 
 vi.mock("../memory/index.js", () => ({
   getMemorySearchManager,
@@ -18,6 +23,7 @@ vi.mock("../config/config.js", () => ({
 
 vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentId,
+  resolveAgentWorkspaceDir,
 }));
 
 let registerMemoryCli: typeof import("./memory-cli.js").registerMemoryCli;
@@ -312,5 +318,104 @@ describe("memory cli", () => {
     expect(close).toHaveBeenCalled();
     expect(error).toHaveBeenCalledWith(expect.stringContaining("Memory search failed: boom"));
     expect(process.exitCode).toBe(1);
+  });
+
+  it("prints permanent memory profile summary", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "memory-cli-profile-"));
+    const profilePath = path.join(workspaceDir, ".resonix", "permanent-memory.json");
+    try {
+      await fs.mkdir(path.dirname(profilePath), { recursive: true });
+      await fs.writeFile(
+        profilePath,
+        JSON.stringify(
+          {
+            version: 1,
+            updatedAtMs: Date.UTC(2026, 2, 4, 9, 0, 0),
+            entries: [
+              {
+                id: "pref-1",
+                kind: "preference",
+                text: "I prefer concise updates",
+                normalizedText: "i prefer concise updates",
+                firstSeenAtMs: Date.UTC(2026, 2, 3, 8, 0, 0),
+                lastSeenAtMs: Date.UTC(2026, 2, 4, 8, 0, 0),
+                mentions: 3,
+                confidence: 0.92,
+                sources: ["memory/2026-03-04.md"],
+              },
+            ],
+          },
+          null,
+          2,
+        ),
+      );
+      loadConfig.mockReturnValueOnce({
+        agents: {
+          defaults: { workspace: workspaceDir },
+        },
+      });
+
+      const log = vi.spyOn(defaultRuntime, "log").mockImplementation(() => {});
+      await runMemoryCli(["profile"]);
+
+      expect(log).toHaveBeenCalledWith(expect.stringContaining("Permanent Memory"));
+      expect(log).toHaveBeenCalledWith(expect.stringContaining("Entries: 1"));
+      expect(log).toHaveBeenCalledWith(expect.stringContaining("I prefer concise updates"));
+    } finally {
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
+  it("prints permanent memory profile as json", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "memory-cli-profile-json-"));
+    const profilePath = path.join(workspaceDir, ".resonix", "permanent-memory.json");
+    try {
+      await fs.mkdir(path.dirname(profilePath), { recursive: true });
+      await fs.writeFile(
+        profilePath,
+        JSON.stringify(
+          {
+            version: 1,
+            updatedAtMs: Date.UTC(2026, 2, 4, 9, 0, 0),
+            entries: [
+              {
+                id: "task-1",
+                kind: "task",
+                text: "I need to ship the gateway fix",
+                normalizedText: "i need to ship the gateway fix",
+                firstSeenAtMs: Date.UTC(2026, 2, 4, 7, 0, 0),
+                lastSeenAtMs: Date.UTC(2026, 2, 4, 8, 0, 0),
+                mentions: 2,
+                confidence: 0.8,
+                sources: ["memory/2026-03-04.md"],
+              },
+            ],
+          },
+          null,
+          2,
+        ),
+      );
+      loadConfig.mockReturnValueOnce({
+        agents: {
+          defaults: { workspace: workspaceDir },
+        },
+      });
+
+      const log = vi.spyOn(defaultRuntime, "log").mockImplementation(() => {});
+      await runMemoryCli(["profile", "--json"]);
+
+      const jsonPayload = log.mock.calls
+        .map((call) => call[0])
+        .find((entry): entry is string => typeof entry === "string" && entry.startsWith("["));
+      expect(jsonPayload).toBeTruthy();
+      const parsed = JSON.parse(jsonPayload ?? "[]") as Array<{
+        exists: boolean;
+        summary?: { total: number };
+      }>;
+      expect(parsed[0]?.exists).toBe(true);
+      expect(parsed[0]?.summary?.total).toBe(1);
+    } finally {
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    }
   });
 });

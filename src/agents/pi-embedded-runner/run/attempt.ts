@@ -905,6 +905,7 @@ export async function runEmbeddedAttempt(
                 {
                   prompt: params.prompt,
                   messages: activeSession.messages,
+                  sessionKey: params.sessionKey,
                 },
                 hookCtx,
               )

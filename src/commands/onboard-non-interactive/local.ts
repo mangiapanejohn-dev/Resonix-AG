@@ -4,6 +4,7 @@ import { resolveGatewayPort, writeConfigFile } from "../../config/config.js";
 import { logConfigUpdated } from "../../config/logging.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { DEFAULT_GATEWAY_DAEMON_RUNTIME } from "../daemon-runtime.js";
+import { formatHealthCheckFailure } from "../health-format.js";
 import { healthCommand } from "../health.js";
 import { applyOnboardingLocalWorkspaceConfig } from "../onboard-config.js";
 import {
@@ -101,12 +102,33 @@ export async function runNonInteractiveOnboardingLocal(params: {
       customBindHost: nextConfig.gateway?.customBindHost,
       basePath: undefined,
     });
-    await waitForGatewayReachable({
+    const warmupProbe = await waitForGatewayReachable({
       url: links.wsUrl,
       token: gatewayResult.gatewayToken,
-      deadlineMs: 15_000,
+      deadlineMs: 1_500,
+      pollMs: 200,
+      probeTimeoutMs: 500,
     });
-    await healthCommand({ json: false, timeoutMs: 10_000 }, runtime);
+    if (!warmupProbe.ok) {
+      runtime.log(
+        [
+          "Gateway may still be warming up.",
+          `Run ${formatCliCommand("resonix health")} after a few seconds to re-check.`,
+        ].join("\n"),
+      );
+    } else {
+      try {
+        await healthCommand({ json: false, timeoutMs: 2_500 }, runtime);
+      } catch (err) {
+        runtime.error(formatHealthCheckFailure(err));
+        runtime.log(
+          [
+            "Gateway may still be warming up.",
+            `Run ${formatCliCommand("resonix health")} after a few seconds to re-check.`,
+          ].join("\n"),
+        );
+      }
+    }
   }
 
   logNonInteractiveOnboardingJson({

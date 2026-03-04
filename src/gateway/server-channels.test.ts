@@ -9,6 +9,7 @@ import { createEmptyPluginRegistry, type PluginRegistry } from "../plugins/regis
 import { getActivePluginRegistry, setActivePluginRegistry } from "../plugins/runtime.js";
 import { DEFAULT_ACCOUNT_ID } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
+import { clearGateways, registerGateway } from "../discord/monitor/gateway-registry.js";
 import { createChannelManager } from "./server-channels.js";
 
 const hoisted = vi.hoisted(() => {
@@ -107,10 +108,12 @@ describe("server-channels auto restart", () => {
     vi.useFakeTimers();
     hoisted.computeBackoff.mockClear();
     hoisted.sleepWithAbort.mockClear();
+    clearGateways();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    clearGateways();
     setActivePluginRegistry(previousRegistry ?? createEmptyPluginRegistry());
   });
 
@@ -164,5 +167,20 @@ describe("server-channels auto restart", () => {
     const account = snapshot.channelAccounts.discord?.[DEFAULT_ACCOUNT_ID];
     expect(account?.enabled).toBe(true);
     expect(account?.configured).toBe(true);
+  });
+
+  it("hydrates discord connected status from gateway registry snapshots", () => {
+    installTestRegistry(createTestPlugin());
+    registerGateway(DEFAULT_ACCOUNT_ID, { isConnected: true } as never);
+
+    const manager = createManager();
+    const connectedSnapshot = manager.getRuntimeSnapshot();
+    expect(connectedSnapshot.channelAccounts.discord?.[DEFAULT_ACCOUNT_ID]?.connected).toBe(true);
+
+    registerGateway(DEFAULT_ACCOUNT_ID, { isConnected: false } as never);
+    const disconnectedSnapshot = manager.getRuntimeSnapshot();
+    expect(disconnectedSnapshot.channelAccounts.discord?.[DEFAULT_ACCOUNT_ID]?.connected).toBe(
+      false,
+    );
   });
 });

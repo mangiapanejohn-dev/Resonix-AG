@@ -291,12 +291,13 @@ async function maybeRepairTelegramAllowFromUsernames(cfg: ResonixConfig): Promis
     return { config: cfg, changes: [] };
   }
 
+  const normalizeToken = (value: unknown): string =>
+    typeof value === "string" ? value.trim() : "";
   const tokens = Array.from(
     new Set(
       listTelegramAccountIds(cfg)
         .map((accountId) => resolveTelegramAccount({ cfg, accountId }))
-        .map((account) => (account.tokenSource === "none" ? "" : account.token))
-        .map((token) => token.trim())
+        .map((account) => (account.tokenSource === "none" ? "" : normalizeToken(account.token)))
         .filter(Boolean),
     ),
   );

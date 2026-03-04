@@ -1,3 +1,4 @@
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import {
   chunkByParagraph,
   chunkMarkdownTextWithMode,
@@ -21,6 +22,7 @@ import type { sendMessageDiscord } from "../../discord/send.js";
 import { createInternalHookEvent, triggerInternalHook } from "../../hooks/internal-hooks.js";
 import type { sendMessageIMessage } from "../../imessage/send.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
+import { syncResonixMFromEvent } from "../../memory/resonix-m.js";
 import { getGlobalHookRunner } from "../../plugins/hook-runner-global.js";
 import { markdownToSignalTextChunks, type SignalTextStyleRange } from "../../signal/format.js";
 import { sendMessageSignal } from "../../signal/send.js";
@@ -445,6 +447,8 @@ async function deliverOutboundPayloadsCore(
   });
   const hookRunner = getGlobalHookRunner();
   const sessionKeyForInternalHooks = params.mirror?.sessionKey;
+  const memoryAgentId = params.agentId ?? params.mirror?.agentId ?? resolveDefaultAgentId(cfg);
+  const memoryWorkspaceDir = resolveAgentWorkspaceDir(cfg, memoryAgentId);
   for (const payload of normalizedPayloads) {
     const payloadSummary: NormalizedOutboundPayload = {
       text: payload.text ?? "",
@@ -475,6 +479,16 @@ async function deliverOutboundPayloadsCore(
           .catch(() => {});
       }
       if (!sessionKeyForInternalHooks) {
+        void syncResonixMFromEvent({
+          workspaceDir: memoryWorkspaceDir,
+          source: `message:sent:${channel}`,
+          taskOutcome: {
+            status: params.success ? "ok" : "error",
+            summary: params.success
+              ? params.content.trim() || `Delivered outbound payload on ${channel}.`
+              : `Outbound delivery failed on ${channel}: ${params.error ?? "unknown error"}`,
+          },
+        }).catch(() => {});
         return;
       }
       void triggerInternalHook(
@@ -489,6 +503,16 @@ async function deliverOutboundPayloadsCore(
           messageId: params.messageId,
         }),
       ).catch(() => {});
+      void syncResonixMFromEvent({
+        workspaceDir: memoryWorkspaceDir,
+        source: `message:sent:${channel}`,
+        taskOutcome: {
+          status: params.success ? "ok" : "error",
+          summary: params.success
+            ? params.content.trim() || `Delivered outbound payload on ${channel}.`
+            : `Outbound delivery failed on ${channel}: ${params.error ?? "unknown error"}`,
+        },
+      }).catch(() => {});
     };
     try {
       throwIfAborted(abortSignal);

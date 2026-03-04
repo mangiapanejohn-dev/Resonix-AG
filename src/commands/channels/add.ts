@@ -36,6 +36,10 @@ function parseList(value: string | undefined): string[] | undefined {
   return parsed.length > 0 ? parsed : undefined;
 }
 
+function normalizeToken(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function resolveCatalogChannelEntry(raw: string, cfg: ResonixConfig | null) {
   const trimmed = raw.trim().toLowerCase();
   if (!trimmed) {
@@ -213,7 +217,7 @@ export async function channelsAddCommand(
 
   const previousTelegramToken =
     channel === "telegram"
-      ? resolveTelegramAccount({ cfg: nextConfig, accountId }).token.trim()
+      ? normalizeToken(resolveTelegramAccount({ cfg: nextConfig, accountId }).token)
       : "";
 
   nextConfig = applyChannelAccountConfig({
@@ -224,7 +228,9 @@ export async function channelsAddCommand(
   });
 
   if (channel === "telegram") {
-    const nextTelegramToken = resolveTelegramAccount({ cfg: nextConfig, accountId }).token.trim();
+    const nextTelegramToken = normalizeToken(
+      resolveTelegramAccount({ cfg: nextConfig, accountId }).token,
+    );
     if (previousTelegramToken !== nextTelegramToken) {
       // Clear stale polling offsets after Telegram token rotation.
       await deleteTelegramUpdateOffset({ accountId });

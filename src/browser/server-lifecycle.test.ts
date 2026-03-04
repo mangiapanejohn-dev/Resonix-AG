@@ -1,21 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { resolveProfileMock, ensureChromeExtensionRelayServerMock } = vi.hoisted(() => ({
-  resolveProfileMock: vi.fn(),
-  ensureChromeExtensionRelayServerMock: vi.fn(),
-}));
-
 const { createBrowserRouteContextMock, listKnownProfileNamesMock } = vi.hoisted(() => ({
   createBrowserRouteContextMock: vi.fn(),
   listKnownProfileNamesMock: vi.fn(),
-}));
-
-vi.mock("./config.js", () => ({
-  resolveProfile: resolveProfileMock,
-}));
-
-vi.mock("./extension-relay.js", () => ({
-  ensureChromeExtensionRelayServer: ensureChromeExtensionRelayServerMock,
 }));
 
 vi.mock("./server-context.js", () => ({
@@ -26,49 +13,15 @@ vi.mock("./server-context.js", () => ({
 import { ensureExtensionRelayForProfiles, stopKnownBrowserProfiles } from "./server-lifecycle.js";
 
 describe("ensureExtensionRelayForProfiles", () => {
-  beforeEach(() => {
-    resolveProfileMock.mockReset();
-    ensureChromeExtensionRelayServerMock.mockReset();
-  });
-
-  it("starts relay only for extension profiles", async () => {
-    resolveProfileMock.mockImplementation((_resolved: unknown, name: string) => {
-      if (name === "chrome") {
-        return { driver: "extension", cdpUrl: "http://127.0.0.1:18888" };
-      }
-      return { driver: "resonix", cdpUrl: "http://127.0.0.1:18889" };
-    });
-    ensureChromeExtensionRelayServerMock.mockResolvedValue(undefined);
-
-    await ensureExtensionRelayForProfiles({
-      resolved: {
-        profiles: {
-          chrome: {},
-          resonix: {},
-        },
-      } as never,
-      onWarn: vi.fn(),
-    });
-
-    expect(ensureChromeExtensionRelayServerMock).toHaveBeenCalledTimes(1);
-    expect(ensureChromeExtensionRelayServerMock).toHaveBeenCalledWith({
-      cdpUrl: "http://127.0.0.1:18888",
-    });
-  });
-
-  it("reports relay startup errors", async () => {
-    resolveProfileMock.mockReturnValue({ driver: "extension", cdpUrl: "http://127.0.0.1:18888" });
-    ensureChromeExtensionRelayServerMock.mockRejectedValue(new Error("boom"));
+  it("is a no-op after extension relay retirement", async () => {
     const onWarn = vi.fn();
 
     await ensureExtensionRelayForProfiles({
-      resolved: { profiles: { chrome: {} } } as never,
+      resolved: { profiles: { resonix: {} } } as never,
       onWarn,
     });
 
-    expect(onWarn).toHaveBeenCalledWith(
-      'Chrome extension relay init failed for profile "chrome": Error: boom',
-    );
+    expect(onWarn).not.toHaveBeenCalled();
   });
 });
 

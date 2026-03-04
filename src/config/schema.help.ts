@@ -104,6 +104,10 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.message.crossContext.marker.suffix":
     'Text suffix for cross-context markers (supports "{channel}").',
   "tools.message.broadcast.enabled": "Enable broadcast action (default: true).",
+  "tools.media.audio.echoTranscript":
+    "When true, sends a pre-agent transcript confirmation message for preflight audio transcriptions (default: false).",
+  "tools.media.audio.echoFormat":
+    'Template for transcript confirmation text. Use "{transcript}" as placeholder.',
   "tools.web.search.enabled": "Enable the web_search tool (requires a provider API key).",
   "tools.web.search.provider": 'Search provider ("brave" or "perplexity").',
   "tools.web.search.apiKey": "Brave Search API key (fallback: BRAVE_API_KEY env var).",
@@ -375,10 +379,18 @@ export const FIELD_HELP: Record<string, string> = {
     'When to send ack reactions ("group-mentions", "group-all", "direct", "all").',
   "messages.inbound.debounceMs":
     "Debounce window (ms) for batching rapid inbound messages from the same sender (0 to disable).",
+  "cli.banner.taglineMode":
+    'CLI banner tagline style ("quiet" hides tagline, "hint" shows stable text, "playful" rotates fun lines).',
   "channels.telegram.dmPolicy":
     'Direct message access control ("pairing" recommended). "open" requires channels.telegram.allowFrom=["*"].',
   "channels.telegram.streamMode":
     "Live stream preview mode for Telegram replies (off | partial | block). Separate from block streaming; uses sendMessage + editMessageText.",
+  "channels.telegram.streaming":
+    "Legacy alias for Telegram stream preview toggle (true => partial, false => off). Prefer channels.telegram.streamMode.",
+  "channels.telegram.groups.*.disableAudioPreflight":
+    "Skip mention-check audio preflight transcription for this Telegram group (default: false).",
+  "channels.telegram.groups.*.topics.*.disableAudioPreflight":
+    "Topic override for mention-check audio preflight transcription in Telegram forums.",
   "channels.telegram.draftChunk.minChars":
     'Minimum chars before emitting a Telegram stream preview update when channels.telegram.streamMode="block" (default: 200).',
   "channels.telegram.draftChunk.maxChars":
@@ -410,6 +422,10 @@ export const FIELD_HELP: Record<string, string> = {
     'Direct message access control ("pairing" recommended). "open" requires channels.discord.allowFrom=["*"].',
   "channels.discord.dm.policy":
     'Direct message access control ("pairing" recommended). "open" requires channels.discord.allowFrom=["*"] (legacy: channels.discord.dm.allowFrom).',
+  "channels.discord.allowBots":
+    'Bot message handling: false (drop all bot messages), true (allow all bot messages), "mentions" (allow only when this bot is explicitly mentioned).',
+  "channels.discord.disableAudioPreflight":
+    "Skip mention-check audio preflight transcription for Discord guild/group messages (default: false).",
   "channels.discord.retry.attempts":
     "Max retry attempts for outbound Discord API calls (default: 3).",
   "channels.discord.retry.minDelayMs": "Minimum retry delay in ms for Discord outbound calls.",

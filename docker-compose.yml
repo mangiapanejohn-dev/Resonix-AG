@@ -5,12 +5,21 @@ services:
       HOME: /home/node
       TERM: xterm-256color
       RESONIX_GATEWAY_TOKEN: ${RESONIX_GATEWAY_TOKEN}
-      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
-      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
-      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      RESONIX_ALLOW_INSECURE_PRIVATE_WS: ${RESONIX_ALLOW_INSECURE_PRIVATE_WS:-}
+      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
+      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
+      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
     volumes:
       - ${RESONIX_CONFIG_DIR}:/home/node/.resonix
       - ${RESONIX_WORKSPACE_DIR}:/home/node/.resonix/workspace
+      ## Uncomment the lines below to enable sandbox isolation
+      ## (agents.defaults.sandbox). Requires Docker CLI in the image
+      ## (build with --build-arg RESONIX_INSTALL_DOCKER_CLI=1) or use
+      ## docker-setup.sh with RESONIX_SANDBOX=1 for automated setup.
+      ## Set DOCKER_GID to the host's docker group GID (run: stat -c '%g' /var/run/docker.sock).
+      # - /var/run/docker.sock:/var/run/docker.sock
+    # group_add:
+    #   - "${DOCKER_GID:-999}"
     ports:
       - "${RESONIX_GATEWAY_PORT:-18789}:18789"
       - "${RESONIX_BRIDGE_PORT:-18790}:18790"
@@ -26,17 +35,36 @@ services:
         "--port",
         "18789",
       ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   resonix-cli:
     image: ${RESONIX_IMAGE:-resonix:local}
+    network_mode: "service:resonix-gateway"
+    cap_drop:
+      - NET_RAW
+      - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
     environment:
       HOME: /home/node
       TERM: xterm-256color
       RESONIX_GATEWAY_TOKEN: ${RESONIX_GATEWAY_TOKEN}
+      RESONIX_ALLOW_INSECURE_PRIVATE_WS: ${RESONIX_ALLOW_INSECURE_PRIVATE_WS:-}
       BROWSER: echo
-      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
-      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
-      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
+      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
+      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
     volumes:
       - ${RESONIX_CONFIG_DIR}:/home/node/.resonix
       - ${RESONIX_WORKSPACE_DIR}:/home/node/.resonix/workspace
@@ -44,3 +72,5 @@ services:
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
+    depends_on:
+      - resonix-gateway

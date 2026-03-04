@@ -152,6 +152,20 @@ describe("monitorTelegramProvider (grammY)", () => {
     );
   });
 
+  it("ignores invalid runtime token overrides and falls back to config token", async () => {
+    runSpy.mockClear();
+
+    await monitorTelegramProvider({
+      token: 123 as unknown as string,
+      config: {
+        agents: { defaults: { maxConcurrent: 2 } },
+        channels: { telegram: { botToken: "configured-token" } },
+      },
+    });
+
+    expect(runSpy).toHaveBeenCalledTimes(1);
+  });
+
   it("requires mention in groups by default", async () => {
     Object.values(api).forEach((fn) => {
       fn?.mockReset?.();

@@ -62,6 +62,9 @@ The hook supports optional configuration:
 | Option     | Type   | Default | Description                                                     |
 | ---------- | ------ | ------- | --------------------------------------------------------------- |
 | `messages` | number | 15      | Number of user/assistant messages to include in the memory file |
+| `llmSlug`  | boolean | `true` | Use the model provider to generate descriptive slugs            |
+| `permanentMemory` | boolean | `true` | Update `memory/permanent-memory.md` from captured user facts/preferences |
+| `permanentMemoryMaxEntriesPerKind` | number | `120` | Cap retained long-term entries for each section                 |
 
 Example configuration:
 

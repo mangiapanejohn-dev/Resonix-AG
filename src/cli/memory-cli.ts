@@ -3,13 +3,18 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { Command } from "commander";
-import { resolveDefaultAgentId } from "../agents/agent-scope.js";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import { resolveSessionTranscriptsDirForAgent } from "../config/sessions/paths.js";
 import { setVerbose } from "../globals.js";
 import { getMemorySearchManager, type MemorySearchManagerResult } from "../memory/index.js";
 import { listMemoryFiles, normalizeExtraMemoryPaths } from "../memory/internal.js";
+import {
+  loadPermanentMemoryProfile,
+  resolvePermanentMemoryPaths,
+  summarizePermanentMemoryProfile,
+} from "../memory/permanent-profile.js";
 import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
@@ -42,6 +47,16 @@ type MemorySourceScan = {
   sources: SourceScan[];
   totalFiles: number | null;
   issues: string[];
+};
+
+type PermanentMemoryProfileResult = {
+  agentId: string;
+  workspaceDir: string;
+  jsonPath: string;
+  markdownPath: string;
+  exists: boolean;
+  updatedAtMs?: number;
+  summary?: ReturnType<typeof summarizePermanentMemoryProfile>;
 };
 
 function formatSourceLabel(source: string, workspaceDir: string, agentId: string): string {
@@ -268,6 +283,129 @@ async function summarizeQmdIndexArtifact(manager: MemoryManager): Promise<string
     throw new Error(`QMD index file is empty: ${shortenHomePath(dbPath)}`);
   }
   return `QMD index: ${shortenHomePath(dbPath)} (${stat.size} bytes)`;
+}
+
+function parseTopLimit(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(1, Math.min(50, Math.floor(value)));
+  }
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed)) {
+      return Math.max(1, Math.min(50, parsed));
+    }
+  }
+  return 8;
+}
+
+async function collectPermanentMemoryProfile(params: {
+  cfg: ReturnType<typeof loadConfig>;
+  agentId: string;
+}): Promise<PermanentMemoryProfileResult> {
+  const workspaceDir = resolveAgentWorkspaceDir(params.cfg, params.agentId);
+  const paths = resolvePermanentMemoryPaths(workspaceDir);
+  const profile = await loadPermanentMemoryProfile(paths.jsonPath);
+  if (!profile) {
+    return {
+      agentId: params.agentId,
+      workspaceDir,
+      jsonPath: paths.jsonPath,
+      markdownPath: paths.markdownPath,
+      exists: false,
+    };
+  }
+  return {
+    agentId: params.agentId,
+    workspaceDir,
+    jsonPath: paths.jsonPath,
+    markdownPath: paths.markdownPath,
+    exists: true,
+    updatedAtMs: profile.updatedAtMs,
+    summary: summarizePermanentMemoryProfile(profile),
+  };
+}
+
+export async function runMemoryProfile(opts: {
+  agent?: string;
+  json?: boolean;
+  top?: string | number;
+}) {
+  const cfg = loadConfig();
+  const agentIds = resolveAgentIds(cfg, opts.agent);
+  const top = parseTopLimit(opts.top);
+  const results: PermanentMemoryProfileResult[] = [];
+  for (const agentId of agentIds) {
+    results.push(
+      await collectPermanentMemoryProfile({
+        cfg,
+        agentId,
+      }),
+    );
+  }
+
+  if (opts.json) {
+    const payload = results.map((result) => ({
+      ...result,
+      summary: result.summary
+        ? {
+            total: result.summary.total,
+            byKind: result.summary.byKind,
+            top: result.summary.top.slice(0, top),
+          }
+        : undefined,
+    }));
+    defaultRuntime.log(JSON.stringify(payload, null, 2));
+    return;
+  }
+
+  const rich = isRich();
+  const heading = (text: string) => colorize(rich, theme.heading, text);
+  const muted = (text: string) => colorize(rich, theme.muted, text);
+  const info = (text: string) => colorize(rich, theme.info, text);
+  const success = (text: string) => colorize(rich, theme.success, text);
+  const accent = (text: string) => colorize(rich, theme.accent, text);
+  const label = (text: string) => muted(`${text}:`);
+
+  for (const result of results) {
+    const lines = [
+      `${heading("Permanent Memory")} ${muted(`(${result.agentId})`)}`,
+      `${label("Workspace")} ${info(shortenHomePath(result.workspaceDir))}`,
+      `${label("JSON")} ${info(shortenHomePath(result.jsonPath))}`,
+      `${label("Markdown")} ${info(shortenHomePath(result.markdownPath))}`,
+    ];
+    if (!result.exists || !result.summary) {
+      lines.push(
+        `${label("Status")} ${muted("empty (run /new with session-memory hook enabled to capture profile)")}`,
+      );
+      defaultRuntime.log(lines.join("\n"));
+      defaultRuntime.log("");
+      continue;
+    }
+
+    const { summary } = result;
+    lines.push(
+      `${label("Updated")} ${info(new Date(result.updatedAtMs ?? Date.now()).toISOString())}`,
+    );
+    lines.push(`${label("Entries")} ${success(String(summary.total))}`);
+    lines.push(
+      `${label("By kind")} ${accent(
+        `preference=${summary.byKind.preference}, fact=${summary.byKind.fact}, project=${summary.byKind.project}, task=${summary.byKind.task}, person=${summary.byKind.person}`,
+      )}`,
+    );
+    if (summary.top.length > 0) {
+      lines.push(label("Top signals"));
+      for (const entry of summary.top.slice(0, top)) {
+        lines.push(
+          `  ${accent(`[${entry.kind}]`)} ${entry.text} ${muted(
+            `(${Math.round(entry.confidence * 100)}%, x${entry.mentions})`,
+          )}`,
+        );
+      }
+    }
+
+    defaultRuntime.log(lines.join("\n"));
+    defaultRuntime.log("");
+  }
 }
 
 async function scanMemorySources(params: {
@@ -545,6 +683,7 @@ export function registerMemoryCli(program: Command) {
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
           ["resonix memory status", "Show index and provider status."],
           ["resonix memory index --force", "Force a full reindex."],
+          ["resonix memory profile", "Show permanent memory profile summary."],
           ['resonix memory search --query "deployment notes"', "Search indexed memory entries."],
           ["resonix memory status --json", "Output machine-readable JSON."],
         ])}\n\n${theme.muted("Docs:")} ${formatDocsLink("/cli/memory", "docs.resonix.ai/cli/memory")}\n`,
@@ -698,6 +837,22 @@ export function registerMemoryCli(program: Command) {
         });
       }
     });
+
+  memory
+    .command("profile")
+    .description("Show permanent memory profile")
+    .option("--agent <id>", "Agent id (default: default agent)")
+    .option("--top <n>", "Top memory signals to print (1-50)", "8")
+    .option("--json", "Print JSON")
+    .action(
+      async (
+        opts: MemoryCommandOptions & {
+          top?: string;
+        },
+      ) => {
+        await runMemoryProfile(opts);
+      },
+    );
 
   memory
     .command("search")

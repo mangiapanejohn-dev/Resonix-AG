@@ -2,6 +2,16 @@ import type { MarkdownTableMode } from "../config/types.base.js";
 import { chunkMarkdownIR, markdownToIR, type MarkdownLinkSpan } from "../markdown/ir.js";
 import { renderMarkdownWithMarkers } from "../markdown/render.js";
 
+function normalizeMarkdownInput(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+    return String(value);
+  }
+  return "";
+}
+
 // Escape special characters for Slack mrkdwn format.
 // Preserve Slack's angle-bracket tokens so mentions and links stay intact.
 function escapeSlackMrkdwnSegment(text: string): string {
@@ -112,7 +122,8 @@ export function markdownToSlackMrkdwn(
   markdown: string,
   options: SlackMarkdownOptions = {},
 ): string {
-  const ir = markdownToIR(markdown ?? "", {
+  const input = normalizeMarkdownInput(markdown);
+  const ir = markdownToIR(input, {
     linkify: false,
     autolink: false,
     headingStyle: "bold",
@@ -127,7 +138,8 @@ export function markdownToSlackMrkdwnChunks(
   limit: number,
   options: SlackMarkdownOptions = {},
 ): string[] {
-  const ir = markdownToIR(markdown ?? "", {
+  const input = normalizeMarkdownInput(markdown);
+  const ir = markdownToIR(input, {
     linkify: false,
     autolink: false,
     headingStyle: "bold",

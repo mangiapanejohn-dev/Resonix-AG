@@ -57,3 +57,31 @@ jobs:
           RESONIXDBOT_INSTALL_SMOKE_SKIP_NONROOT: ${{ github.event_name == 'pull_request' && '1' || '0' }}
           RESONIXDBOT_INSTALL_SMOKE_SKIP_PREVIOUS: "1"
         run: pnpm test:install:smoke
+
+  local-installer-matrix:
+    needs: [docs-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.x
+          check-latest: true
+
+      - name: Run local installer smoke (macOS/Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash scripts/ci/installers-local-smoke.sh
+
+      - name: Run local installer smoke (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/installers-local-smoke.ps1

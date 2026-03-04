@@ -202,23 +202,34 @@ export async function finalizeOnboardingWizard(
       customBindHost: nextConfig.gateway?.customBindHost,
       basePath: undefined,
     });
-    // Daemon install/restart can briefly flap the WS; wait a bit so health check doesn't false-fail.
-    await waitForGatewayReachable({
+    const warmupProbe = await waitForGatewayReachable({
       url: probeLinks.wsUrl,
       token: settings.gatewayToken,
-      deadlineMs: 15_000,
+      deadlineMs: 1_500,
+      pollMs: 200,
+      probeTimeoutMs: 500,
     });
-    try {
-      await healthCommand({ json: false, timeoutMs: 10_000 }, runtime);
-    } catch (err) {
-      runtime.error(formatHealthCheckFailure(err));
+    if (warmupProbe.ok) {
+      try {
+        await healthCommand({ json: false, timeoutMs: 2_500 }, runtime);
+      } catch (err) {
+        runtime.error(formatHealthCheckFailure(err));
+        await prompter.note(
+          [
+            "Docs:",
+            "https://docs.resonix.ai/gateway/health",
+            "https://docs.resonix.ai/gateway/troubleshooting",
+          ].join("\n"),
+          "Health check help",
+        );
+      }
+    } else {
       await prompter.note(
         [
-          "Docs:",
-          "https://docs.resonix.ai/gateway/health",
-          "https://docs.resonix.ai/gateway/troubleshooting",
+          "Gateway is still warming up. Continuing onboarding now.",
+          `Run ${formatCliCommand("resonix health")} after a few seconds if you want to re-check manually.`,
         ].join("\n"),
-        "Health check help",
+        "Gateway warm-up",
       );
     }
   }

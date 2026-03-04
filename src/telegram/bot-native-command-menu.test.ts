@@ -60,6 +60,16 @@ describe("bot-native-command-menu", () => {
     expect(result.issues).toEqual([]);
   });
 
+  it("treats missing plugin command descriptions as invalid instead of throwing", () => {
+    const result = buildPluginTelegramMenuCommands({
+      specs: [{ name: "plugin", description: undefined }],
+      existingCommands: new Set<string>(),
+    });
+
+    expect(result.commands).toEqual([]);
+    expect(result.issues).toContain('Plugin command "/plugin" is missing a description.');
+  });
+
   it("deletes stale commands before setting new menu", async () => {
     const callOrder: string[] = [];
     const deleteMyCommands = vi.fn(async () => {

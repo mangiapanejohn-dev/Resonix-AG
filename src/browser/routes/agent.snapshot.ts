@@ -122,11 +122,7 @@ export function registerBrowserAgentSnapshotRoutes(
       targetId,
       run: async ({ profileCtx, tab, cdpUrl }) => {
         let buffer: Buffer;
-        const shouldUsePlaywright =
-          profileCtx.profile.driver === "extension" ||
-          !tab.wsUrl ||
-          Boolean(ref) ||
-          Boolean(element);
+        const shouldUsePlaywright = !tab.wsUrl || Boolean(ref) || Boolean(element);
         if (shouldUsePlaywright) {
           const pw = await requirePwAi(res, "screenshot");
           if (!pw) {
@@ -297,23 +293,21 @@ export function registerBrowserAgentSnapshotRoutes(
         });
       }
 
-      const snap =
-        profileCtx.profile.driver === "extension" || !tab.wsUrl
-          ? (() => {
-              // Extension relay doesn't expose per-page WS URLs; run AX snapshot via Playwright CDP session.
-              // Also covers cases where wsUrl is missing/unusable.
-              return requirePwAi(res, "aria snapshot").then(async (pw) => {
-                if (!pw) {
-                  return null;
-                }
-                return await pw.snapshotAriaViaPlaywright({
-                  cdpUrl: profileCtx.profile.cdpUrl,
-                  targetId: tab.targetId,
-                  limit,
-                });
+      const snap = !tab.wsUrl
+        ? (() => {
+            // Missing per-target WS URL; run AX snapshot via Playwright CDP session.
+            return requirePwAi(res, "aria snapshot").then(async (pw) => {
+              if (!pw) {
+                return null;
+              }
+              return await pw.snapshotAriaViaPlaywright({
+                cdpUrl: profileCtx.profile.cdpUrl,
+                targetId: tab.targetId,
+                limit,
               });
-            })()
-          : snapshotAria({ wsUrl: tab.wsUrl ?? "", limit });
+            });
+          })()
+        : snapshotAria({ wsUrl: tab.wsUrl ?? "", limit });
 
       const resolved = await Promise.resolve(snap);
       if (!resolved) {

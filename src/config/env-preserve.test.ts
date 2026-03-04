@@ -135,6 +135,20 @@ describe("restoreEnvVarRefs", () => {
     expect(result).toEqual({ key: "${MY_VAR}" });
   });
 
+  it("restores secretref values when they still resolve to the incoming value", () => {
+    const incoming = { apiKey: "sk-openai-real-key" };
+    const parsed = { apiKey: "secretref:OPENAI_API_KEY" };
+    const result = restoreEnvVarRefs(incoming, parsed, env);
+    expect(result).toEqual({ apiKey: "secretref:OPENAI_API_KEY" });
+  });
+
+  it("keeps caller value when secretref no longer matches", () => {
+    const incoming = { apiKey: "sk-openai-new-key" };
+    const parsed = { apiKey: "secretref://OPENAI_API_KEY" };
+    const result = restoreEnvVarRefs(incoming, parsed, env);
+    expect(result).toEqual({ apiKey: "sk-openai-new-key" });
+  });
+
   it("does not restore when env snapshot differs from live env (TOCTOU fix)", () => {
     // With env snapshots: at read time MY_VAR was "old-value", so incoming is "old-value".
     // Caller changed it to "new-value". Live env also changed to "new-value".

@@ -138,8 +138,13 @@ export type DiscordAccountConfig = {
   token?: string;
   /** HTTP(S) proxy URL for Discord gateway WebSocket connections. */
   proxy?: string;
-  /** Allow bot-authored messages to trigger replies (default: false). */
-  allowBots?: boolean;
+  /**
+   * Bot message handling mode:
+   * - false (default): ignore bot-authored messages
+   * - true: allow all bot-authored messages
+   * - "mentions": allow bot-authored messages only when this bot is explicitly mentioned
+   */
+  allowBots?: boolean | "mentions";
   /**
    * Controls how guild channel messages are handled:
    * - "open": guild channels bypass allowlists; mention-gating applies
@@ -147,6 +152,8 @@ export type DiscordAccountConfig = {
    * - "allowlist": only allow channels present in discord.guilds.*.channels
    */
   groupPolicy?: GroupPolicy;
+  /** Skip audio preflight transcription used for mention checks in guild/group routes. */
+  disableAudioPreflight?: boolean;
   /** Outbound text chunk size (chars). Default: 2000. */
   textChunkLimit?: number;
   /** Chunking mode: "length" (default) splits by size; "newline" splits on every newline. */

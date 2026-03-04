@@ -1,3 +1,4 @@
+import { buildCronBoardRows, deriveCronBoardInsights, summarizeCronBoard } from "../../cron/board.js";
 import { normalizeCronJobCreate, normalizeCronJobPatch } from "../../cron/normalize.js";
 import { readCronRunLogEntries, resolveCronRunLogPath } from "../../cron/run-log.js";
 import type { CronJobCreate, CronJobPatch } from "../../cron/types.js";
@@ -7,6 +8,7 @@ import {
   errorShape,
   formatValidationErrors,
   validateCronAddParams,
+  validateCronBoardParams,
   validateCronListParams,
   validateCronRemoveParams,
   validateCronRunParams,
@@ -69,6 +71,69 @@ export const cronHandlers: GatewayRequestHandlers = {
     }
     const status = await context.cron.status();
     respond(true, status, undefined);
+  },
+  "cron.board": async ({ params, respond, context }) => {
+    if (!validateCronBoardParams(params)) {
+      respond(
+        false,
+        undefined,
+        errorShape(
+          ErrorCodes.INVALID_REQUEST,
+          `invalid cron.board params: ${formatValidationErrors(validateCronBoardParams.errors)}`,
+        ),
+      );
+      return;
+    }
+    const p = params as {
+      includeDisabled?: boolean;
+      runLimit?: number;
+      windowHours?: number;
+    };
+    const jobs = await context.cron.list({
+      includeDisabled: p.includeDisabled,
+    });
+    const runLimit = Number.isFinite(p.runLimit) ? Math.floor(p.runLimit as number) : 200;
+    const normalizedRunLimit = Math.max(1, Math.min(5000, runLimit));
+    const runsByJobId = Object.fromEntries(
+      await Promise.all(
+        jobs.map(async (job) => {
+          const logPath = resolveCronRunLogPath({
+            storePath: context.cronStorePath,
+            jobId: job.id,
+          });
+          const entries = await readCronRunLogEntries(logPath, {
+            limit: normalizedRunLimit,
+            jobId: job.id,
+          });
+          return [job.id, entries] as const;
+        }),
+      ),
+    );
+    const rows = buildCronBoardRows({
+      jobs,
+      runsByJobId,
+      windowHours: p.windowHours,
+    });
+    const summary = summarizeCronBoard({
+      rows,
+    });
+    const insights = deriveCronBoardInsights({
+      rows,
+      summary,
+      windowHours: p.windowHours,
+    });
+    respond(
+      true,
+      {
+        generatedAtMs: Date.now(),
+        windowHours: p.windowHours ?? 24 * 7,
+        runLimit: normalizedRunLimit,
+        summary,
+        insights,
+        rows,
+      },
+      undefined,
+    );
   },
   "cron.add": async ({ params, respond, context }) => {
     const normalized = normalizeCronJobCreate(params) ?? params;

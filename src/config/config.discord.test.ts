@@ -96,4 +96,16 @@ describe("config discord", () => {
       ).toBe(true);
     }
   });
+
+  it('accepts channels.discord.allowBots="mentions"', () => {
+    const res = validateConfigObject({
+      channels: {
+        discord: {
+          allowBots: "mentions",
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
 });

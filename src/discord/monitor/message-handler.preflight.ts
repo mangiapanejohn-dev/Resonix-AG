@@ -19,6 +19,7 @@ import { recordChannelActivity } from "../../infra/channel-activity.js";
 import { enqueueSystemEvent } from "../../infra/system-events.js";
 import { logDebug } from "../../logger.js";
 import { getChildLogger } from "../../logging.js";
+import { formatAudioTranscriptEcho } from "../../media-understanding/format.js";
 import { buildPairingReply } from "../../pairing/pairing-messages.js";
 import {
   readChannelAllowFromStore,
@@ -62,6 +63,23 @@ export type {
   DiscordMessagePreflightParams,
 } from "./message-handler.preflight.types.js";
 
+export function shouldProcessDiscordBotMessage(params: {
+  allowBots: boolean | "mentions";
+  senderIsPluralKit: boolean;
+  explicitlyMentioned: boolean;
+}): boolean {
+  if (params.senderIsPluralKit) {
+    return true;
+  }
+  if (params.allowBots === true) {
+    return true;
+  }
+  if (params.allowBots === "mentions") {
+    return params.explicitlyMentioned;
+  }
+  return false;
+}
+
 export async function preflightDiscordMessage(
   params: DiscordMessagePreflightParams,
 ): Promise<DiscordMessagePreflightContext | null> {
@@ -81,6 +99,9 @@ export async function preflightDiscordMessage(
   }
 
   const allowBots = params.discordConfig?.allowBots ?? false;
+  const explicitlyMentionedBot = Boolean(
+    params.botUserId && message.mentionedUsers?.some((user: User) => user.id === params.botUserId),
+  );
   if (params.botUserId && author.id === params.botUserId) {
     // Always ignore own messages to prevent self-reply loops
     return null;
@@ -107,8 +128,15 @@ export async function preflightDiscordMessage(
   });
 
   if (author.bot) {
-    if (!allowBots && !sender.isPluralKit) {
-      logVerbose("discord: drop bot message (allowBots=false)");
+    if (
+      !shouldProcessDiscordBotMessage({
+        allowBots,
+        senderIsPluralKit: sender.isPluralKit,
+        explicitlyMentioned: explicitlyMentionedBot,
+      })
+    ) {
+      const allowBotsMode = allowBots === "mentions" ? "mentions" : allowBots ? "true" : "false";
+      logVerbose(`discord: drop bot message (allowBots=${allowBotsMode})`);
       return null;
     }
   }
@@ -254,9 +282,7 @@ export async function preflightDiscordMessage(
     parentPeer: earlyThreadParentId ? { kind: "channel", id: earlyThreadParentId } : undefined,
   });
   const mentionRegexes = buildMentionRegexes(params.cfg, route.agentId);
-  const explicitlyMentioned = Boolean(
-    botId && message.mentionedUsers?.some((user: User) => user.id === botId),
-  );
+  const explicitlyMentioned = explicitlyMentionedBot;
   const hasAnyMention = Boolean(
     !isDirectMessage &&
     (message.mentionedEveryone ||
@@ -423,12 +449,14 @@ export async function preflightDiscordMessage(
   const hasAudioAttachment = message.attachments?.some((att: { contentType?: string }) =>
     att.contentType?.startsWith("audio/"),
   );
+  const disableAudioPreflight = params.discordConfig?.disableAudioPreflight === true;
   const needsPreflightTranscription =
     !isDirectMessage &&
     shouldRequireMention &&
     hasAudioAttachment &&
     !baseText &&
-    mentionRegexes.length > 0;
+    mentionRegexes.length > 0 &&
+    !disableAudioPreflight;
 
   if (needsPreflightTranscription) {
     try {
@@ -596,6 +624,24 @@ export async function preflightDiscordMessage(
     logDebug(`[discord-preflight] drop: empty content`);
     logVerbose(`discord: drop message ${message.id} (empty content)`);
     return null;
+  }
+
+  if (preflightTranscript && params.cfg.tools?.media?.audio?.echoTranscript === true) {
+    const echoText = formatAudioTranscriptEcho({
+      transcript: preflightTranscript,
+      format: params.cfg.tools?.media?.audio?.echoFormat,
+    });
+    if (echoText) {
+      try {
+        await sendMessageDiscord(`channel:${messageChannelId}`, echoText, {
+          token: params.token,
+          rest: params.client.rest,
+          accountId: params.accountId,
+        });
+      } catch (err) {
+        logVerbose(`discord: audio transcript echo failed: ${String(err)}`);
+      }
+    }
   }
 
   logDebug(`[discord-preflight] success: route=${route.agentId} sessionKey=${route.sessionKey}`);

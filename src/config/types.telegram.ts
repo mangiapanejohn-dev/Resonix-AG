@@ -99,6 +99,8 @@ export type TelegramAccountConfig = {
   draftChunk?: BlockStreamingChunkConfig;
   /** Merge streamed block replies before sending. */
   blockStreamingCoalesce?: BlockStreamingCoalesceConfig;
+  /** Legacy alias for streamMode (true => partial, false => off). */
+  streaming?: boolean;
   /** Telegram stream preview mode (off|partial|block). Default: partial. */
   streamMode?: "off" | "partial" | "block";
   mediaMaxMb?: number;
@@ -152,6 +154,8 @@ export type TelegramAccountConfig = {
 
 export type TelegramTopicConfig = {
   requireMention?: boolean;
+  /** Skip audio preflight transcription used for mention checks in this topic. */
+  disableAudioPreflight?: boolean;
   /** Per-topic override for group message policy (open|disabled|allowlist). */
   groupPolicy?: GroupPolicy;
   /** If specified, only load these skills for this topic. Omit = all skills; empty = no skills. */
@@ -166,6 +170,8 @@ export type TelegramTopicConfig = {
 
 export type TelegramGroupConfig = {
   requireMention?: boolean;
+  /** Skip audio preflight transcription used for mention checks in this group. */
+  disableAudioPreflight?: boolean;
   /** Per-group override for group message policy (open|disabled|allowlist). */
   groupPolicy?: GroupPolicy;
   /** Optional tool policy overrides for this group. */

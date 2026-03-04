@@ -53,6 +53,21 @@ function setSnapshot(resolved: ResonixConfig, config: ResonixConfig) {
   mockReadConfigFileSnapshot.mockResolvedValueOnce(buildSnapshot({ resolved, config }));
 }
 
+function setInvalidSnapshot(issues: Array<{ path: string; message: string }>) {
+  mockReadConfigFileSnapshot.mockResolvedValueOnce({
+    path: "/tmp/resonix.json",
+    exists: true,
+    raw: "{}",
+    parsed: {},
+    resolved: {},
+    valid: false,
+    config: {},
+    issues,
+    warnings: [],
+    legacyIssues: [],
+  } as ConfigFileSnapshot);
+}
+
 async function runConfigCommand(args: string[]) {
   const { registerConfigCli } = await import("./config-cli.js");
   const program = new Command();
@@ -212,6 +227,26 @@ describe("config cli", () => {
       expect(written.gateway).toEqual(resolved.gateway);
       expect(written.tools?.profile).toBe("coding");
       expect(written.logging).toEqual(resolved.logging);
+    });
+  });
+
+  describe("config validate hints", () => {
+    it("prints actionable fix hints for common validation failures", async () => {
+      setInvalidSnapshot([
+        { path: "routing.allowFrom", message: "legacy" },
+        {
+          path: "",
+          message: 'Missing env var "OPENAI_API_KEY" referenced at config path: models.providers.openai.apiKey',
+        },
+      ]);
+
+      await expect(runConfigCommand(["config", "validate"])).rejects.toThrow("__exit__:1");
+
+      const printed = mockError.mock.calls.map((call) => call.join(" ")).join("\n");
+      expect(printed).toContain("Suggested fixes:");
+      expect(printed).toContain("resonix doctor --fix");
+      expect(printed).toContain("export OPENAI_API_KEY");
+      expect(printed).toContain("models.providers.openai.apiKey");
     });
   });
 });

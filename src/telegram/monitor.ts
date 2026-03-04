@@ -88,6 +88,10 @@ const isGrammyHttpError = (err: unknown): boolean => {
   return (err as { name?: string }).name === "HttpError";
 };
 
+function normalizeRuntimeToken(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
   const log = opts.runtime?.error ?? console.error;
 
@@ -109,7 +113,7 @@ export async function monitorTelegramProvider(opts: MonitorTelegramOpts = {}) {
       cfg,
       accountId: opts.accountId,
     });
-    const token = opts.token?.trim() || account.token;
+    const token = normalizeRuntimeToken(opts.token) || normalizeRuntimeToken(account.token);
     if (!token) {
       throw new Error(
         `Telegram bot token missing for account "${account.accountId}" (set channels.telegram.accounts.${account.accountId}.botToken/tokenFile or TELEGRAM_BOT_TOKEN for default).`,

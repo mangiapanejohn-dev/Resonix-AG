@@ -477,7 +477,7 @@ describe("gateway server cron", () => {
       JSON.stringify(
         {
           cron: {
-            webhook: "https://legacy.example.invalid/cron-finished",
+            webhook: "https://example.com/legacy-cron-finished",
             webhookToken: "cron-webhook-token",
           },
         },
@@ -512,7 +512,7 @@ describe("gateway server cron", () => {
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "send webhook" },
-        delivery: { mode: "webhook", to: "https://example.invalid/cron-finished" },
+        delivery: { mode: "webhook", to: "https://example.com/cron-finished" },
       });
       expect(notifyRes.ok).toBe(true);
       const notifyJobIdValue = (notifyRes.payload as { id?: unknown } | null)?.id;
@@ -531,7 +531,7 @@ describe("gateway server cron", () => {
           body?: string;
         },
       ];
-      expect(notifyUrl).toBe("https://example.invalid/cron-finished");
+      expect(notifyUrl).toBe("https://example.com/cron-finished");
       expect(notifyInit.method).toBe("POST");
       expect(notifyInit.headers?.Authorization).toBe("Bearer cron-webhook-token");
       expect(notifyInit.headers?.["Content-Type"]).toBe("application/json");
@@ -555,7 +555,7 @@ describe("gateway server cron", () => {
           body?: string;
         },
       ];
-      expect(legacyUrl).toBe("https://legacy.example.invalid/cron-finished");
+      expect(legacyUrl).toBe("https://example.com/legacy-cron-finished");
       expect(legacyInit.method).toBe("POST");
       expect(legacyInit.headers?.Authorization).toBe("Bearer cron-webhook-token");
       const legacyBody = JSON.parse(legacyInit.body ?? "{}");
@@ -589,7 +589,7 @@ describe("gateway server cron", () => {
         sessionTarget: "isolated",
         wakeMode: "next-heartbeat",
         payload: { kind: "agentTurn", message: "test" },
-        delivery: { mode: "webhook", to: "https://example.invalid/cron-finished" },
+        delivery: { mode: "webhook", to: "https://example.com/cron-finished" },
       });
       expect(noSummaryRes.ok).toBe(true);
       const noSummaryJobIdValue = (noSummaryRes.payload as { id?: unknown } | null)?.id;

@@ -2,6 +2,7 @@ import { resolveChannelDefaultAccountId } from "../channels/plugins/helpers.js";
 import { type ChannelId, getChannelPlugin, listChannelPlugins } from "../channels/plugins/index.js";
 import type { ChannelAccountSnapshot } from "../channels/plugins/types.js";
 import type { ResonixConfig } from "../config/config.js";
+import { getGateway } from "../discord/monitor/gateway-registry.js";
 import { type BackoffPolicy, computeBackoff, sleepWithAbort } from "../infra/backoff.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resetDirectoryCache } from "../infra/outbound/target-resolver.js";
@@ -49,6 +50,18 @@ function isAccountEnabled(account: unknown): boolean {
 function resolveDefaultRuntime(channelId: ChannelId): ChannelAccountSnapshot {
   const plugin = getChannelPlugin(channelId);
   return plugin?.status?.defaultRuntime ?? { accountId: DEFAULT_ACCOUNT_ID };
+}
+
+function resolveDiscordConnectedSnapshot(
+  accountId: string,
+  current?: ChannelAccountSnapshot,
+): boolean | undefined {
+  const gateway = getGateway(accountId);
+  if (!gateway) {
+    return current?.connected;
+  }
+  const connected = (gateway as { isConnected?: unknown }).isConnected;
+  return typeof connected === "boolean" ? connected : current?.connected;
 }
 
 function cloneDefaultRuntime(channelId: ChannelId, accountId: string): ChannelAccountSnapshot {
@@ -375,6 +388,12 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
         const configured = described?.configured;
         const current = store.runtimes.get(id) ?? cloneDefaultRuntime(plugin.id, id);
         const next = { ...current, accountId: id };
+        if (plugin.id === "discord") {
+          const connected = resolveDiscordConnectedSnapshot(id, current);
+          if (typeof connected === "boolean") {
+            next.connected = connected;
+          }
+        }
         next.enabled = enabled;
         next.configured = typeof configured === "boolean" ? configured : (next.configured ?? true);
         if (!next.running) {

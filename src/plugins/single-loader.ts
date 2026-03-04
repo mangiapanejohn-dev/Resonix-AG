@@ -52,13 +52,10 @@ function resolvePluginEntry(projectRoot: string, rootDir: string): string | null
   return null;
 }
 
-function resolvePluginSdkAliasFile(
-  projectRoot: string,
-  params: {
-    srcFile: string;
-    distFile: string;
-  },
-): string | null {
+function resolvePluginSdkAliasFile(projectRoot: string, params: {
+  srcFile: string;
+  distFile: string;
+}): string | null {
   const srcCandidate = path.join(projectRoot, "src", "plugin-sdk", params.srcFile);
   const distCandidate = path.join(projectRoot, "dist", "plugin-sdk", params.distFile);
   const isProduction = process.env.NODE_ENV === "production";
@@ -148,16 +145,10 @@ export async function loadSinglePlugin(params: {
   }
 
   // Get default export
-  const pluginModule =
-    mod && typeof mod === "object" && "default" in mod
-      ? (mod as { default: unknown }).default
-      : mod;
+  const pluginModule = mod && typeof mod === "object" && "default" in mod ? (mod as { default: unknown }).default : mod;
 
   // Call register function
-  const register =
-    typeof pluginModule === "function"
-      ? pluginModule
-      : (pluginModule as { register?: unknown })?.register;
+  const register = typeof pluginModule === "function" ? pluginModule : (pluginModule as { register?: unknown })?.register;
   if (typeof register !== "function") {
     return null;
   }
@@ -165,7 +156,7 @@ export async function loadSinglePlugin(params: {
   // Create mock API for provider registration
   const runtime = createPluginRuntime();
   const { registry, createApi } = createPluginRegistry({
-    logger: { debug: () => {}, info: () => {}, warn: () => {}, error: () => {} },
+    logger: () => ({ debug: () => {}, info: () => {}, warn: () => {}, error: () => {} }),
     runtime,
   });
 
@@ -204,7 +195,7 @@ export async function loadSinglePlugin(params: {
   }
 
   // Return the provider
-  const providerEntry = registry.providers.find((p) => p.provider.id === providerId);
+  const providerEntry = registry.providers.find((entry) => entry.provider.id === providerId);
   const provider = providerEntry?.provider ?? null;
   if (provider) {
     singleProviderCache.set(params.pluginId, provider);

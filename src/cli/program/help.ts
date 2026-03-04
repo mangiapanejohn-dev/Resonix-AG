@@ -41,8 +41,8 @@ const EXAMPLES = [
 
 function formatDateVersionWithGreeting(now = new Date()): string {
   const year = String(now.getFullYear());
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1);
+  const day = String(now.getDate());
   return `${year}.${month}.${day} Heyy! Have Good Time ! - MarkEllington`;
 }
 
@@ -128,7 +128,7 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     if (command !== program) {
       return "";
     }
-    const docs = formatDocsLink("/cli", "docs.resonix.ai/cli");
+    const docs = formatDocsLink("/cli", "resonix.milcorx.com");
     return `\n${theme.heading("Examples:")}\n${fmtExamples}\n\n${theme.muted("Docs:")} ${docs}\n`;
   });
 }

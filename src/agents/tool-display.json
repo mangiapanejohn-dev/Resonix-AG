@@ -60,6 +60,11 @@
       "title": "Attach",
       "detailKeys": ["path", "url", "fileName"]
     },
+    "pdf_extract": {
+      "emoji": "📄",
+      "title": "PDF Extract",
+      "detailKeys": ["source", "filename", "textChars"]
+    },
     "browser": {
       "emoji": "🌐",
       "title": "Browser",

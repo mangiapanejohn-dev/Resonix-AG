@@ -75,6 +75,7 @@ const BASE_METHODS = [
   "node.invoke.result",
   "node.event",
   "cron.list",
+  "cron.board",
   "cron.status",
   "cron.add",
   "cron.update",

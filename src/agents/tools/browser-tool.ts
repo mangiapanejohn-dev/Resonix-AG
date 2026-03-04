@@ -230,10 +230,9 @@ export function createBrowserTool(opts?: {
     name: "browser",
     description: [
       "Control the browser via Resonix's browser control server (status/start/stop/profiles/tabs/open/snapshot/screenshot/actions).",
-      'Profiles: use profile="chrome" for Chrome extension relay takeover (your existing Chrome tabs). Use profile="resonix" for the isolated resonix-managed browser.',
-      'If the user mentions the Chrome extension / Browser Relay / toolbar button / “attach tab”, ALWAYS use profile="chrome" (do not ask which profile).',
+      'Use profile="resonix" unless the user explicitly asks for another configured profile.',
+      "Browser operations should run in Resonix's dedicated built-in browser runtime (purple profile theme).",
       'When a node-hosted browser proxy is available, the tool may auto-route to it. Pin a node with node=<id|name> or target="node".',
-      "Chrome extension relay needs an attached tab: user must click the Resonix Browser Relay toolbar icon on the tab (badge ON). If no tab is connected, ask them to attach it.",
       "When using refs from snapshot (e.g. e12), keep the same tab: prefer passing targetId from the snapshot response into subsequent actions (act/click/type/etc).",
       'For stable, self-resolving refs across calls, use snapshot with refs="aria" (Playwright aria-ref ids). Default refs="role" are role+name-based.',
       "Use snapshot+act for UI automation. Avoid act:wait by default; use only in exceptional cases when no reliable UI state exists.",
@@ -250,11 +249,6 @@ export function createBrowserTool(opts?: {
 
       if (requestedNode && target && target !== "node") {
         throw new Error('node is only supported with target="node".');
-      }
-
-      if (!target && !requestedNode && profile === "chrome") {
-        // Chrome extension relay takeover is a host Chrome feature; prefer host unless explicitly targeting a node.
-        target = "host";
       }
 
       const nodeTarget = await resolveBrowserNodeTarget({
@@ -796,7 +790,7 @@ export function createBrowserTool(opts?: {
             return jsonResult(result);
           } catch (err) {
             const msg = String(err);
-            if (msg.includes("404:") && msg.includes("tab not found") && profile === "chrome") {
+            if (msg.includes("404:") && msg.includes("tab not found")) {
               const tabs = proxyRequest
                 ? ((
                     (await proxyRequest({
@@ -808,12 +802,12 @@ export function createBrowserTool(opts?: {
                 : await browserTabs(baseUrl, { profile }).catch(() => []);
               if (!tabs.length) {
                 throw new Error(
-                  "No Chrome tabs are attached via the Resonix Browser Relay extension. Click the toolbar icon on the tab you want to control (badge ON), then retry.",
+                  "No controllable browser tabs are available yet. Start the built-in browser and open a tab, then retry.",
                   { cause: err },
                 );
               }
               throw new Error(
-                `Chrome tab not found (stale targetId?). Run action=tabs profile="chrome" and use one of the returned targetIds.`,
+                `Browser tab not found (stale targetId?). Run action=tabs and use one of the returned targetIds.`,
                 { cause: err },
               );
             }

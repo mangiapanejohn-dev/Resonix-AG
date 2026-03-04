@@ -152,6 +152,8 @@ describe("dispatchTelegramMessage draft streaming", () => {
       expect.objectContaining({
         chatId: 123,
         thread: { id: 777, scope: "dm" },
+        throttleMs: 450,
+        minInitialChars: 8,
       }),
     );
     expect(draftStream.update).toHaveBeenCalledWith("Hello");

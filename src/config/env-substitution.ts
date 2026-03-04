@@ -1,7 +1,8 @@
 /**
  * Environment variable substitution for config values.
  *
- * Supports `${VAR_NAME}` syntax in string values, substituted at config load time.
+ * Supports `${VAR_NAME}` and `secretref:VAR_NAME` syntax in string values,
+ * substituted at config load time.
  * - Only uppercase env vars are matched: `[A-Z_][A-Z0-9_]*`
  * - Escape with `$${}` to output literal `${}`
  * - Missing env vars throw `MissingEnvVarError` with context
@@ -75,7 +76,28 @@ function parseEnvTokenAt(value: string, index: number): EnvToken | null {
   return null;
 }
 
+function parseSecretRefVarName(value: string): string | null {
+  if (!value.toLowerCase().startsWith("secretref:")) {
+    return null;
+  }
+  const remainder = value.slice("secretref:".length);
+  const candidate = remainder.startsWith("//") ? remainder.slice(2) : remainder;
+  if (!ENV_VAR_NAME_PATTERN.test(candidate)) {
+    return null;
+  }
+  return candidate;
+}
+
 function substituteString(value: string, env: NodeJS.ProcessEnv, configPath: string): string {
+  const secretRefVar = parseSecretRefVarName(value);
+  if (secretRefVar) {
+    const envValue = env[secretRefVar];
+    if (envValue === undefined || envValue === "") {
+      throw new MissingEnvVarError(secretRefVar, configPath);
+    }
+    return envValue;
+  }
+
   if (!value.includes("$")) {
     return value;
   }
@@ -113,6 +135,10 @@ function substituteString(value: string, env: NodeJS.ProcessEnv, configPath: str
 }
 
 export function containsEnvVarReference(value: string): boolean {
+  if (parseSecretRefVarName(value)) {
+    return true;
+  }
+
   if (!value.includes("$")) {
     return false;
   }

@@ -227,6 +227,113 @@ function parseRequiredPath(path: string): PathSegment[] {
   return parsedPath;
 }
 
+type ConfigIssue = {
+  path: string;
+  message: string;
+};
+
+function extractMissingEnvVar(message: string): { varName?: string; configPath?: string } {
+  const varName = message.match(/Missing env var "([^"]+)"/i)?.[1];
+  const configPath = message.match(/config path:\s*([^\n]+)/i)?.[1]?.trim();
+  return {
+    ...(varName ? { varName } : {}),
+    ...(configPath ? { configPath } : {}),
+  };
+}
+
+function suggestFixesForIssue(issue: ConfigIssue): string[] {
+  const hints: string[] = [];
+  const path = issue.path || "<root>";
+  const message = issue.message;
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("json5 parse failed")) {
+    hints.push(
+      `Fix JSON5 syntax in ${path === "<root>" ? "the config file" : `\`${path}\``}, then rerun \`${formatCliCommand("resonix config validate")}\`.`,
+    );
+  }
+
+  if (lowerMessage.includes("include resolution failed") || lowerMessage.includes("$include")) {
+    hints.push(
+      `Check include paths and confinement rules, then rerun \`${formatCliCommand("resonix config validate")}\`.`,
+    );
+  }
+
+  if (lowerMessage.includes("missing env var")) {
+    const parsed = extractMissingEnvVar(message);
+    if (parsed.varName) {
+      hints.push(
+        `Set \`${parsed.varName}\` in your shell (example: \`export ${parsed.varName}=...\`) and rerun \`${formatCliCommand("resonix config validate")}\`.`,
+      );
+    }
+    if (parsed.configPath) {
+      hints.push(
+        `If you want a literal value instead, replace \`${parsed.configPath}\` via \`${formatCliCommand(`resonix config set ${parsed.configPath} \"...\"`)}\`.`,
+      );
+    }
+  }
+
+  if (path === "routing.allowFrom" || lowerMessage.includes("legacy")) {
+    hints.push(
+      `Run \`${formatCliCommand("resonix doctor --fix")}\` to migrate legacy keys (for example: \`routing.allowFrom\` → \`channels.whatsapp.allowFrom\`).`,
+    );
+  }
+
+  if (path.startsWith("plugins.") && lowerMessage.includes("plugin not found")) {
+    hints.push(
+      `Install the missing plugin or remove the stale entry, then verify with \`${formatCliCommand("resonix plugins status")}\`.`,
+    );
+  }
+
+  if (path.startsWith("channels.") && lowerMessage.includes("unknown channel id")) {
+    hints.push(
+      `Use known channel ids only. Check current channel availability with \`${formatCliCommand("resonix channels status --all")}\`.`,
+    );
+  }
+
+  if (
+    path.startsWith("browser.profiles.") &&
+    lowerMessage.includes("profile must set cdpport or cdpurl")
+  ) {
+    hints.push(
+      `Set either a CDP port or URL for that profile (example: \`${formatCliCommand("resonix config set browser.profiles.<name>.cdpPort 19012")}\`).`,
+    );
+  }
+
+  if (path.startsWith("agents.list.") && path.endsWith(".identity.avatar")) {
+    hints.push(
+      "Use a workspace-relative avatar path (or http(s)/data URI) and keep it inside the agent workspace.",
+    );
+  }
+
+  if (
+    hints.length === 0 &&
+    (lowerMessage.includes("required") || lowerMessage.includes("expected"))
+  ) {
+    if (path === "<root>") {
+      hints.push(
+        `Rerun \`${formatCliCommand("resonix configure")}\` to refresh required config values, then validate again.`,
+      );
+    } else {
+      hints.push(
+        `Set a valid value for \`${path}\` using \`${formatCliCommand(`resonix config set ${path} \"...\"`)}\`, or rerun \`${formatCliCommand("resonix configure")}\`.`,
+      );
+    }
+  }
+
+  return hints;
+}
+
+function resolveValidationHints(issues: ConfigIssue[]): string[] {
+  const unique = new Set<string>();
+  for (const issue of issues) {
+    for (const hint of suggestFixesForIssue(issue)) {
+      unique.add(hint);
+    }
+  }
+  return [...unique];
+}
+
 export async function runConfigGet(opts: { path: string; json?: boolean; runtime?: RuntimeEnv }) {
   const runtime = opts.runtime ?? defaultRuntime;
   try {
@@ -278,6 +385,48 @@ export async function runConfigUnset(opts: { path: string; runtime?: RuntimeEnv 
     runtime.error(danger(String(err)));
     runtime.exit(1);
   }
+}
+
+export async function runConfigValidate(opts?: { json?: boolean; runtime?: RuntimeEnv }) {
+  const runtime = opts?.runtime ?? defaultRuntime;
+  const snapshot = await readConfigFileSnapshot();
+
+  if (opts?.json) {
+    runtime.log(
+      JSON.stringify(
+        {
+          valid: snapshot.valid,
+          path: snapshot.path,
+          issues: snapshot.issues,
+        },
+        null,
+        2,
+      ),
+    );
+    if (!snapshot.valid) {
+      runtime.exit(1);
+    }
+    return;
+  }
+
+  if (snapshot.valid) {
+    runtime.log(info(`Config valid: ${shortenHomePath(snapshot.path)}`));
+    return;
+  }
+
+  runtime.error(danger(`Config invalid: ${shortenHomePath(snapshot.path)}`));
+  for (const issue of snapshot.issues) {
+    runtime.error(`- ${issue.path || "<root>"}: ${issue.message}`);
+  }
+  const hints = resolveValidationHints(snapshot.issues);
+  if (hints.length > 0) {
+    runtime.error(theme.muted("Suggested fixes:"));
+    for (const hint of hints) {
+      runtime.error(`- ${hint}`);
+    }
+  }
+  runtime.error(`Run \`${formatCliCommand("resonix doctor")}\` to repair common problems.`);
+  runtime.exit(1);
 }
 
 export function registerConfigCli(program: Command) {
@@ -364,5 +513,13 @@ export function registerConfigCli(program: Command) {
     .argument("<path>", "Config path (dot or bracket notation)")
     .action(async (path: string) => {
       await runConfigUnset({ path });
+    });
+
+  cmd
+    .command("validate")
+    .description("Validate config and report schema issues")
+    .option("--json", "Output validation result as JSON", false)
+    .action(async (opts) => {
+      await runConfigValidate({ json: Boolean(opts.json) });
     });
 }

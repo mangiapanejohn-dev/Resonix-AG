@@ -61,15 +61,25 @@ async function runGatewayHealthCheck(params: {
   const token = params.cfg.gateway?.auth?.token ?? process.env.RESONIX_GATEWAY_TOKEN;
   const password = params.cfg.gateway?.auth?.password ?? process.env.RESONIX_GATEWAY_PASSWORD;
 
-  await waitForGatewayReachable({
+  const warmupProbe = await waitForGatewayReachable({
     url: wsUrl,
     token,
     password,
-    deadlineMs: 15_000,
+    deadlineMs: 1_500,
+    pollMs: 200,
+    probeTimeoutMs: 500,
   });
 
+  if (!warmupProbe.ok) {
+    note(
+      `Gateway is still starting. Try again in a few seconds: ${formatCliCommand("resonix health")}`,
+      "Gateway warm-up",
+    );
+    return;
+  }
+
   try {
-    await healthCommand({ json: false, timeoutMs: 10_000 }, params.runtime);
+    await healthCommand({ json: false, timeoutMs: 2_500 }, params.runtime);
   } catch (err) {
     params.runtime.error(formatHealthCheckFailure(err));
     note(

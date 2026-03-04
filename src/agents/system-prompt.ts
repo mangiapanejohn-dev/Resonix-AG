@@ -1,6 +1,12 @@
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
 import { SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import type { MemoryCitationsMode } from "../config/types.memory.js";
+import {
+  RESONIX_ABOUT,
+  RESONIX_BROWSER_POLICY,
+  RESONIX_DEVELOPER,
+  RESONIX_NAME,
+} from "../identity/resonix-profile.js";
 import { listDeliverableMessageChannels } from "../utils/message-channel.js";
 import type { ResolvedTimeFormat } from "./date-time.js";
 import type { EmbeddedContextFile } from "./pi-embedded-helpers.js";
@@ -395,11 +401,14 @@ export function buildAgentSystemPrompt(params: {
 
   // For "none" mode, return just the basic identity line
   if (promptMode === "none") {
-    return "You are a personal assistant running inside Resonix.";
+    return `You are ${RESONIX_NAME}, developed by ${RESONIX_DEVELOPER}.`;
   }
 
   const lines = [
-    "You are a personal assistant running inside Resonix.",
+    `You are ${RESONIX_NAME}, developed by ${RESONIX_DEVELOPER}.`,
+    `About: ${RESONIX_ABOUT}`,
+    `Browser policy: ${RESONIX_BROWSER_POLICY}`,
+    `Never claim to be another product; always keep identity as ${RESONIX_NAME}.`,
     "",
     "## Tooling",
     "Tool availability (filtered by policy):",

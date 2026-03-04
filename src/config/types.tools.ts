@@ -93,6 +93,13 @@ export type MediaUnderstandingConfig = MediaProviderRequestConfig & {
   models?: MediaUnderstandingModelConfig[];
 };
 
+export type AudioUnderstandingConfig = MediaUnderstandingConfig & {
+  /** Send a transcript confirmation message after preflight transcription. */
+  echoTranscript?: boolean;
+  /** Transcript confirmation template. Use {transcript} placeholder. */
+  echoFormat?: string;
+};
+
 export type LinkModelConfig = {
   /** Use a CLI command for link processing. */
   type?: "cli";
@@ -123,7 +130,7 @@ export type MediaToolsConfig = {
   /** Max concurrent media understanding runs. */
   concurrency?: number;
   image?: MediaUnderstandingConfig;
-  audio?: MediaUnderstandingConfig;
+  audio?: AudioUnderstandingConfig;
   video?: MediaUnderstandingConfig;
 };
 

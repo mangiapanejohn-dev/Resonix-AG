@@ -163,7 +163,6 @@ export async function browserCreateProfile(
     name: string;
     color?: string;
     cdpUrl?: string;
-    driver?: "resonix" | "extension";
   },
 ): Promise<BrowserCreateProfileResult> {
   return await fetchBrowserJson<BrowserCreateProfileResult>(
@@ -175,7 +174,6 @@ export async function browserCreateProfile(
         name: opts.name,
         color: opts.color,
         cdpUrl: opts.cdpUrl,
-        driver: opts.driver,
       }),
       timeoutMs: 10000,
     },

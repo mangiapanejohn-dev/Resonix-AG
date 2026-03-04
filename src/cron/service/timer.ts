@@ -456,9 +456,30 @@ async function executeJobCore(
   state: CronServiceState,
   job: CronJob,
 ): Promise<CronRunOutcome & CronRunTelemetry> {
+  const resolveText = async (text: string, target: "main" | "isolated") => {
+    try {
+      const resolved = await state.deps.resolveCronText?.({
+        job,
+        text,
+        target,
+      });
+      if (!resolved) {
+        return text;
+      }
+      const trimmed = resolved.trim();
+      return trimmed || text;
+    } catch (err) {
+      state.deps.log.warn(
+        { jobId: job.id, target, err: String(err) },
+        "cron: failed to resolve memory template",
+      );
+      return text;
+    }
+  };
+
   if (job.sessionTarget === "main") {
-    const text = resolveJobPayloadTextForMain(job);
-    if (!text) {
+    const rawText = resolveJobPayloadTextForMain(job);
+    if (!rawText) {
       const kind = job.payload.kind;
       return {
         status: "skipped",
@@ -468,6 +489,7 @@ async function executeJobCore(
             : 'main job requires payload.kind="systemEvent"',
       };
     }
+    const text = state.deps.resolveCronText ? await resolveText(rawText, "main") : rawText;
     state.deps.enqueueSystemEvent(text, {
       agentId: job.agentId,
       sessionKey: job.sessionKey,
@@ -525,9 +547,12 @@ async function executeJobCore(
     return { status: "skipped", error: "isolated job requires payload.kind=agentTurn" };
   }
 
+  const resolvedMessage = state.deps.resolveCronText
+    ? await resolveText(job.payload.message, "isolated")
+    : job.payload.message;
   const res = await state.deps.runIsolatedAgentJob({
     job,
-    message: job.payload.message,
+    message: resolvedMessage,
   });
 
   // Post a short summary back to the main session — but only when the

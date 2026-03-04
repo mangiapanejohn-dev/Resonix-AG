@@ -15,7 +15,7 @@ export type TelegramMenuCommand = {
 
 type TelegramPluginCommandSpec = {
   name: string;
-  description: string;
+  description?: string | null;
 };
 
 export function buildPluginTelegramMenuCommands(params: {
@@ -35,7 +35,7 @@ export function buildPluginTelegramMenuCommands(params: {
       );
       continue;
     }
-    const description = spec.description.trim();
+    const description = (typeof spec.description === "string" ? spec.description : "").trim();
     if (!description) {
       issues.push(`Plugin command "/${normalized}" is missing a description.`);
       continue;

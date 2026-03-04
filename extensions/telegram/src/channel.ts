@@ -377,7 +377,12 @@ export const telegramPlugin: ChannelPlugin<ResolvedTelegramAccount, TelegramProb
   gateway: {
     startAccount: async (ctx) => {
       const account = ctx.account;
-      const token = account.token.trim();
+      const token = typeof account.token === "string" ? account.token.trim() : "";
+      if (!token) {
+        throw new Error(
+          `Telegram bot token missing for account "${account.accountId}" (set channels.telegram.accounts.${account.accountId}.botToken/tokenFile or TELEGRAM_BOT_TOKEN for default).`,
+        );
+      }
       let telegramBotLabel = "";
       try {
         const probe = await getTelegramRuntime().channel.telegram.probeTelegram(

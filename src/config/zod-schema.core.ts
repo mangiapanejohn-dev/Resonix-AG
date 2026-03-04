@@ -453,7 +453,7 @@ export const MediaUnderstandingModelSchema = z
   .strict()
   .optional();
 
-export const ToolsMediaUnderstandingSchema = z
+const ToolsMediaUnderstandingBaseSchema = z
   .object({
     enabled: z.boolean().optional(),
     scope: MediaUnderstandingScopeSchema,
@@ -469,6 +469,14 @@ export const ToolsMediaUnderstandingSchema = z
     attachments: MediaUnderstandingAttachmentsSchema,
     models: z.array(MediaUnderstandingModelSchema).optional(),
   })
+  .strict();
+
+export const ToolsMediaUnderstandingSchema = ToolsMediaUnderstandingBaseSchema.optional();
+
+export const ToolsAudioUnderstandingSchema = ToolsMediaUnderstandingBaseSchema.extend({
+  echoTranscript: z.boolean().optional(),
+  echoFormat: z.string().optional(),
+})
   .strict()
   .optional();
 
@@ -477,7 +485,7 @@ export const ToolsMediaSchema = z
     models: z.array(MediaUnderstandingModelSchema).optional(),
     concurrency: z.number().int().positive().optional(),
     image: ToolsMediaUnderstandingSchema.optional(),
-    audio: ToolsMediaUnderstandingSchema.optional(),
+    audio: ToolsAudioUnderstandingSchema.optional(),
     video: ToolsMediaUnderstandingSchema.optional(),
   })
   .strict()

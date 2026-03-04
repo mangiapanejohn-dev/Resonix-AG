@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMediaUnderstandingBody } from "./format.js";
+import { formatAudioTranscriptEcho, formatMediaUnderstandingBody } from "./format.js";
 
 describe("formatMediaUnderstandingBody", () => {
   it("replaces placeholder body with transcript", () => {
@@ -87,5 +87,29 @@ describe("formatMediaUnderstandingBody", () => {
       ],
     });
     expect(body).toBe("[Image]\nDescription:\na cat");
+  });
+});
+
+describe("formatAudioTranscriptEcho", () => {
+  it("uses default template when custom format is missing", () => {
+    expect(formatAudioTranscriptEcho({ transcript: "hello world" })).toBe("Heard: hello world");
+  });
+
+  it("replaces transcript placeholder in custom templates", () => {
+    expect(
+      formatAudioTranscriptEcho({
+        transcript: "hello world",
+        format: "Transcript check: {transcript}",
+      }),
+    ).toBe("Transcript check: hello world");
+  });
+
+  it("appends transcript when custom format omits the placeholder", () => {
+    expect(
+      formatAudioTranscriptEcho({
+        transcript: "hello world",
+        format: "Transcript check",
+      }),
+    ).toBe("Transcript check\nhello world");
   });
 });

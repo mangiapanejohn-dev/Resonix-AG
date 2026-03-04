@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   validateCronAddParams,
+  validateCronBoardParams,
   validateCronRemoveParams,
   validateCronRunParams,
   validateCronRunsParams,
@@ -45,5 +46,14 @@ describe("cron protocol validators", () => {
     expect(validateCronRunsParams({ jobId: "job-2", limit: 1 })).toBe(true);
     expect(validateCronRunsParams({ id: "job-1", limit: 0 })).toBe(false);
     expect(validateCronRunsParams({ jobId: "job-2", limit: 0 })).toBe(false);
+  });
+
+  it("accepts board params with window and limit constraints", () => {
+    expect(validateCronBoardParams({})).toBe(true);
+    expect(validateCronBoardParams({ includeDisabled: true, runLimit: 50, windowHours: 72 })).toBe(
+      true,
+    );
+    expect(validateCronBoardParams({ runLimit: 0 })).toBe(false);
+    expect(validateCronBoardParams({ windowHours: 0 })).toBe(false);
   });
 });

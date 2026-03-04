@@ -138,10 +138,6 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
     const name = toStringOrEmpty((req.body as { name?: unknown })?.name);
     const color = toStringOrEmpty((req.body as { color?: unknown })?.color);
     const cdpUrl = toStringOrEmpty((req.body as { cdpUrl?: unknown })?.cdpUrl);
-    const driver = toStringOrEmpty((req.body as { driver?: unknown })?.driver) as
-      | "resonix"
-      | "extension"
-      | "";
 
     if (!name) {
       return jsonError(res, 400, "name is required");
@@ -153,7 +149,6 @@ export function registerBrowserBasicRoutes(app: BrowserRouteRegistrar, ctx: Brow
         name,
         color: color || undefined,
         cdpUrl: cdpUrl || undefined,
-        driver: driver === "extension" ? "extension" : undefined,
       });
       res.json(result);
     } catch (err) {

@@ -14,6 +14,7 @@ import { resolveStateDir } from "../../../config/paths.js";
 import { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { resolveAgentIdFromSessionKey } from "../../../routing/session-key.js";
 import { hasInterSessionUserProvenance } from "../../../sessions/input-provenance.js";
+import { updatePermanentMemoryProfile } from "../../../memory/permanent-profile.js";
 import { resolveHookConfig } from "../../config.js";
 import type { HookHandler } from "../../hooks.js";
 import { generateSlugViaLLM } from "../../llm-slug-generator.js";
@@ -307,6 +308,28 @@ const saveSessionToMemory: HookHandler = async (event) => {
     // Write to new memory file
     await fs.writeFile(memoryFilePath, entry, "utf-8");
     log.debug("Memory file written successfully");
+
+    const permanentMemoryEnabled = hookConfig?.permanentMemory !== false;
+    if (permanentMemoryEnabled && sessionContent) {
+      const maxEntriesPerKind =
+        typeof hookConfig?.permanentMemoryMaxEntriesPerKind === "number" &&
+        Number.isFinite(hookConfig.permanentMemoryMaxEntriesPerKind)
+          ? hookConfig.permanentMemoryMaxEntriesPerKind
+          : undefined;
+      const result = await updatePermanentMemoryProfile({
+        workspaceDir,
+        sessionContent,
+        sourceLabel: `memory/${filename}`,
+        nowMs: event.timestamp,
+        maxEntriesPerKind,
+      });
+      log.debug("Permanent memory profile update", {
+        extracted: result.extracted,
+        added: result.added,
+        touched: result.touched,
+        updated: result.updated,
+      });
+    }
 
     // Log completion (but don't send user-visible confirmation - it's internal housekeeping)
     const relPath = memoryFilePath.replace(os.homedir(), "~");

@@ -15,6 +15,57 @@ const MINIMAX_OAUTH_CONFIG = {
 
 const MINIMAX_OAUTH_SCOPE = "group_id profile model.completion";
 const MINIMAX_OAUTH_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:user_code";
+const OAUTH_CODE_TIMEOUT_MS = 8_000;
+const OAUTH_TOKEN_TIMEOUT_MS = 8_000;
+const DEFAULT_POLL_INTERVAL_MS = 2_000;
+const MIN_POLL_INTERVAL_MS = 1_000;
+const MAX_POLL_INTERVAL_MS = 5_000;
+
+function normalizeExpiresAtMs(raw: number): number {
+  const nowMs = Date.now();
+  if (!Number.isFinite(raw) || raw <= 0) {
+    return nowMs + 5 * 60_000;
+  }
+
+  // Absolute Unix epoch in milliseconds.
+  if (raw >= 1_000_000_000_000) {
+    return raw;
+  }
+
+  // Absolute Unix epoch in seconds.
+  if (raw >= 1_000_000_000) {
+    return raw * 1000;
+  }
+
+  // Duration-style values can arrive in either seconds or milliseconds.
+  // Treat <= 1 day as seconds, <= 1 day in ms as milliseconds.
+  if (raw <= 86_400) {
+    return nowMs + raw * 1000;
+  }
+  if (raw <= 86_400_000) {
+    return nowMs + raw;
+  }
+
+  // Fall back to seconds for larger duration-like numbers.
+  return nowMs + raw * 1000;
+}
+
+function formatRemainingMinutes(expiresAtMs: number): string {
+  const remainingMs = expiresAtMs - Date.now();
+  if (remainingMs <= 60_000) {
+    return "<1 minute";
+  }
+  const minutes = Math.ceil(remainingMs / 60_000);
+  return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+}
+
+function normalizePollIntervalMs(raw?: number): number {
+  if (!raw || !Number.isFinite(raw) || raw <= 0) {
+    return DEFAULT_POLL_INTERVAL_MS;
+  }
+  const intervalMs = raw <= 60 ? raw * 1000 : raw;
+  return Math.min(Math.max(Math.round(intervalMs), MIN_POLL_INTERVAL_MS), MAX_POLL_INTERVAL_MS);
+}
 
 function getOAuthEndpoints(region: MiniMaxRegion) {
   const config = MINIMAX_OAUTH_CONFIG[region];
@@ -69,7 +120,7 @@ async function requestOAuthCode(params: {
 }): Promise<MiniMaxOAuthAuthorization> {
   const endpoints = getOAuthEndpoints(params.region);
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+  const timeoutId = setTimeout(() => controller.abort(), OAUTH_CODE_TIMEOUT_MS);
 
   try {
     const response = await fetch(endpoints.codeEndpoint, {
@@ -122,19 +173,35 @@ async function pollOAuthToken(params: {
   region: MiniMaxRegion;
 }): Promise<TokenResult> {
   const endpoints = getOAuthEndpoints(params.region);
-  const response = await fetch(endpoints.tokenEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    body: toFormUrlEncoded({
-      grant_type: MINIMAX_OAUTH_GRANT_TYPE,
-      client_id: endpoints.clientId,
-      user_code: params.userCode,
-      code_verifier: params.verifier,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), OAUTH_TOKEN_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(endpoints.tokenEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: toFormUrlEncoded({
+        grant_type: MINIMAX_OAUTH_GRANT_TYPE,
+        client_id: endpoints.clientId,
+        user_code: params.userCode,
+        code_verifier: params.verifier,
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      return { status: "pending", message: "OAuth token poll timed out; retrying..." };
+    }
+    return {
+      status: "error",
+      message: err instanceof Error ? err.message : "MiniMax OAuth poll failed.",
+    };
+  }
+  clearTimeout(timeoutId);
 
   const text = await response.text();
   let payload:
@@ -190,7 +257,7 @@ async function pollOAuthToken(params: {
     token: {
       access: tokenPayload.access_token,
       refresh: tokenPayload.refresh_token,
-      expires: tokenPayload.expired_in,
+      expires: normalizeExpiresAtMs(tokenPayload.expired_in),
       resourceUrl: tokenPayload.resource_url,
       notification_message: tokenPayload.notification_message,
     },
@@ -211,34 +278,25 @@ export async function loginMiniMaxPortalOAuth(params: {
 
   const oauth = await requestOAuthCode({ challenge, state, region });
   const verificationUrl = oauth.verification_uri;
+  const expiresAtMs = normalizeExpiresAtMs(oauth.expired_in);
+  const pollIntervalMs = normalizePollIntervalMs(oauth.interval);
+
+  // Kick off browser open immediately after authorization URL arrives.
+  // We intentionally do not await this so a slow shell/browser doesn't block OAuth UX.
+  void params.openUrl(verificationUrl).catch(() => {
+    // Fall back to manual copy/paste if browser open fails.
+  });
 
   const noteLines = [
     `Open ${verificationUrl} to approve access.`,
     `If prompted, enter the code ${oauth.user_code}.`,
-    `Expires in: ${Math.round((oauth.expired_in - Date.now() / 1000) / 60)} minutes`,
+    `Expires in: ${formatRemainingMinutes(expiresAtMs)}`,
   ];
   await params.note(noteLines.join("\n"), "MiniMax OAuth");
 
-  // Try to open browser, but don't block flow
-  try {
-    await params.openUrl(verificationUrl);
-  } catch (error) {
-    console.error("Failed to open browser:", error);
-  }
-
-  // Always show manual instructions in case browser open fails
-  await params.note(
-    `Please manually open ${verificationUrl} and enter code ${oauth.user_code}`,
-    "MiniMax OAuth - Manual Setup",
-  );
-
-  let pollIntervalMs = oauth.interval ? oauth.interval : 2000;
-  // Calculate expiration timestamp (current time + expired_in seconds)
-  const expireTimeMs = Date.now() + oauth.expired_in * 1000;
-
   params.progress.update("Waiting for MiniMax OAuth approval…");
 
-  while (Date.now() < expireTimeMs) {
+  while (Date.now() < expiresAtMs) {
     const result = await pollOAuthToken({
       userCode: oauth.user_code,
       verifier,
@@ -254,7 +312,6 @@ export async function loginMiniMaxPortalOAuth(params: {
     }
 
     if (result.status === "pending") {
-      pollIntervalMs = Math.min(pollIntervalMs * 1.5, 10000);
       params.progress.update("Waiting for approval…");
     }
 

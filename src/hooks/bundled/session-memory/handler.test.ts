@@ -425,4 +425,17 @@ describe("session-memory hook", () => {
     expect(memoryContent).toContain("user: Only message 1");
     expect(memoryContent).toContain("assistant: Only message 2");
   });
+
+  it("updates permanent memory profile when extractable long-term facts exist", async () => {
+    const sessionContent = createMockSessionContent([
+      { role: "user", content: "I prefer dark mode in dashboards." },
+      { role: "user", content: "I need to finish cron observability today." },
+    ]);
+    const { tempDir } = await runNewWithPreviousSession({ sessionContent });
+    const permanentPath = path.join(tempDir, "memory", "permanent-memory.md");
+    const permanentContent = await fs.readFile(permanentPath, "utf-8");
+    expect(permanentContent).toContain("Permanent Memory");
+    expect(permanentContent).toContain("Preferences");
+    expect(permanentContent).toContain("I prefer dark mode in dashboards");
+  });
 });

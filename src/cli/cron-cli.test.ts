@@ -96,6 +96,20 @@ async function runCronSimpleAndGetUpdatePatch(
   };
 }
 
+async function runCronBoardAndGetParams(args: string[]): Promise<{
+  includeDisabled?: boolean;
+  runLimit?: number;
+  windowHours?: number;
+}> {
+  await runCronCommand(["cron", "board", ...args]);
+  const boardCall = callGatewayFromCli.mock.calls.find((call) => call[0] === "cron.board");
+  return (boardCall?.[2] ?? {}) as {
+    includeDisabled?: boolean;
+    runLimit?: number;
+    windowHours?: number;
+  };
+}
+
 function mockCronEditJobLookup(schedule: unknown): void {
   callGatewayFromCli.mockImplementation(
     async (method: string, _opts: unknown, params?: unknown) => {
@@ -250,6 +264,19 @@ describe("cron cli", () => {
   ])("cron $command sets enabled=$expectedEnabled patch", async ({ command, expectedEnabled }) => {
     const patch = await runCronSimpleAndGetUpdatePatch(command);
     expect(patch.enabled).toBe(expectedEnabled);
+  });
+
+  it("sends cron board params", async () => {
+    const params = await runCronBoardAndGetParams([
+      "--all",
+      "--run-limit",
+      "120",
+      "--window-hours",
+      "48",
+    ]);
+    expect(params.includeDisabled).toBe(true);
+    expect(params.runLimit).toBe(120);
+    expect(params.windowHours).toBe(48);
   });
 
   it("sends agent id on cron add", async () => {

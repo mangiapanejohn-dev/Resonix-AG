@@ -170,7 +170,7 @@ resonix logs --follow
 
 If you’re supervised:
 
-- macOS launchd (app-bundled LaunchAgent): `launchctl kickstart -k gui/$UID/bot.molt.gateway` (use `bot.molt.<profile>`; legacy `com.resonix.*` still works)
+- macOS launchd (app-bundled LaunchAgent): `launchctl kickstart -k gui/$UID/ai.resonix.gateway` (use `ai.resonix.<profile>`; legacy `com.resonix.*` still works)
 - Linux systemd user service: `systemctl --user restart resonix-gateway[-<profile>].service`
 - Windows (WSL2): `systemctl --user restart resonix-gateway[-<profile>].service`
   - `launchctl`/`systemctl` only work if the service is installed; otherwise run `resonix gateway install`.

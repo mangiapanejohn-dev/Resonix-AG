@@ -22,6 +22,19 @@ describe("resolveConfigEnvVars", () => {
       const result = resolveConfigEnvVars({ key: "${FOO}:${FOO}" }, { FOO: "bar" });
       expect(result).toEqual({ key: "bar:bar" });
     });
+
+    it("resolves secretref values", () => {
+      const result = resolveConfigEnvVars(
+        { key: "secretref:OPENAI_API_KEY" },
+        { OPENAI_API_KEY: "sk-123" },
+      );
+      expect(result).toEqual({ key: "sk-123" });
+    });
+
+    it("resolves secretref:// values", () => {
+      const result = resolveConfigEnvVars({ key: "secretref://MY_TOKEN" }, { MY_TOKEN: "tok-1" });
+      expect(result).toEqual({ key: "tok-1" });
+    });
   });
 
   describe("nested structures", () => {
@@ -112,6 +125,12 @@ describe("resolveConfigEnvVars", () => {
 
     it("treats empty string env var as missing", () => {
       expect(() => resolveConfigEnvVars({ key: "${EMPTY}" }, { EMPTY: "" })).toThrow(
+        MissingEnvVarError,
+      );
+    });
+
+    it("throws MissingEnvVarError for missing secretref env var", () => {
+      expect(() => resolveConfigEnvVars({ key: "secretref:NOT_SET" }, {})).toThrow(
         MissingEnvVarError,
       );
     });

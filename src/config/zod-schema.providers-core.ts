@@ -48,6 +48,7 @@ const TelegramCapabilitiesSchema = z.union([
 export const TelegramTopicSchema = z
   .object({
     requireMention: z.boolean().optional(),
+    disableAudioPreflight: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional(),
     skills: z.array(z.string()).optional(),
     enabled: z.boolean().optional(),
@@ -59,6 +60,7 @@ export const TelegramTopicSchema = z
 export const TelegramGroupSchema = z
   .object({
     requireMention: z.boolean().optional(),
+    disableAudioPreflight: z.boolean().optional(),
     groupPolicy: GroupPolicySchema.optional(),
     tools: ToolPolicySchema,
     toolsBySender: ToolPolicyBySenderSchema,
@@ -123,6 +125,7 @@ export const TelegramAccountSchemaBase = z
     blockStreaming: z.boolean().optional(),
     draftChunk: BlockStreamingChunkSchema.optional(),
     blockStreamingCoalesce: BlockStreamingCoalesceSchema.optional(),
+    streaming: z.boolean().optional(),
     streamMode: z.enum(["off", "partial", "block"]).optional().default("partial"),
     mediaMaxMb: z.number().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
@@ -280,8 +283,9 @@ export const DiscordAccountSchema = z
     configWrites: z.boolean().optional(),
     token: z.string().optional().register(sensitive),
     proxy: z.string().optional(),
-    allowBots: z.boolean().optional(),
+    allowBots: z.union([z.boolean(), z.literal("mentions")]).optional(),
     groupPolicy: GroupPolicySchema.optional().default("allowlist"),
+    disableAudioPreflight: z.boolean().optional(),
     historyLimit: z.number().int().min(0).optional(),
     dmHistoryLimit: z.number().int().min(0).optional(),
     dms: z.record(z.string(), DmConfigSchema.optional()).optional(),

@@ -26,7 +26,7 @@ function makeBrowserState(): BrowserServerState {
       defaultProfile: "chrome",
       profiles: {
         chrome: {
-          driver: "extension",
+          driver: "resonix",
           cdpUrl: "http://127.0.0.1:18792",
           cdpPort: 18792,
           color: "#00AA00",
@@ -97,7 +97,7 @@ describe("browser server-context ensureTabAvailable", () => {
     expect(second.targetId).toBe("A");
   });
 
-  it("falls back to the only attached tab when an invalid targetId is provided (extension)", async () => {
+  it("falls back to the only available tab when an invalid targetId is provided", async () => {
     const responses = [
       [{ id: "A", type: "page", url: "https://a.example", webSocketDebuggerUrl: "ws://x/a" }],
       [{ id: "A", type: "page", url: "https://a.example", webSocketDebuggerUrl: "ws://x/a" }],
@@ -109,15 +109,5 @@ describe("browser server-context ensureTabAvailable", () => {
     const chrome = ctx.forProfile("chrome");
     const chosen = await chrome.ensureTabAvailable("NOT_A_TAB");
     expect(chosen.targetId).toBe("A");
-  });
-
-  it("returns a descriptive message when no extension tabs are attached", async () => {
-    const responses = [[]];
-    stubChromeJsonList(responses);
-    const state = makeBrowserState();
-
-    const ctx = createBrowserRouteContext({ getState: () => state });
-    const chrome = ctx.forProfile("chrome");
-    await expect(chrome.ensureTabAvailable()).rejects.toThrow(/no attached Chrome tabs/i);
   });
 });

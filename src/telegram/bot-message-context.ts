@@ -33,6 +33,7 @@ import { buildPairingReply } from "../pairing/pairing-messages.js";
 import { upsertChannelPairingRequest } from "../pairing/pairing-store.js";
 import { resolveAgentRoute } from "../routing/resolve-route.js";
 import { resolveThreadSessionKeys } from "../routing/session-key.js";
+import { formatAudioTranscriptEcho } from "../media-understanding/format.js";
 import { withTelegramApiErrorLogging } from "./api-logging.js";
 import {
   firstDefined,
@@ -46,6 +47,7 @@ import {
   buildSenderName,
   buildTelegramGroupFrom,
   buildTelegramGroupPeerId,
+  buildTelegramThreadParams,
   buildTelegramParentPeer,
   buildTypingThreadParams,
   resolveTelegramMediaPlaceholder,
@@ -388,12 +390,22 @@ export const buildTelegramMessageContext = async ({
 
   let bodyText = rawBody;
   const hasAudio = allMedia.some((media) => media.contentType?.startsWith("audio/"));
+  const disableAudioPreflight = firstDefined(
+    topicConfig?.disableAudioPreflight,
+    groupConfig?.disableAudioPreflight,
+    false,
+  );
 
   // Preflight audio transcription for mention detection in groups
   // This allows voice notes to be checked for mentions before being dropped
   let preflightTranscript: string | undefined;
   const needsPreflightTranscription =
-    isGroup && requireMention && hasAudio && !hasUserText && mentionRegexes.length > 0;
+    isGroup &&
+    requireMention &&
+    hasAudio &&
+    !hasUserText &&
+    mentionRegexes.length > 0 &&
+    !disableAudioPreflight;
 
   if (needsPreflightTranscription) {
     try {
@@ -489,6 +501,23 @@ export const buildTelegramMessageContext = async ({
           : null,
       });
       return null;
+    }
+  }
+
+  if (preflightTranscript && cfg.tools?.media?.audio?.echoTranscript === true) {
+    const echoText = formatAudioTranscriptEcho({
+      transcript: preflightTranscript,
+      format: cfg.tools?.media?.audio?.echoFormat,
+    });
+    if (echoText) {
+      try {
+        await withTelegramApiErrorLogging({
+          operation: "sendMessage",
+          fn: () => bot.api.sendMessage(chatId, echoText, buildTelegramThreadParams(threadSpec)),
+        });
+      } catch (err) {
+        logVerbose(`telegram: audio transcript echo failed: ${String(err)}`);
+      }
     }
   }
 

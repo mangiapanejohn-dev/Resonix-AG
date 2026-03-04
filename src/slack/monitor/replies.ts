@@ -8,6 +8,34 @@ import type { RuntimeEnv } from "../../runtime.js";
 import { markdownToSlackMrkdwnChunks } from "../format.js";
 import { sendMessageSlack } from "../send.js";
 
+function normalizeReplyText(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+    return String(value);
+  }
+  return "";
+}
+
+function normalizeMediaUrlList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+    .filter((entry) => entry.length > 0);
+}
+
+function resolveReplyMediaUrls(payload: ReplyPayload): string[] {
+  const mediaUrls = normalizeMediaUrlList(payload.mediaUrls);
+  if (mediaUrls.length > 0) {
+    return mediaUrls;
+  }
+  const single = typeof payload.mediaUrl === "string" ? payload.mediaUrl.trim() : "";
+  return single ? [single] : [];
+}
+
 export async function deliverReplies(params: {
   replies: ReplyPayload[];
   target: string;
@@ -19,8 +47,8 @@ export async function deliverReplies(params: {
 }) {
   for (const payload of params.replies) {
     const threadTs = payload.replyToId ?? params.replyThreadTs;
-    const mediaList = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
-    const text = payload.text ?? "";
+    const mediaList = resolveReplyMediaUrls(payload);
+    const text = normalizeReplyText(payload.text);
     if (!text && mediaList.length === 0) {
       continue;
     }
@@ -132,12 +160,10 @@ export async function deliverSlackSlashReplies(params: {
   const messages: string[] = [];
   const chunkLimit = Math.min(params.textLimit, 4000);
   for (const payload of params.replies) {
-    const textRaw = payload.text?.trim() ?? "";
+    const textRaw = normalizeReplyText(payload.text).trim();
     const text = textRaw && !isSilentReplyText(textRaw, SILENT_REPLY_TOKEN) ? textRaw : undefined;
-    const mediaList = payload.mediaUrls ?? (payload.mediaUrl ? [payload.mediaUrl] : []);
-    const combined = [text ?? "", ...mediaList.map((url) => url.trim()).filter(Boolean)]
-      .filter(Boolean)
-      .join("\n");
+    const mediaList = resolveReplyMediaUrls(payload);
+    const combined = [text ?? "", ...mediaList].filter(Boolean).join("\n");
     if (!combined) {
       continue;
     }
