@@ -1,12 +1,49 @@
 #!/usr/bin/env pwsh
 # Resonix-AG installer for Windows
 # Usage: iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
-# Republished: 2026-03-04 (no behavior change)
+# Updated: 2026-03-04 (Resonix style + startup hardening)
 
 $ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+
+function Resolve-UserHome {
+    $candidates = @(
+        $env:USERPROFILE,
+        [Environment]::GetFolderPath("UserProfile"),
+        $HOME
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+            return $candidate
+        }
+    }
+
+    throw "Unable to resolve user home path."
+}
+
+function Resolve-LocalAppData {
+    param([string]$UserHome)
+
+    $candidates = @(
+        $env:LOCALAPPDATA,
+        [Environment]::GetFolderPath("LocalApplicationData")
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+            return $candidate
+        }
+    }
+
+    return (Join-Path $UserHome "AppData\\Local")
+}
+
+$UserHome = Resolve-UserHome
+$LocalAppData = Resolve-LocalAppData -UserHome $UserHome
 
 $RepoUrl = if ($env:RESONIX_REPO_URL) { $env:RESONIX_REPO_URL } else { "https://github.com/mangiapanejohn-dev/Resonix-AG.git" }
-$InstallRoot = if ($env:RESONIX_INSTALL_ROOT) { $env:RESONIX_INSTALL_ROOT } else { Join-Path $env:LOCALAPPDATA "Resonix" }
+$InstallRoot = if ($env:RESONIX_INSTALL_ROOT) { $env:RESONIX_INSTALL_ROOT } else { Join-Path $LocalAppData "Resonix" }
 $SourceDir = if ($env:RESONIX_SOURCE_DIR) { $env:RESONIX_SOURCE_DIR } else { Join-Path $InstallRoot "source" }
 $BinDir = if ($env:RESONIX_BIN_DIR) { $env:RESONIX_BIN_DIR } else { Join-Path $InstallRoot "bin" }
 $PnpmVersion = if ($env:RESONIX_PNPM_VERSION) { $env:RESONIX_PNPM_VERSION } else { "10.23.0" }
@@ -15,26 +52,47 @@ $SkipPathSetup = if ($env:RESONIX_INSTALL_SKIP_PATH) { $env:RESONIX_INSTALL_SKIP
 $script:PackageManager = "npm"
 $script:UseCorepackPnpm = $false
 
-$RESET = "`e[0m"
-$BOLD = "`e[1m"
-$CYAN = "`e[36m"
-$PURPLE = "`e[35m"
-$GREEN = "`e[32m"
-$YELLOW = "`e[33m"
-$RED = "`e[31m"
+$supportsAnsi = $false
+try {
+    if ($Host.UI -and $Host.UI.SupportsVirtualTerminal) {
+        $supportsAnsi = $true
+    }
+} catch {
+    $supportsAnsi = $false
+}
+
+if ($supportsAnsi) {
+    $RESET = "`e[0m"
+    $BOLD = "`e[1m"
+    $CYAN = "`e[36m"
+    $PURPLE = "`e[35m"
+    $GREEN = "`e[32m"
+    $YELLOW = "`e[33m"
+    $RED = "`e[31m"
+} else {
+    $RESET = ""
+    $BOLD = ""
+    $CYAN = ""
+    $PURPLE = ""
+    $GREEN = ""
+    $YELLOW = ""
+    $RED = ""
+}
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "$PURPLE RRRR    EEE    SSS   OOO   N   N   II   X   X $RESET"
+    Write-Host "$PURPLE RRRR    EEEE   SSS   OOO   N   N   III  X   X $RESET"
     Write-Host "$PURPLE R   R   E     S     O   O  NN  N    I    X X  $RESET"
     Write-Host "$PURPLE RRRR    EEE    SS   O   O  N N N    I     X   $RESET"
     Write-Host "$PURPLE R   R   E        S  O   O  N  NN    I    X X  $RESET"
-    Write-Host "$PURPLE R   R   EEE   SSS    OOO   N   N   II   X   X $RESET"
+    Write-Host "$PURPLE R   R   EEEE  SSS    OOO   N   N   III  X   X $RESET"
     Write-Host ""
-    Write-Host "$BOLD Resonix-AG Installer$RESET"
+    Write-Host "$BOLD👾 Resonix Installer (Windows)$RESET"
     Write-Host " Source: $SourceDir"
     Write-Host " Binary: $BinDir\resonix.cmd"
-    Write-Host " Runtime state remains in $env:USERPROFILE\.resonix"
+    Write-Host " State directory: $UserHome\.resonix"
+    Write-Host ""
+    Write-Host "[$CYAN INFO$RESET] Hey bro, Resonix is tying its shoelaces..."
     Write-Host ""
 }
 
@@ -79,7 +137,7 @@ function Check-Requirements {
         Write-Fail "npm not found. Reinstall Node.js with npm included."
     }
 
-    Write-Success "Requirements OK (Node $nodeVersion)"
+    Write-Success "Requirements checked (Node $nodeVersion)"
 }
 
 function Setup-PackageManager {
@@ -91,13 +149,13 @@ function Setup-PackageManager {
     }
 
     if (Get-Command corepack -ErrorAction SilentlyContinue) {
-        Write-Info "pnpm not found, enabling via corepack..."
+        Write-Info "pnpm not found, trying corepack (quick coffee break)."
         try {
             corepack enable | Out-Null
             corepack prepare "pnpm@$PnpmVersion" --activate | Out-Null
             $script:PackageManager = "pnpm"
             $script:UseCorepackPnpm = $true
-            Write-Success "Using pnpm via corepack"
+            Write-Success "pnpm enabled via corepack"
             return
         } catch {
             Write-Warn "corepack setup failed: $($_.Exception.Message)"
@@ -118,7 +176,7 @@ function Setup-PackageManager {
     }
 
     $script:PackageManager = "npm"
-    Write-Warn "pnpm unavailable; falling back to npm"
+    Write-Warn "pnpm unavailable; using npm. Resonix can still cook."
 }
 
 function Invoke-Pnpm {
@@ -164,7 +222,7 @@ function Install-OrUpdateSource {
         }
 
         if (-not [string]::IsNullOrWhiteSpace($dirty)) {
-            Write-Warn "Local changes detected in $SourceDir; preserving checkout and cloning fresh."
+            Write-Warn "Local changes detected in $SourceDir; cloning fresh to keep your edits safe."
             Clone-Fresh
             return
         }
@@ -187,7 +245,7 @@ function Install-OrUpdateSource {
         Write-Warn "Existing non-git path at $SourceDir; preserving and cloning fresh."
     }
 
-    Write-Info "Cloning Resonix-AG source..."
+    Write-Info "Cloning Resonix source..."
     Clone-Fresh
 }
 
@@ -196,6 +254,7 @@ function Install-Dependencies {
 
     if ($script:PackageManager -eq "pnpm") {
         try {
+            Write-Info "Installing dependencies with pnpm (Resonix is stocking the fridge)."
             Invoke-Pnpm install --frozen-lockfile
         } catch {
             Write-Warn "Frozen install failed; retrying without lockfile strictness."
@@ -204,6 +263,7 @@ function Install-Dependencies {
         return
     }
 
+    Write-Info "Installing dependencies with npm"
     npm install | Out-Host
     if ($LASTEXITCODE -ne 0) {
         throw "npm install failed"
@@ -212,6 +272,7 @@ function Install-Dependencies {
 
 function Build-Source {
     Set-Location $SourceDir
+    Write-Info "Building Resonix CLI and runtime..."
 
     if ($script:PackageManager -eq "pnpm") {
         Invoke-Pnpm build
@@ -256,7 +317,7 @@ if (-not (Test-Path $entry)) {
     Set-Content -Path (Join-Path $BinDir "resonix.cmd") -Value $cmdWrapper -Encoding ASCII
     Set-Content -Path (Join-Path $BinDir "resonix.ps1") -Value $psWrapper -Encoding UTF8
 
-    Write-Success "Installed launcher: $(Join-Path $BinDir 'resonix.cmd')"
+    Write-Success "Launcher installed: $(Join-Path $BinDir 'resonix.cmd')"
 }
 
 function Ensure-UserPath {
@@ -281,17 +342,30 @@ function Ensure-UserPath {
         Write-Success "Updated user PATH"
     }
 
+    $sessionPath = if ($env:Path) { $env:Path } else { "" }
     $sessionHasBin = $false
-    foreach ($segment in ($env:Path -split ';')) {
-        if ($segment.TrimEnd('\\') -ieq $BinDir.TrimEnd('\\')) {
+    foreach ($segment in ($sessionPath -split ';')) {
+        if (-not [string]::IsNullOrWhiteSpace($segment) -and $segment.TrimEnd('\\') -ieq $BinDir.TrimEnd('\\')) {
             $sessionHasBin = $true
             break
         }
     }
 
     if (-not $sessionHasBin) {
-        $env:Path = "$BinDir;$env:Path"
+        $env:Path = if ([string]::IsNullOrWhiteSpace($sessionPath)) { $BinDir } else { "$BinDir;$sessionPath" }
     }
+}
+
+function Print-Success {
+    Write-Host ""
+    Write-Success "Resonix installed successfully. Your digital roommate just moved in."
+    Write-Host ""
+    Write-Host "$BOLD Next steps$RESET"
+    Write-Host "  1) Verify: resonix -v"
+    Write-Host "  2) Onboard: resonix onboard"
+    Write-Host "  3) Start gateway: resonix gateway start"
+    Write-Host ""
+    Write-Host "If 'resonix' is not found yet, open a new PowerShell window."
 }
 
 function Main {
@@ -299,29 +373,21 @@ function Main {
     Check-Requirements
     Setup-PackageManager
     Install-OrUpdateSource
-
-    Write-Info "Installing dependencies..."
     Install-Dependencies
-
-    Write-Info "Building Resonix-AG..."
     Build-Source
-
     Install-Launcher
+
     if ($SkipPathSetup -eq "1") {
         Write-Warn "Skipping PATH updates (RESONIX_INSTALL_SKIP_PATH=1)"
     } else {
         Ensure-UserPath
     }
 
-    Write-Host ""
-    Write-Success "Resonix-AG installed successfully."
-    Write-Host ""
-    Write-Host "Next steps:"
-    Write-Host "  1) Verify command: resonix -v"
-    Write-Host "  2) Run onboarding: resonix onboard"
-    Write-Host "  3) Start gateway: resonix gateway start"
-    Write-Host ""
-    Write-Host "If 'resonix' is not found, open a new terminal window."
+    Print-Success
 }
 
-Main
+try {
+    Main
+} catch {
+    Write-Fail "Installer failed: $($_.Exception.Message)"
+}

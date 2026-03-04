@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Resonix-AG installer for macOS/Linux
 # Usage: curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
-# Republished: 2026-03-04 (no behavior change)
+# Updated: 2026-03-04 (Resonix style + stability refresh)
 
 REPO_URL="${RESONIX_REPO_URL:-https://github.com/mangiapanejohn-dev/Resonix-AG.git}"
 INSTALL_ROOT="${RESONIX_INSTALL_ROOT:-$HOME/.resonix-ag}"
@@ -12,18 +12,17 @@ BIN_DIR="${RESONIX_BIN_DIR:-$HOME/.local/bin}"
 PNPM_VERSION="${RESONIX_PNPM_VERSION:-10.23.0}"
 SKIP_PATH_SETUP="${RESONIX_INSTALL_SKIP_PATH:-0}"
 
-# === 修改颜色为紫色系 ===
 BOLD='\033[1m'
-ACCENT='\033[38;2;147;51;255m'    # 高亮紫色 (用于Emoji和旋转圈)
-INFO='\033[38;2;210;130;255m'     # 浅紫色 (用于文字)
+ACCENT='\033[38;2;147;51;255m'
+INFO='\033[38;2;210;130;255m'
 SUCCESS='\033[38;2;47;201;113m'
 WARN='\033[38;2;255;176;32m'
 ERROR='\033[38;2;226;61;100m'
 MUTED='\033[38;2;139;127;119m'
 NC='\033[0m'
 
-# 全局变量用于控制动画
-SPINNER_PID=""
+PM_KIND=""
+PM_CMD=()
 
 print_banner() {
     echo ""
@@ -33,33 +32,30 @@ print_banner() {
     echo -e "${ACCENT} R   R   E        S  O   O  N  NN    I    X X  ${NC}"
     echo -e "${ACCENT} R   R   EEEE  SSS    OOO   N   N   III  X   X ${NC}"
     echo ""
-    echo -e "${BOLD}Resonix-AG Installer${NC}"
+    echo -e "${BOLD}👾 Resonix Installer (macOS/Linux)${NC}"
     echo -e "${MUTED}Source: ${SOURCE_DIR}${NC}"
     echo -e "${MUTED}Binary: ${BIN_DIR}/resonix${NC}"
-    echo -e "${MUTED}Runtime state remains in ~/.resonix${NC}"
+    echo -e "${MUTED}State directory: ~/.resonix${NC}"
+    echo ""
+    echo -e "${INFO}Hey bro, Resonix is warming up the engines...${NC}"
     echo ""
 }
 
 ui_error() {
-    # 确保动画停止后再打印错误
-    kill_spinner
-    echo -e "${ERROR}Error: $1${NC}" >&2
+    echo -e "${ERROR}[ERROR] $1${NC}" >&2
     exit 1
 }
 
 ui_info() {
-    kill_spinner
-    echo -e "${INFO}$1${NC}"
+    echo -e "${INFO}[INFO] $1${NC}"
 }
 
 ui_warn() {
-    kill_spinner
-    echo -e "${WARN}$1${NC}"
+    echo -e "${WARN}[WARN] $1${NC}"
 }
 
 ui_success() {
-    kill_spinner
-    echo -e "${SUCCESS}$1${NC}"
+    echo -e "${SUCCESS}[OK] $1${NC}"
 }
 
 detect_os() {
@@ -91,7 +87,7 @@ check_requirements() {
         ui_error "npm is required. Reinstall Node.js with npm included."
     fi
 
-    ui_success "Requirements OK (Node $(node -v))"
+    ui_success "Requirements checked (Node $(node -v))"
 }
 
 setup_package_manager() {
@@ -103,7 +99,7 @@ setup_package_manager() {
     fi
 
     if command -v corepack >/dev/null 2>&1; then
-        ui_info "pnpm not found, enabling via corepack..."
+        ui_info "pnpm not found, trying corepack (quick coffee break)."
         if corepack enable >/dev/null 2>&1 && corepack prepare "pnpm@${PNPM_VERSION}" --activate >/dev/null 2>&1; then
             PM_KIND="pnpm"
             if command -v pnpm >/dev/null 2>&1; then
@@ -111,12 +107,13 @@ setup_package_manager() {
             else
                 PM_CMD=(corepack pnpm)
             fi
-            ui_success "Using pnpm via corepack"
+            ui_success "pnpm enabled via corepack"
             return
         fi
+        ui_warn "corepack setup failed; falling back strategy in progress."
     fi
 
-    ui_warn "pnpm unavailable, falling back to npm"
+    ui_warn "pnpm unavailable; using npm. Resonix can still cook."
     PM_KIND="npm"
     PM_CMD=(npm)
 }
@@ -134,7 +131,7 @@ clone_fresh() {
     if [[ -e "$SOURCE_DIR" ]]; then
         backup_path "$SOURCE_DIR"
     fi
-    git clone --depth 1 "$REPO_URL" "$SOURCE_DIR" >/dev/null
+    git clone --depth 1 "$REPO_URL" "$SOURCE_DIR"
 }
 
 install_or_update_source() {
@@ -144,103 +141,62 @@ install_or_update_source() {
         local dirty
         dirty=$(git -C "$SOURCE_DIR" status --porcelain 2>/dev/null || true)
         if [[ -n "$dirty" ]]; then
-            ui_warn "Local changes detected in ${SOURCE_DIR}; preserving checkout and cloning fresh."
+            ui_warn "Local changes found in ${SOURCE_DIR}; cloning a fresh copy to keep your edits safe."
             clone_fresh
             return
         fi
 
-        ui_info "Updating existing checkout..."
+        ui_info "Updating existing Resonix checkout..."
         git -C "$SOURCE_DIR" remote set-url origin "$REPO_URL" >/dev/null 2>&1 || true
         if git -C "$SOURCE_DIR" fetch --depth 1 origin main >/dev/null 2>&1; then
             git -C "$SOURCE_DIR" checkout -q main >/dev/null 2>&1 || true
             git -C "$SOURCE_DIR" reset --hard origin/main >/dev/null 2>&1
+            ui_success "Source updated"
         else
-            ui_warn "Git update failed; recloning source."
+            ui_warn "Git update failed; recloning from scratch."
             clone_fresh
         fi
         return
     fi
 
     if [[ -e "$SOURCE_DIR" ]]; then
-        ui_warn "Existing non-git path at ${SOURCE_DIR}; preserving and cloning fresh."
+        ui_warn "Existing non-git path at ${SOURCE_DIR}; preserving and recloning."
     fi
 
-    ui_info "Cloning Resonix-AG source..."
+    ui_info "Cloning Resonix source..."
     clone_fresh
+    ui_success "Source cloned"
 }
 
-# === END OF PART 1 ===
-# === 核心动画与安装逻辑 ===
-
-# 启动动画
-start_spinner() {
-    _spinner "👾" "Resonix 正在赶到你家的路上..." "预计几分钟到达？" &
-    SPINNER_PID=$!
-}
-
-# 停止动画
-kill_spinner() {
-    if [[ -n "${SPINNER_PID:-}" ]] && kill $SPINNER_PID 2>/dev/null; then
-        wait $SPINNER_PID 2>/dev/null || true
-        # 清理动画留下的行
-        printf "\r\033[K\033[A\033[K"
-        echo ""
-        SPINNER_PID=""
-    fi
-}
-
-# 旋转动画函数 (原地覆盖模式)
-_spinner() {
-    local emoji="$1"
-    local line1="$2"
-    local line2="$3"
-    
-    # 这是一个平滑旋转的圆圈字符集
-    local spin='◐◓◑◒'
-    local i=0
-
-    while true; do
-        # \r 回到行首, \033[K 清除行尾
-        
-        # 第一行：Emoji + 旋转圆圈 + 文字
-        printf "\r\033[K"
-        printf " ${ACCENT}%s %s${NC} %s" "$emoji" "${spin:$i:1}" "$line1"
-        
-        # 第二行：提示语
-        printf "\r\033[K"
-        printf "   ${MUTED}%s${NC}" "$line2"
-        
-        i=$(( (i + 1) % ${#spin} ))
-        sleep 0.1
-    done
-}
-
-# 修改后的安装函数
 run_install() {
     cd "$SOURCE_DIR"
-    
+
     if [[ "$PM_KIND" == "pnpm" ]]; then
-        start_spinner
-        
-        if ! setsid "${PM_CMD[@]}" install --frozen-lockfile > /tmp/resonix_install.log 2>&1; then
-            "${PM_CMD[@]}" install > /tmp/resonix_install.log 2>&1
+        ui_info "Installing dependencies with pnpm (Resonix is stocking the fridge)."
+        if ! "${PM_CMD[@]}" install --frozen-lockfile; then
+            ui_warn "Frozen lockfile install failed; retrying with relaxed mode."
+            "${PM_CMD[@]}" install
         fi
-        
-        kill_spinner
-        echo ""
-        ui_success "Dependencies installed."
-    else
-        npm install
+        ui_success "Dependencies installed"
+        return
     fi
+
+    ui_info "Installing dependencies with npm"
+    npm install
+    ui_success "Dependencies installed"
 }
 
 run_build() {
     cd "$SOURCE_DIR"
+    ui_info "Building Resonix CLI and runtime..."
+
     if [[ "$PM_KIND" == "pnpm" ]]; then
         "${PM_CMD[@]}" build
     else
         npm run build
     fi
+
+    ui_success "Build completed"
 }
 
 install_launcher() {
@@ -262,7 +218,7 @@ exec node "\$ENTRY" "\$@"
 WRAPPER
 
     chmod +x "$BIN_DIR/resonix"
-    ui_success "Installed launcher: ${BIN_DIR}/resonix"
+    ui_success "Launcher installed at ${BIN_DIR}/resonix"
 }
 
 ensure_path() {
@@ -295,18 +251,20 @@ ensure_path() {
     if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
         export PATH="$BIN_DIR:$PATH"
     fi
+
+    ui_success "PATH updated for current and future shells"
 }
 
 print_success() {
     echo ""
-    ui_success "Resonix-AG installed successfully."
+    ui_success "Resonix installed successfully. Your digital roommate just moved in."
     echo ""
     echo -e "${BOLD}Next steps${NC}"
-    echo "  1) Verify command: resonix -v"
-    echo "  2) Run onboarding: resonix onboard"
+    echo "  1) Verify: resonix -v"
+    echo "  2) Onboard: resonix onboard"
     echo "  3) Start gateway: resonix gateway start"
     echo ""
-    echo -e "${MUTED}If 'resonix' is not found, open a new terminal session.${NC}"
+    echo -e "${MUTED}If 'resonix' is not found yet, open a new terminal session.${NC}"
 }
 
 main() {
@@ -315,14 +273,15 @@ main() {
     setup_package_manager
     install_or_update_source
     run_install
-    ui_info "Building Resonix-AG..."
     run_build
     install_launcher
+
     if [[ "$SKIP_PATH_SETUP" == "1" ]]; then
         ui_warn "Skipping PATH/profile updates (RESONIX_INSTALL_SKIP_PATH=1)"
     else
         ensure_path
     fi
+
     print_success
 }
 

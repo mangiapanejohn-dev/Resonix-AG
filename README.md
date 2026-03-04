@@ -2,11 +2,11 @@
 
 # 👾 Resonix
 
-**Version: `2026.3.4`**
+**Version `2026.3.4`**
 
-**Autonomous-first, memory-native agent runtime.**
+**An autonomous agent runtime with a real persistent memory core.**
 
-> "Heyy man ! I'm not some chatbot. I'm your digital roommate who happens to run on code. I browse the web when you're lazy, remember everything you forget, and occasionally reflect on life. Can't do your dishes, but I can definitely do your thinking."
+> "Heyy man! I'm not some chatbot. I'm your digital roommate who happens to run on code. I browse when you're lazy, remember what matters, and keep learning from every mission."
 
 Built by **MarkEllington**.
 
@@ -16,30 +16,32 @@ Built by **MarkEllington**.
 
 </div>
 
-## Why Resonix
+## What Resonix Is
 
-Resonix is a production-oriented OpenClaw-derived runtime that focuses on four things:
+Resonix is a production-focused autonomous agent runtime forked from the OpenClaw ecosystem and evolved with a different priority: **long-term continuity**.
 
-- **Fast onboarding and auth flow** (reduced blocking paths in provider auth loading)
-- **Two-layer persistent memory** (system profile + desktop knowledge mirror)
-- **Advanced cron operations** (metrics board, insights, run history, webhook rules)
-- **Cross-platform deployment reliability** (macOS/Linux/Windows installer paths + smoke coverage)
+The key idea is simple:
+- Not just a session bot.
+- Not just short-term context.
+- A system that can keep identity, retain knowledge, and improve over time.
 
-## Resonix vs OpenClaw (This Fork Focus)
+## Core Strengths
 
-This table is scoped to what **this Resonix repository adds on top of an OpenClaw base**.
+- **Two-layer permanent memory architecture**
+  - Runtime memory profile for durable facts/preferences/projects.
+  - Desktop knowledge base mirror (`resonix-M`) for human-visible persistence.
+- **Faster onboarding/auth experience**
+  - Hardened provider auth dispatch.
+  - Timeout fallback for plugin-based auth loading.
+- **Operational cron system, not basic cron CRUD**
+  - `cron board` insights (success/error trend, p95 duration, failure streaks, due-risk view).
+  - Run-history governance + memory-sync hooks.
+- **Cross-platform deployment paths**
+  - macOS/Linux one-line install.
+  - Windows one-line PowerShell install (startup hardening included).
+  - New Termux one-line installer.
 
-| Area | Resonix (`2026.3.4`) | Upstream OpenClaw baseline |
-| --- | --- | --- |
-| Identity layer | Explicit identity profile (`Resonix`, `MarkEllington`, about text, browser policy) wired into runtime | Not part of this fork-specific identity layer |
-| Persistent memory | `permanent-memory.json` + markdown mirror + memory scoring/retention | Fork-specific implementation |
-| Desktop memory workspace | Auto-scaffolded `~/Desktop/resonix-M` with identity/knowledge/retros/logs | Fork-specific implementation |
-| Cron observability | `cron board` with success rate, p95 duration, due/risk insights, memory-template stats | Fork-specific implementation |
-| Cron run governance | JSONL run history + webhook delivery guardrails + memory sync after runs | Fork-specific implementation |
-| Auth responsiveness | Provider auth dispatch hardening + plugin auth loader timeout fallback | Fork-specific implementation |
-| Installer compatibility | One-click installers + local smoke scripts + CI matrix (Ubuntu/macOS/Windows) | Fork-specific integration |
-
-## Quick Install
+## Quick Deploy
 
 ### macOS / Linux
 
@@ -53,6 +55,12 @@ curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/
 iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
 ```
 
+### Termux (Android)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash
+```
+
 ### Verify
 
 ```bash
@@ -60,84 +68,99 @@ resonix -v
 resonix onboard
 ```
 
-If command is not found, open a new terminal first.
+If command lookup has not refreshed yet, open a new terminal session.
 
-## Deployment Modes
+## Two-Layer Permanent Memory Architecture
 
-- **One-click installer**: `install.sh` / `install.ps1`
-- **Source mode**: clone + `pnpm install` + `pnpm build`
-- **Container mode**: Docker / Podman flows under `docs/install/`
+Resonix permanent memory is built as a **dual-plane system**.
 
-## First Run
+### Layer A: System Memory Plane
 
-```bash
-# Interactive setup
-resonix onboard
+Implemented in runtime memory modules (`src/memory/permanent-profile.ts`).
 
-# Start gateway
-resonix gateway start
+Responsibilities:
+- Extract durable user signals from interactions.
+- Score confidence and retention strength.
+- Track update history and source traces.
+- Keep machine-readable state for fast retrieval in future runs.
 
-# Inspect cron health board
-resonix cron board
+### Layer B: Human-Visible Knowledge Plane
 
-# Inspect permanent memory profile
-resonix memory profile
+Implemented by `resonix-M` sync (`src/memory/resonix-m.ts`).
+
+Responsibilities:
+- Auto-create a structured knowledge workspace on Desktop.
+- Write organized markdown artifacts for auditability.
+- Sync key outcomes (preferences, project facts, retrospectives, identity anchors).
+
+Default structure:
+
+```text
+~/Desktop/resonix-M/
+  identity/
+  knowledge/
+  autonomy/
+  retrospectives/
+  logs/
 ```
 
-## What's New In `2026.3.4`
+This is why Resonix memory is designed as **permanent knowledge continuity**, not temporary in-memory context.
 
-- Fixed auth-choice dispatch gaps so API/OAuth providers no longer silently skip handler logic.
-- Added safe timeout fallback for plugin auth loader to avoid onboarding/OAuth stalls.
-- Stabilized cron webhook e2e path and aligned webhook validation behavior.
-- Unified version metadata to `2026.3.4` across CLI + Android + iOS + macOS + release docs.
-- Kept permanent-memory and cron-board stacks validated with targeted test suites.
+## Runtime Architecture (High Level)
 
-## Memory Architecture (Resonix Core)
+```text
+User / Channel
+   -> Gateway / Routing
+   -> Agent Runtime
+      -> Tooling + Safety + Policy
+      -> Memory Plane A (system profile)
+      -> Memory Plane B (resonix-M mirror)
+   -> Channels / UI / Cron / Hooks
+```
 
-Resonix now uses a practical two-layer memory model:
+## Operations and CLI Essentials
 
-1. **System memory profile**
-   - Extracts durable signals from user turns (preferences/facts/projects/tasks/people).
-   - Maintains confidence, mention counts, timestamps, and source trace.
-   - Stores machine-readable and markdown mirrors for runtime + human audit.
+```bash
+# first-time setup
+resonix onboard
 
-2. **Desktop memory workspace (`resonix-M`)**
-   - Auto-created under Desktop on first sync.
-   - Organized structure:
-     - `identity/` (about, identity anchor)
-     - `knowledge/` (categorized memory mirrors)
-     - `autonomy/` (current plan)
-     - `retrospectives/` (task lessons)
-     - `logs/` (sync + event traces)
+# gateway lifecycle
+resonix gateway start
+resonix gateway status
 
-This keeps model context durable while giving users a visible, inspectable memory workspace.
+# memory inspection
+resonix memory profile
 
-## Advanced Cron Stack
+# cron intelligence board
+resonix cron board
+```
 
-Resonix cron is not just scheduler CRUD.
+## Resonix vs OpenClaw (Fork Direction)
 
-- `resonix cron board` exposes:
-  - Success/error rates in a rolling window
-  - Duration metrics (including p95)
-  - Consecutive failure streaks
-  - Due-now/risk insights
-  - Memory-template token visibility per job
-- `cron.runs` keeps JSONL run history per job for audit/debug.
-- Finished jobs can feed memory sync so repeated mistakes are less likely.
+| Area | Resonix 2026.3.4 | Typical OpenClaw baseline |
+| --- | --- | --- |
+| Persistent memory strategy | Two-layer permanent memory + Desktop mirror (`resonix-M`) | Primarily runtime/session-centric memory flow |
+| Identity anchoring | Explicit Resonix identity profile wired into gateway and prompts | No fork-specific identity profile by default |
+| Cron operations | Board-level observability + run-governance integration | Core scheduler flow |
+| Auth onboarding resilience | Dispatch hardening + plugin-auth timeout fallback | Standard auth flow without these fork-specific guards |
+| Installer posture | One-line macOS/Linux/Windows + Termux script in-repo | Varies by upstream release track |
 
-## Project Layout
+## Repository Layout
 
 ```text
 src/
-  commands/       # onboarding/auth/config flows
-  cron/           # scheduler, board metrics, run logs, webhook helpers
-  gateway/        # RPC methods, cron surface, runtime services
-  memory/         # permanent profile + resonix-M sync
-  identity/       # Resonix identity/about/browser policy
-  cli/            # CLI commands and UX
+  cli/             # command-line surfaces
+  commands/        # onboarding, auth, config orchestration
+  gateway/         # RPC, services, protocol handlers
+  cron/            # scheduler, board metrics, run-state
+  memory/          # permanent profile + resonix-M sync
+  identity/        # Resonix identity model
+  channels/        # channel adapters and routing integration
+extensions/        # optional channel/feature plugins
+docs/              # documentation
 ```
 
-## Development
+## Local Development
 
 ```bash
 pnpm install
@@ -145,7 +168,7 @@ pnpm build
 pnpm test
 ```
 
-Useful focused checks:
+Targeted checks for critical paths:
 
 ```bash
 pnpm test src/commands/auth-choice.e2e.test.ts
