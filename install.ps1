@@ -24,10 +24,10 @@ $RED = "`e[31m"
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "$PURPLE  RRR    EEE    SSS   OOO   N   N   II   X   X $RESET"
+    Write-Host "$PURPLE RRRR    EEE    SSS   OOO   N   N   II   X   X $RESET"
     Write-Host "$PURPLE R   R   E     S     O   O  NN  N    I    X X  $RESET"
     Write-Host "$PURPLE RRRR    EEE    SS   O   O  N N N    I     X   $RESET"
-    Write-Host "$PURPLE R   R   E       S   O   O  N  NN    I    X X  $RESET"
+    Write-Host "$PURPLE R   R   E        S  O   O  N  NN    I    X X  $RESET"
     Write-Host "$PURPLE R   R   EEE   SSS    OOO   N   N   II   X   X $RESET"
     Write-Host ""
     Write-Host "$BOLD Resonix-AG Installer$RESET"
