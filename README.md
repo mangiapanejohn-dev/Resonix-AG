@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="2048" height="512" alt="Gemini_Generated_Image_8gzkbk8gzkbk8gzk" src="https://github.com/user-attachments/assets/b036b952-560a-4732-99c9-0fd5a5e056a8" />
+![IMAGE 2026-03-04 23:10:28](https://github.com/user-attachments/assets/5c0f347e-6a0c-4708-a372-0c13ebd42891)
 
 
 **Version `2026.3.4`**
