@@ -42,28 +42,42 @@ Professional by architecture, chill in tone.
 ## Capability Map (High Contrast)
 
 ```mermaid
-flowchart TB
+%%{init: {'theme':'base', 'flowchart': {'nodeSpacing': 70, 'rankSpacing': 95, 'curve': 'linear'}}}%%
+flowchart LR
   R([Resonix Core])
-  R --> M[Permanent Memory]
-  R --> A[Autonomy and Growth]
-  R --> B[Integrated Browser]
-  R --> O[Operations]
 
-  M --> M1[System Permanent Profile]
-  M --> M2[Desktop resonix-M Mirror]
-  M --> M3[Retrieval Continuity]
+  subgraph M[Permanent Memory]
+    direction TB
+    M1[System Permanent Profile]
+    M2[Desktop resonix-M Mirror]
+    M3[Retrieval Continuity]
+  end
 
-  A --> A1[Task Retrospectives]
-  A --> A2[Preference Adaptation]
-  A --> A3[Self Correction Signals]
+  subgraph A[Autonomy and Growth]
+    direction TB
+    A1[Task Retrospectives]
+    A2[Preference Adaptation]
+    A3[Self Correction Signals]
+  end
 
-  B --> B1[Playwright Runtime]
-  B --> B2[Profile Isolation]
-  B --> B3[Tool Policy Guardrails]
+  subgraph B[Integrated Browser]
+    direction TB
+    B1[Playwright Runtime]
+    B2[Profile Isolation]
+    B3[Tool Policy Guardrails]
+  end
 
-  O --> O1[Cron Board Analytics]
-  O --> O2[Gateway Observability]
-  O --> O3[Multi Channel Delivery]
+  subgraph O[Operations]
+    direction TB
+    O1[Cron Board Analytics]
+    O2[Gateway Observability]
+    O3[Multi Channel Delivery]
+  end
+
+  R --> M
+  R --> A
+  R --> B
+  R --> O
 
   classDef core fill:#0f172a,color:#f8fafc,stroke:#38bdf8,stroke-width:2px;
   classDef memory fill:#ecfeff,color:#0f172a,stroke:#06b6d4,stroke-width:1px;
@@ -72,10 +86,10 @@ flowchart TB
   classDef ops fill:#f5f3ff,color:#0f172a,stroke:#8b5cf6,stroke-width:1px;
 
   class R core;
-  class M,M1,M2,M3 memory;
-  class A,A1,A2,A3 growth;
-  class B,B1,B2,B3 browser;
-  class O,O1,O2,O3 ops;
+  class M1,M2,M3 memory;
+  class A1,A2,A3 growth;
+  class B1,B2,B3 browser;
+  class O1,O2,O3 ops;
 ```
 
 ### Capability Map (Plain Text Fallback)
