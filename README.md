@@ -2,13 +2,13 @@
 
 # 👾 Resonix
 
-![Resonix Logo](docs/images/resonix-logo.svg)
+<img src="docs/images/resonix-logo.svg" alt="👾 RESONIX Logo" width="980" />
 
 **Version `2026.3.4`**
 
-**Autonomous agent runtime with two-layer permanent memory, self-growth loops, and an integrated browser stack.**
+**Autonomous agent runtime with permanent memory, self-growth loops, and an integrated browser stack.**
 
-> "Heyy man! I'm not some chatbot. I'm your digital roommate who runs on code. I browse when you're lazy, remember what matters, and get better after every mission."
+> "Heyy man! I'm not some chatbot. I'm your digital roommate who happens to run on code. I remember what matters, keep learning, and still let you stay in control."
 
 Built by **MarkEllington**.
 
@@ -20,58 +20,56 @@ Built by **MarkEllington**.
 
 ## Why Resonix
 
-Resonix is a production-focused autonomous runtime derived from the OpenClaw ecosystem, with a specific product direction:
+Resonix is a production-focused autonomous runtime derived from the OpenClaw ecosystem, with a clear product direction:
 
-- **Permanent knowledge continuity** instead of only session memory
-- **Autonomy with learning feedback** instead of static behavior
-- **Operational readiness** for daily use across platforms
+- **Permanent knowledge continuity** instead of short-lived session memory.
+- **Autonomy with feedback** so the system improves from outcomes.
+- **Operational readiness** for real deployment, not only demos.
 
-Resonix is designed to feel like a long-term digital collaborator, not a stateless assistant.
+Professional by architecture, relaxed in tone.
 
-Professional by architecture, chill in tone.
-
-## Core Capabilities
+## What Resonix Is Great At
 
 | Capability | What it does | Why it matters |
 | --- | --- | --- |
-| Two-layer permanent memory | System profile + Desktop `resonix-M` mirror | Keeps durable knowledge and makes memory auditable |
-| Autonomous growth loop | Captures outcomes, retros, and corrective signals | Reduces repeated mistakes over time |
-| Integrated browser runtime | Playwright-backed built-in browser stack | Reliable browser automation without external extension dependency |
-| Cron intelligence board | Success/error trend, p95 duration, risk view | Makes automation observable in production |
-| Auth and onboarding hardening | Dispatch fixes + timeout fallback | Reduces blocking and silent auth failures |
-| Cross-platform deploy paths | macOS/Linux/Windows/Termux one-line scripts | Fast setup in real environments |
+| Two-layer permanent memory | System profile + Desktop `resonix-M` mirror | Durable knowledge + human-auditable memory |
+| Autonomous growth loop | Captures outcomes, retrospectives, corrective signals | Fewer repeated mistakes over time |
+| Integrated browser runtime | Built-in Playwright-based browser flow | Reliable browser automation without extension dependency |
+| Cron intelligence board | Success/error trend, p95 duration, risk view | Production visibility for scheduled automation |
+| Auth/onboarding hardening | Dispatch fixes + timeout fallback | Reduced auth stalls and silent failures |
+| Cross-platform deployment | macOS/Linux/Windows/Termux scripts | Fast setup where users actually are |
 
 ## Capability Mind Map
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '18px', 'primaryTextColor': '#0f172a', 'lineColor': '#334155', 'primaryColor': '#e2e8f0', 'tertiaryColor': '#eef2ff', 'background': '#ffffff' }}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '18px', 'primaryTextColor': '#1E1B4B', 'lineColor': '#7C3AED', 'primaryColor': '#EDE9FE', 'tertiaryColor': '#F5F3FF', 'background': '#FFFFFF' }}}%%
 mindmap
-  root((Resonix))
-    Permanent Memory
-      System Profile
-      Desktop resonix-M
+  root((👾 RESONIX Brain))
+    🧠 Permanent Memory
+      Layer A: System Profile
+      Layer B: Desktop resonix-M
       Retrieval Continuity
-    Autonomy and Growth
+    🤖 Autonomy and Growth
       Task Retrospectives
       Preference Adaptation
       Self Correction
-    Integrated Browser
+    🌐 Integrated Browser
       Playwright Runtime
       Profile Isolation
       Tool Safety Policies
-    Operations
+    📈 Operations
       Cron Analytics
       Gateway Observability
       Multi Channel Delivery
 ```
 
-### Capability Mind Map (Plain Text Fallback)
+### Mind Map (Plain Text Fallback)
 
 ```text
-Resonix
+👾 RESONIX Brain
 |- Permanent Memory
-|  |- System Permanent Profile
-|  |- Desktop resonix-M Mirror
+|  |- Layer A: System Profile
+|  |- Layer B: Desktop resonix-M
 |  |- Retrieval Continuity
 |- Autonomy and Growth
 |  |- Task Retrospectives
@@ -124,9 +122,9 @@ Resonix memory is a **dual-plane permanent system**, not temporary in-memory con
 - Purpose: machine-readable durable memory for retrieval continuity
 - Stores: preferences, project facts, relationship context, recurring patterns, confidence scores, source traces
 
-2. **Memory Plane B: Human-Visible `resonix-M` Mirror**
+2. **Memory Plane B: Human-visible `resonix-M` Mirror**
 - Location: `src/memory/resonix-m.ts`
-- Purpose: inspectable long-term knowledge workspace for humans
+- Purpose: inspectable long-term knowledge workspace
 - Default folder: `~/Desktop/resonix-M`
 
 ```text
@@ -143,6 +141,8 @@ Resonix memory is a **dual-plane permanent system**, not temporary in-memory con
 - Task outcomes are summarized into retrospectives.
 - Useful context is promoted into permanent profile fields.
 - Future runs retrieve this memory to avoid repeating the same mistakes.
+
+Yes, it remembers your preferences. No, it will not roast your TODO list.
 
 ## Deployment and Troubleshooting
 
@@ -198,10 +198,10 @@ iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/i
 **`resonix` command not found after install**
 
 - Open a new terminal session first.
-- If still missing, run from the launcher path:
-  - macOS/Linux default: `~/.local/bin/resonix -v`
-  - Windows default: `%LOCALAPPDATA%\\Resonix\\bin\\resonix.cmd -v`
-  - Termux default: `$PREFIX/bin/resonix -v`
+- If still missing, run from launcher path:
+  - macOS/Linux: `~/.local/bin/resonix -v`
+  - Windows: `%LOCALAPPDATA%\\Resonix\\bin\\resonix.cmd -v`
+  - Termux: `$PREFIX/bin/resonix -v`
 - Re-run installer if launcher file is missing.
 
 **Termux script fails on desktop OS**
@@ -234,7 +234,7 @@ resonix memory profile
 | Memory strategy | Dual-plane permanent memory + Desktop mirror (`resonix-M`) | Mostly runtime/session-centric memory flow |
 | Identity continuity | Explicit Resonix identity profile integrated in runtime behavior | No fork-specific identity continuity layer by default |
 | Onboarding resilience | Auth dispatch hardening + plugin loader timeout fallback | Standard provider auth flow |
-| Browser posture | Integrated browser runtime and profile-isolated behavior | Commonly extension-centric or provider-specific flows |
+| Browser posture | Integrated browser runtime and profile-isolated behavior | Common extension-centric or provider-specific flows |
 | Cron operations | Board-level observability + run-governance hooks | Core scheduler operations |
 | Installer coverage | macOS/Linux/Windows + Termux one-line path | Depends on upstream release track |
 
