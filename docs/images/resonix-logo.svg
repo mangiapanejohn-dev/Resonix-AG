@@ -1,0 +1,39 @@
+<svg width="1600" height="380" viewBox="0 0 1600 380" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Resonix logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <linearGradient id="wordmark" x1="360" y1="95" x2="1480" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EDE9FE"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="70" y1="70" x2="300" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1600" height="380" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#020617" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <rect x="20" y="20" width="1560" height="340" rx="36" fill="url(#bg)"/>
+    <rect x="20" y="20" width="1560" height="340" rx="36" stroke="#334155" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(78 78)">
+    <circle cx="110" cy="110" r="106" fill="#0B1220" stroke="url(#accent)" stroke-width="8"/>
+    <rect x="56" y="66" width="108" height="78" rx="22" fill="#111827" stroke="#67E8F9" stroke-width="5"/>
+    <circle cx="86" cy="103" r="12" fill="#67E8F9"/>
+    <circle cx="134" cy="103" r="12" fill="#A78BFA"/>
+    <rect x="84" y="130" width="52" height="8" rx="4" fill="#CBD5E1"/>
+    <line x1="86" y1="58" x2="70" y2="30" stroke="#67E8F9" stroke-width="5" stroke-linecap="round"/>
+    <line x1="134" y1="58" x2="150" y2="30" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="68" cy="27" r="7" fill="#67E8F9"/>
+    <circle cx="152" cy="27" r="7" fill="#A78BFA"/>
+  </g>
+
+  <text x="360" y="210" fill="url(#wordmark)" font-family="'Segoe UI', 'Poppins', 'Trebuchet MS', sans-serif" font-size="146" font-weight="900" letter-spacing="8">RESONIX</text>
+  <text x="364" y="268" fill="#94A3B8" font-family="'Segoe UI', 'Poppins', 'Trebuchet MS', sans-serif" font-size="34" font-weight="600" letter-spacing="2">Autonomous Runtime with Permanent Memory</text>
+</svg>

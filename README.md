@@ -2,6 +2,8 @@
 
 # 👾 Resonix
 
+![Resonix Logo](docs/images/resonix-logo.svg)
+
 **Version `2026.3.4`**
 
 **Autonomous agent runtime with two-layer permanent memory, self-growth loops, and an integrated browser stack.**
