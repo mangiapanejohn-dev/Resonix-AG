@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
 # Resonix-AG installer for Windows
 # Usage: iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
+# Republished: 2026-03-04 (no behavior change)
 
 $ErrorActionPreference = "Stop"
 

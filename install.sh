@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Resonix-AG installer for macOS/Linux
 # Usage: curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+# Republished: 2026-03-04 (no behavior change)
 
 REPO_URL="${RESONIX_REPO_URL:-https://github.com/mangiapanejohn-dev/Resonix-AG.git}"
 INSTALL_ROOT="${RESONIX_INSTALL_ROOT:-$HOME/.resonix-ag}"
