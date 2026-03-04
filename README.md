@@ -168,6 +168,13 @@ iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/i
 - `install-termux.sh` is Termux-only.
 - Run it inside Termux where `pkg` exists.
 
+---
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&legend=top-left)](https://www.star-history.com/?repos=mangiapanejohn-dev%2FResonix-AG&type=timeline&logscale=&legend=top-left)
+
+---
+
 ## Operations Quick Start
 
 ```bash
