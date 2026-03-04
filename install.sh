@@ -11,17 +11,18 @@ BIN_DIR="${RESONIX_BIN_DIR:-$HOME/.local/bin}"
 PNPM_VERSION="${RESONIX_PNPM_VERSION:-10.23.0}"
 SKIP_PATH_SETUP="${RESONIX_INSTALL_SKIP_PATH:-0}"
 
+# === 修改颜色为紫色系 ===
 BOLD='\033[1m'
-ACCENT='\033[38;2;139;92;246m'
-INFO='\033[38;2;196;181;253m'
+ACCENT='\033[38;2;147;51;255m'    # 高亮紫色 (用于Emoji和旋转圈)
+INFO='\033[38;2;210;130;255m'     # 浅紫色 (用于文字)
 SUCCESS='\033[38;2;47;201;113m'
 WARN='\033[38;2;255;176;32m'
 ERROR='\033[38;2;226;61;100m'
 MUTED='\033[38;2;139;127;119m'
 NC='\033[0m'
 
-PM_KIND=""
-PM_CMD=()
+# 全局变量用于控制动画
+SPINNER_PID=""
 
 print_banner() {
     echo ""
@@ -39,19 +40,24 @@ print_banner() {
 }
 
 ui_error() {
+    # 确保动画停止后再打印错误
+    kill_spinner
     echo -e "${ERROR}Error: $1${NC}" >&2
     exit 1
 }
 
 ui_info() {
+    kill_spinner
     echo -e "${INFO}$1${NC}"
 }
 
 ui_warn() {
+    kill_spinner
     echo -e "${WARN}$1${NC}"
 }
 
 ui_success() {
+    kill_spinner
     echo -e "${SUCCESS}$1${NC}"
 }
 
@@ -162,13 +168,76 @@ install_or_update_source() {
     clone_fresh
 }
 
+# === 核心修改区域 ===
+
+# 启动动画
+start_spinner() {
+    # 在后台运行动画函数
+    _spinner "👾" "Resonix 正在赶到你家的路上..." "预计几分钟到达？" &
+        # 保存后台进程的 PID，以便后续杀死
+    SPINNER_PID=$!
+}
+
+# 停止动画
+kill_spinner() {
+    if [[ -n "${SPINNER_PID:-}" ]] && kill $SPINNER_PID 2>/dev/null; then
+        wait $SPINNER_PID 2>/dev/null || true
+        # 清理动画留下的行
+        printf "\r\033[K\033[A\033[K\033[A\033[K"
+        echo ""
+        SPINNER_PID=""
+    fi
+}
+
+# 实际的动画逻辑 (这里使用了圆圈旋转 ◐◓◑◒)
+_spinner() {
+    local emoji="$1"
+    local line1="$2"
+    local line2="$3"
+    
+    # 这是一个平滑旋转的圆圈字符集
+    local spin='◐◓◑◒'
+    local i=0
+
+    # 主循环
+    while true; do
+        # \033[K 清除当前行
+        # \033[A 光标上移
+        printf "\r\033[K"
+        
+        # 第一行：紫色 Emoji + 旋转圆圈 + 文字
+        printf " ${ACCENT}%s %s${NC} %s\n" "$emoji" "${spin:$i:1}" "$line1"
+        
+        # 第二行：浅紫色提示语
+        printf "\r\033[K ${MUTED}%s${NC}\n" "$line2"
+        
+        # 更新索引，实现旋转
+        i=$(( (i + 1) % ${#spin} ))
+        
+        # 休眠一小会儿
+        sleep 0.1
+    done
+}
+
+# === 修改 run_install 函数以使用动画 ===
 run_install() {
     cd "$SOURCE_DIR"
+    
     if [[ "$PM_KIND" == "pnpm" ]]; then
-        if ! "${PM_CMD[@]}" install --frozen-lockfile; then
-            ui_warn "Frozen install failed; retrying without lockfile strictness."
-            "${PM_CMD[@]}" install
+        # 1. 启动动画
+        start_spinner
+        
+        # 2. 执行安装命令
+        # 将输出重定向到临时文件，避免干扰动画
+        if ! setsid "${PM_CMD[@]}" install --frozen-lockfile > /tmp/resonix_install.log 2>&1; then
+            # 如果失败，重试
+            "${PM_CMD[@]}" install > /tmp/resonix_install.log 2>&1
         fi
+        
+        # 3. 安装完成，停止动画
+        kill_spinner
+        
+        ui_success "Dependencies installed."
     else
         npm install
     fi
@@ -254,8 +323,10 @@ main() {
     check_requirements
     setup_package_manager
     install_or_update_source
-    ui_info "Installing dependencies..."
+    
+    # 这里会触发带动画的安装
     run_install
+    
     ui_info "Building Resonix-AG..."
     run_build
     install_launcher
@@ -268,3 +339,5 @@ main() {
 }
 
 main "$@"
+
+ 
