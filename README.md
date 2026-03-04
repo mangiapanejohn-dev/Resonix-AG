@@ -2,8 +2,6 @@
 
 # 👾 Resonix
 
-<img src="docs/images/resonix-logo.svg" alt="👾 RESONIX Logo" width="980" />
-
 **Version `2026.3.4`**
 
 **Autonomous agent runtime with permanent memory, self-growth loops, and an integrated browser stack.**
@@ -39,77 +37,38 @@ Professional by architecture, relaxed in tone.
 | Auth/onboarding hardening | Dispatch fixes + timeout fallback | Reduced auth stalls and silent failures |
 | Cross-platform deployment | macOS/Linux/Windows/Termux scripts | Fast setup where users actually are |
 
-## Capability Mind Map
+## Runtime Architecture Map
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '18px', 'primaryTextColor': '#1E1B4B', 'lineColor': '#7C3AED', 'primaryColor': '#EDE9FE', 'tertiaryColor': '#F5F3FF', 'background': '#FFFFFF' }}}%%
-mindmap
-  root((👾 RESONIX Brain))
-    🧠 Permanent Memory
-      Layer A: System Profile
-      Layer B: Desktop resonix-M
-      Retrieval Continuity
-    🤖 Autonomy and Growth
-      Task Retrospectives
-      Preference Adaptation
-      Self Correction
-    🌐 Integrated Browser
-      Playwright Runtime
-      Profile Isolation
-      Tool Safety Policies
-    📈 Operations
-      Cron Analytics
-      Gateway Observability
-      Multi Channel Delivery
-```
-
-### Mind Map (Plain Text Fallback)
-
-```text
-👾 RESONIX Brain
-|- Permanent Memory
-|  |- Layer A: System Profile
-|  |- Layer B: Desktop resonix-M
-|  |- Retrieval Continuity
-|- Autonomy and Growth
-|  |- Task Retrospectives
-|  |- Preference Adaptation
-|  |- Self Correction
-|- Integrated Browser
-|  |- Playwright Runtime
-|  |- Profile Isolation
-|  |- Tool Safety Policies
-|- Operations
-   |- Cron Analytics
-   |- Gateway Observability
-   |- Multi Channel Delivery
-```
-
-## Runtime Architecture
-
-```mermaid
-flowchart LR
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '17px', 'primaryTextColor': '#1E1B4B', 'lineColor': '#7C3AED', 'primaryColor': '#EDE9FE', 'tertiaryColor': '#F5F3FF', 'background': '#FFFFFF' }}}%%
+flowchart TB
   U[User and Channels] --> G[Gateway and Routing]
   G --> A[Agent Runtime]
-  A --> T[Tools and Safety Policy]
+  A --> T[Tools and Safety Policy Engine]
   A --> M1[Memory Plane A System Profile]
-  A --> M2[Memory Plane B resonix-M Mirror]
+  A --> M2[Memory Plane B Desktop resonix-M Mirror]
   A --> B[Integrated Browser Runtime]
-  A --> C[Cron Hooks and Delivery]
+  A --> C[Cron Hooks and Delivery Engine]
+  C --> R[Action Results and Feedback]
+  R --> M1
+  R --> M2
   C --> U
 ```
 
-### Runtime Architecture (Plain Text Fallback)
+### Runtime Architecture Map (Plain Text Fallback)
 
 ```text
 User and Channels
   -> Gateway and Routing
   -> Agent Runtime
-     -> Tools and Safety Policy
+     -> Tools and Safety Policy Engine
      -> Memory Plane A (System Profile)
-     -> Memory Plane B (resonix-M Mirror)
+     -> Memory Plane B (Desktop resonix-M Mirror)
      -> Integrated Browser Runtime
-     -> Cron, Hooks, Delivery
+     -> Cron, Hooks, Delivery Engine
+     -> Action Results and Feedback
+        -> Memory Plane A
+        -> Memory Plane B
   -> User and Channels
 ```
 
