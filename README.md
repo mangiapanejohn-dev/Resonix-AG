@@ -40,13 +40,26 @@ Resonix is designed to feel like a long-term digital collaborator, not a statele
 
 ```mermaid
 flowchart LR
-  U["User & Channels"] --> G["Gateway / Routing"]
-  G --> A["Agent Runtime"]
-  A --> T["Tools, Policies, Safety"]
-  A --> M1["Memory Plane A\nSystem Permanent Profile"]
-  A --> M2["Memory Plane B\nresonix-M Knowledge Mirror"]
-  A --> C["Cron / Hooks / Delivery"]
+  U[User and Channels] --> G[Gateway and Routing]
+  G --> A[Agent Runtime]
+  A --> T[Tools and Safety Policy]
+  A --> M1[Memory Plane A System Profile]
+  A --> M2[Memory Plane B resonix-M Mirror]
+  A --> C[Cron Hooks and Delivery]
   C --> U
+```
+
+### Runtime Architecture (Plain Text Fallback)
+
+```text
+User and Channels
+  -> Gateway and Routing
+  -> Agent Runtime
+     -> Tools and Safety Policy
+     -> Memory Plane A (System Profile)
+     -> Memory Plane B (resonix-M Mirror)
+     -> Cron, Hooks, Delivery
+  -> User and Channels
 ```
 
 ### Permanent Memory Architecture (Core)
@@ -78,12 +91,32 @@ This two-layer design gives you both:
 
 ## Deployment Matrix
 
-| Platform | Install Mode | Command |
+| Platform | Install Mode | Copy Option |
 | --- | --- | --- |
-| macOS | One-line installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash` |
-| Linux | One-line installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash` |
-| Windows | PowerShell installer | `iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex` |
-| Termux (Android) | Termux installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash` |
+| macOS | One-line installer | Use copy block below |
+| Linux | One-line installer | Use copy block below |
+| Windows | PowerShell installer | Use copy block below |
+| Termux (Android) | Termux installer | Use copy block below |
+
+### Copy Ready Install Commands
+
+macOS / Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
+```
+
+Termux (Android):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash
+```
 
 ## Quick Start
 
