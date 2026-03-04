@@ -4,9 +4,9 @@
 
 **Version `2026.3.4`**
 
-**An autonomous agent runtime with a real persistent memory core.**
+**Autonomous agent runtime with a two-layer permanent memory architecture.**
 
-> "Heyy man! I'm not some chatbot. I'm your digital roommate who happens to run on code. I browse when you're lazy, remember what matters, and keep learning from every mission."
+> "Heyy man! I'm not some chatbot. I'm your digital roommate who runs on code. I browse when you're lazy, remember what matters, and get better after every mission."
 
 Built by **MarkEllington**.
 
@@ -16,84 +16,52 @@ Built by **MarkEllington**.
 
 </div>
 
-## What Resonix Is
+## Why Resonix
 
-Resonix is a production-focused autonomous agent runtime forked from the OpenClaw ecosystem and evolved with a different priority: **long-term continuity**.
+Resonix is a production-focused autonomous runtime derived from the OpenClaw ecosystem, but optimized for a different end state:
 
-The key idea is simple:
-- Not just a session bot.
-- Not just short-term context.
-- A system that can keep identity, retain knowledge, and improve over time.
+- Durable identity
+- Persistent knowledge continuity
+- Operational reliability across real deployments
 
-## Core Strengths
+Resonix is designed to feel like a long-term digital collaborator, not a stateless chat session.
+
+## At A Glance
 
 - **Two-layer permanent memory architecture**
-  - Runtime memory profile for durable facts/preferences/projects.
-  - Desktop knowledge base mirror (`resonix-M`) for human-visible persistence.
-- **Faster onboarding/auth experience**
-  - Hardened provider auth dispatch.
-  - Timeout fallback for plugin-based auth loading.
-- **Operational cron system, not basic cron CRUD**
-  - `cron board` insights (success/error trend, p95 duration, failure streaks, due-risk view).
-  - Run-history governance + memory-sync hooks.
-- **Cross-platform deployment paths**
-  - macOS/Linux one-line install.
-  - Windows one-line PowerShell install (startup hardening included).
-  - New Termux one-line installer.
+- **Faster onboarding/auth path with stall hardening**
+- **Cron intelligence board with runtime observability**
+- **Cross-platform one-line installers (macOS/Linux/Windows/Termux)**
+- **Identity-aware runtime behavior and prompt anchoring**
 
-## Quick Deploy
+## Architecture
 
-### macOS / Linux
+### Runtime Architecture
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
+```mermaid
+flowchart LR
+  U["User & Channels"] --> G["Gateway / Routing"]
+  G --> A["Agent Runtime"]
+  A --> T["Tools, Policies, Safety"]
+  A --> M1["Memory Plane A\nSystem Permanent Profile"]
+  A --> M2["Memory Plane B\nresonix-M Knowledge Mirror"]
+  A --> C["Cron / Hooks / Delivery"]
+  C --> U
 ```
 
-### Windows (PowerShell)
+### Permanent Memory Architecture (Core)
 
-```powershell
-iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
-```
+Resonix memory is a **dual-plane permanent system**, not temporary in-memory context.
 
-### Termux (Android)
+1. **Memory Plane A: System Permanent Profile**
+- Location: runtime modules (`src/memory/permanent-profile.ts`)
+- Purpose: durable machine-readable memory for retrieval and reasoning continuity
+- Stores: preferences, project facts, relationship context, recurring patterns, confidence scores, source traces
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash
-```
-
-### Verify
-
-```bash
-resonix -v
-resonix onboard
-```
-
-If command lookup has not refreshed yet, open a new terminal session.
-
-## Two-Layer Permanent Memory Architecture
-
-Resonix permanent memory is built as a **dual-plane system**.
-
-### Layer A: System Memory Plane
-
-Implemented in runtime memory modules (`src/memory/permanent-profile.ts`).
-
-Responsibilities:
-- Extract durable user signals from interactions.
-- Score confidence and retention strength.
-- Track update history and source traces.
-- Keep machine-readable state for fast retrieval in future runs.
-
-### Layer B: Human-Visible Knowledge Plane
-
-Implemented by `resonix-M` sync (`src/memory/resonix-m.ts`).
-
-Responsibilities:
-- Auto-create a structured knowledge workspace on Desktop.
-- Write organized markdown artifacts for auditability.
-- Sync key outcomes (preferences, project facts, retrospectives, identity anchors).
-
-Default structure:
+2. **Memory Plane B: `resonix-M` Knowledge Mirror**
+- Location: sync modules (`src/memory/resonix-m.ts`)
+- Purpose: human-visible, inspectable and auditable long-term memory workspace
+- Default folder: `~/Desktop/resonix-M`
 
 ```text
 ~/Desktop/resonix-M/
@@ -104,63 +72,78 @@ Default structure:
   logs/
 ```
 
-This is why Resonix memory is designed as **permanent knowledge continuity**, not temporary in-memory context.
+This two-layer design gives you both:
+- Fast runtime recall for the agent
+- Transparent memory artifacts for humans
 
-## Runtime Architecture (High Level)
+## Deployment Matrix
 
-```text
-User / Channel
-   -> Gateway / Routing
-   -> Agent Runtime
-      -> Tooling + Safety + Policy
-      -> Memory Plane A (system profile)
-      -> Memory Plane B (resonix-M mirror)
-   -> Channels / UI / Cron / Hooks
-```
+| Platform | Install Mode | Command |
+| --- | --- | --- |
+| macOS | One-line installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash` |
+| Linux | One-line installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash` |
+| Windows | PowerShell installer | `iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex` |
+| Termux (Android) | Termux installer | `curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash` |
 
-## Operations and CLI Essentials
+## Quick Start
 
 ```bash
-# first-time setup
+resonix -v
 resonix onboard
-
-# gateway lifecycle
 resonix gateway start
-resonix gateway status
-
-# memory inspection
-resonix memory profile
-
-# cron intelligence board
 resonix cron board
+resonix memory profile
 ```
+
+If command lookup is stale, open a new terminal session.
+
+## What Is New In `2026.3.4`
+
+- Hardened provider auth dispatch to avoid skipped auth handlers.
+- Added timeout fallback for plugin auth loading to reduce onboarding stall paths.
+- Improved installer experience with stronger UX and clearer failure handling.
+- Added dedicated Termux deployment path.
+- Unified release version metadata and installer messaging.
+
+## Cron Intelligence
+
+Resonix cron is more than timer CRUD.
+
+`resonix cron board` provides:
+- Success/error trend
+- p95 duration and execution behavior
+- Failure streak visibility
+- Due-risk insight
+- Memory-template execution context visibility
+
+This makes scheduled automation observable and debuggable in production.
 
 ## Resonix vs OpenClaw (Fork Direction)
 
-| Area | Resonix 2026.3.4 | Typical OpenClaw baseline |
+| Area | Resonix `2026.3.4` | Typical OpenClaw baseline |
 | --- | --- | --- |
-| Persistent memory strategy | Two-layer permanent memory + Desktop mirror (`resonix-M`) | Primarily runtime/session-centric memory flow |
-| Identity anchoring | Explicit Resonix identity profile wired into gateway and prompts | No fork-specific identity profile by default |
-| Cron operations | Board-level observability + run-governance integration | Core scheduler flow |
-| Auth onboarding resilience | Dispatch hardening + plugin-auth timeout fallback | Standard auth flow without these fork-specific guards |
-| Installer posture | One-line macOS/Linux/Windows + Termux script in-repo | Varies by upstream release track |
+| Memory strategy | Dual-plane permanent memory + Desktop mirror (`resonix-M`) | Mostly runtime/session-centric memory flow |
+| Identity continuity | Explicit Resonix identity profile integrated in runtime behavior | No fork-specific identity continuity layer by default |
+| Onboarding resilience | Auth dispatch hardening + plugin loader timeout fallback | Standard provider auth flow |
+| Cron operations | Board-level observability + run-governance hooks | Core scheduler operations |
+| Installer coverage | macOS/Linux/Windows + Termux one-line path | Depends on upstream release track |
 
-## Repository Layout
+## Repository Structure
 
 ```text
 src/
-  cli/             # command-line surfaces
-  commands/        # onboarding, auth, config orchestration
-  gateway/         # RPC, services, protocol handlers
-  cron/            # scheduler, board metrics, run-state
-  memory/          # permanent profile + resonix-M sync
-  identity/        # Resonix identity model
+  cli/             # command surfaces
+  commands/        # onboarding/auth/config orchestration
+  gateway/         # protocol, RPC, services
+  cron/            # scheduler, board metrics, run governance
+  memory/          # permanent profile and resonix-M sync
+  identity/        # runtime identity model
   channels/        # channel adapters and routing integration
-extensions/        # optional channel/feature plugins
+extensions/        # optional plugin packages
 docs/              # documentation
 ```
 
-## Local Development
+## Development
 
 ```bash
 pnpm install
@@ -168,13 +151,36 @@ pnpm build
 pnpm test
 ```
 
-Targeted checks for critical paths:
+Focused checks for critical paths:
 
 ```bash
 pnpm test src/commands/auth-choice.e2e.test.ts
 pnpm test src/gateway/server.cron.e2e.test.ts
 pnpm test src/memory/permanent-profile.test.ts src/memory/resonix-m.test.ts
 ```
+
+## Troubleshooting
+
+### Windows installer exits immediately
+
+- Use PowerShell (Windows PowerShell 5.1+ or PowerShell 7+).
+- Ensure Node.js 22+ is installed and available in PATH.
+- Re-run with explicit execution policy if needed:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
+```
+
+### `resonix` command not found after install
+
+- Open a new terminal session.
+- Or invoke via absolute path from the installer output directory.
+
+### Termux script fails on desktop OS
+
+- `install-termux.sh` is intentionally Termux-only.
+- Run it inside Termux where `pkg` is available.
 
 ## Community
 
