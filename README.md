@@ -199,6 +199,26 @@ resonix memory profile
 
 ## Repository Structure
 
+### Repository Runtime Architecture
+
+```mermaid
+flowchart LR
+  ROOT[Resonix Repository]
+  ROOT --> SRC[src/]
+  ROOT --> EXT[extensions/ optional plugin packages]
+  ROOT --> DOCS[docs/ documentation]
+
+  SRC --> CLI[src/cli command surfaces]
+  SRC --> CMDS[src/commands onboarding and config orchestration]
+  SRC --> GW[src/gateway protocol RPC and services]
+  SRC --> CRON[src/cron scheduler metrics and run governance]
+  SRC --> MEM[src/memory permanent profile and resonix-M sync]
+  SRC --> ID[src/identity runtime identity model]
+  SRC --> CH[src/channels channel adapters and routing integration]
+```
+
+### Repository Runtime Architecture (Plain Text Fallback)
+
 ```text
 src/
   cli/             # command surfaces
