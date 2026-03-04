@@ -39,60 +39,31 @@ Professional by architecture, chill in tone.
 | Auth and onboarding hardening | Dispatch fixes + timeout fallback | Reduces blocking and silent auth failures |
 | Cross-platform deploy paths | macOS/Linux/Windows/Termux one-line scripts | Fast setup in real environments |
 
-## Capability Map (High Contrast)
+## Capability Mind Map
 
 ```mermaid
-%%{init: {'theme':'base', 'flowchart': {'nodeSpacing': 70, 'rankSpacing': 95, 'curve': 'linear'}}}%%
-flowchart LR
-  R([Resonix Core])
-
-  subgraph M[Permanent Memory]
-    direction TB
-    M1[System Permanent Profile]
-    M2[Desktop resonix-M Mirror]
-    M3[Retrieval Continuity]
-  end
-
-  subgraph A[Autonomy and Growth]
-    direction TB
-    A1[Task Retrospectives]
-    A2[Preference Adaptation]
-    A3[Self Correction Signals]
-  end
-
-  subgraph B[Integrated Browser]
-    direction TB
-    B1[Playwright Runtime]
-    B2[Profile Isolation]
-    B3[Tool Policy Guardrails]
-  end
-
-  subgraph O[Operations]
-    direction TB
-    O1[Cron Board Analytics]
-    O2[Gateway Observability]
-    O3[Multi Channel Delivery]
-  end
-
-  R --> M
-  R --> A
-  R --> B
-  R --> O
-
-  classDef core fill:#0f172a,color:#f8fafc,stroke:#38bdf8,stroke-width:2px;
-  classDef memory fill:#ecfeff,color:#0f172a,stroke:#06b6d4,stroke-width:1px;
-  classDef growth fill:#f0fdf4,color:#0f172a,stroke:#22c55e,stroke-width:1px;
-  classDef browser fill:#fff7ed,color:#0f172a,stroke:#f97316,stroke-width:1px;
-  classDef ops fill:#f5f3ff,color:#0f172a,stroke:#8b5cf6,stroke-width:1px;
-
-  class R core;
-  class M1,M2,M3 memory;
-  class A1,A2,A3 growth;
-  class B1,B2,B3 browser;
-  class O1,O2,O3 ops;
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '18px', 'primaryTextColor': '#0f172a', 'lineColor': '#334155', 'primaryColor': '#e2e8f0', 'tertiaryColor': '#eef2ff', 'background': '#ffffff' }}}%%
+mindmap
+  root((Resonix))
+    Permanent Memory
+      System Profile
+      Desktop resonix-M
+      Retrieval Continuity
+    Autonomy and Growth
+      Task Retrospectives
+      Preference Adaptation
+      Self Correction
+    Integrated Browser
+      Playwright Runtime
+      Profile Isolation
+      Tool Safety Policies
+    Operations
+      Cron Analytics
+      Gateway Observability
+      Multi Channel Delivery
 ```
 
-### Capability Map (Plain Text Fallback)
+### Capability Mind Map (Plain Text Fallback)
 
 ```text
 Resonix
@@ -103,13 +74,13 @@ Resonix
 |- Autonomy and Growth
 |  |- Task Retrospectives
 |  |- Preference Adaptation
-|  |- Self Correction Signals
+|  |- Self Correction
 |- Integrated Browser
 |  |- Playwright Runtime
 |  |- Profile Isolation
-|  |- Tool Policy Guardrails
+|  |- Tool Safety Policies
 |- Operations
-   |- Cron Board Analytics
+   |- Cron Analytics
    |- Gateway Observability
    |- Multi Channel Delivery
 ```
