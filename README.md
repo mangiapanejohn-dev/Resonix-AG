@@ -55,7 +55,7 @@ flowchart TB
   C --> U
 ```
 
-### Runtime Architecture Map (Plain Text Fallback)
+### Runtime Architecture Map ( Text )
 
 ```text
 User and Channels
