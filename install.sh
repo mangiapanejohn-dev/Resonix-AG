@@ -25,11 +25,11 @@ PM_CMD=()
 
 print_banner() {
     echo ""
-    echo -e "${ACCENT}  RRR    EEE    SSS   OOO   N   N   II   X   X ${NC}"
+    echo -e "${ACCENT} RRRR    EEEE   SSS   OOO   N   N   III  X   X ${NC}"
     echo -e "${ACCENT} R   R   E     S     O   O  NN  N    I    X X  ${NC}"
     echo -e "${ACCENT} RRRR    EEE    SS   O   O  N N N    I     X   ${NC}"
-    echo -e "${ACCENT} R   R   E       S   O   O  N  NN    I    X X  ${NC}"
-    echo -e "${ACCENT} R   R   EEE   SSS    OOO   N   N   II   X   X ${NC}"
+    echo -e "${ACCENT} R   R   E        S  O   O  N  NN    I    X X  ${NC}"
+    echo -e "${ACCENT} R   R   EEEE  SSS    OOO   N   N   III  X   X ${NC}"
     echo ""
     echo -e "${BOLD}Resonix-AG Installer${NC}"
     echo -e "${MUTED}Source: ${SOURCE_DIR}${NC}"
