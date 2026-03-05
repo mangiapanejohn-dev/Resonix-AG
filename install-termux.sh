@@ -71,8 +71,8 @@ install_termux_packages() {
   ui_info "Updating Termux package index..."
   pkg update -y >/dev/null
 
-  ui_info "Installing base packages (git, nodejs-lts, openssh)..."
-  pkg install -y git nodejs-lts openssh >/dev/null
+  ui_info "Installing base packages (git, nodejs-lts, openssh, clang, make, python, pkg-config)..."
+  pkg install -y git nodejs-lts openssh clang make python pkg-config binutils >/dev/null
 
   if ! command -v node >/dev/null 2>&1; then
     ui_error "Node.js installation failed in Termux."
@@ -186,6 +186,31 @@ run_install() {
   npm install
 }
 
+ensure_koffi_native() {
+  cd "$SOURCE_DIR"
+  ui_info "Verifying native dependency: koffi"
+
+  if [[ "$PM_KIND" == "pnpm" ]]; then
+    if ! "${PM_CMD[@]}" rebuild koffi >/dev/null 2>&1; then
+      ui_warn "pnpm rebuild koffi failed; retrying once with build-from-source."
+      export npm_config_build_from_source=true
+      "${PM_CMD[@]}" rebuild koffi
+    fi
+  else
+    if ! npm rebuild koffi >/dev/null 2>&1; then
+      ui_warn "npm rebuild koffi failed; retrying once with build-from-source."
+      export npm_config_build_from_source=true
+      npm rebuild koffi
+    fi
+  fi
+
+  if ! node -e "require('sqlite-vec')" >/dev/null 2>&1; then
+    ui_error "Native dependency check failed (sqlite-vec/koffi) on Termux. Keep network available and re-run installer."
+  fi
+
+  ui_success "Native dependency check passed (koffi)"
+}
+
 run_build() {
   cd "$SOURCE_DIR"
   ui_info "Building Resonix..."
@@ -255,6 +280,7 @@ main() {
   setup_package_manager
   install_or_update_source
   run_install
+  ensure_koffi_native
   run_build
   install_launcher
   ensure_shell_path

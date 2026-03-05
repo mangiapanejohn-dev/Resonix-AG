@@ -270,6 +270,32 @@ function Install-Dependencies {
     }
 }
 
+function Ensure-KoffiNative {
+    Set-Location $SourceDir
+    Write-Info "Verifying native dependency: koffi"
+
+    if ($script:PackageManager -eq "pnpm") {
+        try {
+            Invoke-Pnpm rebuild koffi
+        } catch {
+            Write-Warn "pnpm rebuild koffi failed on first attempt; retrying once."
+            Invoke-Pnpm rebuild koffi
+        }
+    } else {
+        npm rebuild koffi | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "npm rebuild koffi failed"
+        }
+    }
+
+    node -e "try { require('sqlite-vec'); } catch (err) { console.error(err && err.stack ? err.stack : String(err)); process.exit(1); }" | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "Native dependency check failed (sqlite-vec/koffi). Re-run installer and ensure dependency build scripts are allowed."
+    }
+
+    Write-Success "Native dependency check passed (koffi)"
+}
+
 function Build-Source {
     Set-Location $SourceDir
     Write-Info "Building Resonix CLI and runtime..."
@@ -374,6 +400,7 @@ function Main {
     Setup-PackageManager
     Install-OrUpdateSource
     Install-Dependencies
+    Ensure-KoffiNative
     Build-Source
     Install-Launcher
 

@@ -186,6 +186,26 @@ run_install() {
     ui_success "Dependencies installed"
 }
 
+ensure_koffi_native() {
+    cd "$SOURCE_DIR"
+    ui_info "Verifying native dependency: koffi"
+
+    if [[ "$PM_KIND" == "pnpm" ]]; then
+        if ! "${PM_CMD[@]}" rebuild koffi >/dev/null 2>&1; then
+            ui_warn "pnpm rebuild koffi failed on first attempt; retrying once with output."
+            "${PM_CMD[@]}" rebuild koffi
+        fi
+    else
+        npm rebuild koffi
+    fi
+
+    if ! node -e "require('sqlite-vec')" >/dev/null 2>&1; then
+        ui_error "Native dependency check failed (sqlite-vec/koffi). Re-run installer and ensure build scripts are allowed."
+    fi
+
+    ui_success "Native dependency check passed (koffi)"
+}
+
 run_build() {
     cd "$SOURCE_DIR"
     ui_info "Building Resonix CLI and runtime..."
@@ -273,6 +293,7 @@ main() {
     setup_package_manager
     install_or_update_source
     run_install
+    ensure_koffi_native
     run_build
     install_launcher
 
