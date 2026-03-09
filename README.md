@@ -56,23 +56,7 @@ flowchart TB
   C --> U
 ```
 
-### Runtime Architecture Map ( Text )
-
-```text
-User and Channels
-  -> Gateway and Routing
-  -> Agent Runtime
-     -> Tools and Safety Policy Engine
-     -> Memory Plane A (System Profile)
-     -> Memory Plane B (Desktop resonix-M Mirror)
-     -> Integrated Browser Runtime
-     -> Cron, Hooks, Delivery Engine
-     -> Action Results and Feedback
-        -> Memory Plane A
-        -> Memory Plane B
-  -> User and Channels
 ```
-
 ## Permanent Memory and Self Growth
 
 Resonix memory is a **dual-plane permanent system**, not temporary in-memory context.
