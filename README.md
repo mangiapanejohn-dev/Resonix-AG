@@ -56,7 +56,7 @@ flowchart TB
   C --> U
 ```
 
-```
+
 ## Permanent Memory and Self Growth
 
 Resonix memory is a **dual-plane permanent system**, not temporary in-memory context.
