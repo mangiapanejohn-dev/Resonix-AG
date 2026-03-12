@@ -48,119 +48,66 @@ Every conversation starts from scratch. They forget everything.
 
 ### 🧠 Memory That Never Forgets
 
-<table>
-<tr>
-<td width="40%">
-
 ```mermaid
 flowchart TB
-    subgraph Conv[💬 Conversation]
-        direction LR
-        Q[User] --> A[AI]
-    end
-    subgraph L1[📦 Layer A: System Profile]
-        P[⚙️ Prefs]
-        F[📌 Facts]
-        C[🔄 Patterns]
-    end
-    subgraph L2[📁 Layer B: Desktop Mirror]
-        I[👤 identity]
-        K[📚 knowledge]
-        L[📜 logs]
-    end
-    Conv --> L1
-    Conv --> L2
+    USER["👤 User"] -->|"message"| BOT["🤖 Resonix"]
+    BOT --> LAYERA["📦 Layer A<br/>System Profile"]
+    BOT --> LAYERB["📁 Layer B<br/>Desktop Mirror"]
+    LAYERA --> PREF["⚙️ Prefs"]
+    LAYERA --> FACTS["📌 Facts"]
+    LAYERA --> PAT["🔄 Patterns"]
+    LAYERB --> ID["👤 identity"]
+    LAYERB --> KNOW["📚 knowledge"]
+    LAYERB --> LOGS["📜 logs"]
+
+    style BOT fill:#7c3aed,stroke:#7c3aed,color:#fff
+    style LAYERA fill:#e0e7ff,stroke:#4f46e5
+    style LAYERB fill:#f0fdf4,stroke:#16a34a
 ```
 
-</td>
-<td valign="top">
-
-**Two-layer permanent memory**
-- **Layer A** → Machine-readable profile (preferences, facts, patterns)
-- **Layer B** → Human-readable files at `~/Desktop/resonix-M/`
-
-*Every conversation builds on the last. Resonix actually remembers you.*
-
-</td>
-</tr>
-</table>
+Two-layer permanent memory. Layer A stores machine-readable profile, Layer B creates human-readable files at `~/Desktop/resonix-M/`. Every conversation builds on the last.
 
 ---
 
 ### 🔄 Gets Smarter Over Time
 
-<table>
-<tr>
-<td width="40%">
-
 ```mermaid
 flowchart LR
-    A[📋 Task] --> B[📊 Result]
-    B --> C[🔍 Review]
-    C --> D[📚 Learn]
-    D -.-> A
-    style A fill:#e0f2fe,stroke:#0284c7
-    style B fill:#fef3c7,stroke:#d97706
-    style C fill:#f3e8ff,stroke:#9333ea
-    style D fill:#dcfce7,stroke:#16a34a
+    TASK[📋 Task] --> RESULT[📊 Result]
+    RESULT --> RETRO[🔍 Review]
+    RETRO --> LEARN[📚 Learn]
+    LEARN -.-> TASK
+    style TASK fill:#e0f2fe,stroke:#0284c7
+    style RESULT fill:#fef3c7,stroke:#d97706
+    style RETRO fill:#f3e8ff,stroke:#9333ea
+    style LEARN fill:#dcfce7,stroke:#16a34a
 ```
 
-</td>
-<td valign="top">
-
-**Self-growth loop**
-- Execute task → Analyze result → Create retrospective → Store learning → Improve next task
-- Remembers what worked and what didn't
-
-*Starts dumb, gets smart.learns from every outcome.*
-
-</td>
-</tr>
-</table>
+Execute task → Analyze result → Create retrospective → Store learning → Improve next task. Remembers what worked and what didn't.
 
 ---
 
 ### 🌐 Browser That Just Works
 
-<table>
-<tr>
-<td width="40%">
-
 ```mermaid
 flowchart LR
-    subgraph Old[❌ Old Way]
-        E[🔌 Ext] -.-> B[💥 Breaks]
-        S[🎯 Selector] -.-> F[😰 Fragile]
-    end
-    subgraph New[✅ Resonix]
-        P[🎭 Playwright] ==> W[✓ Works]
-        D[🧠 Smart] ==> R[✓ Reliable]
-    end
-    style Old fill:#fee2e2,stroke:#ef4444
-    style New fill:#dcfce7,stroke:#22c55e
+    OLD[❌ Old] -->|breaks| NEW[✅ Resonix]
+    EXT[🔌 Ext] -->|unreliable| PW[🎭 Playwright]
+    SEL[🎯 Selector] -->|unstable| SMART[🧠 Smart Detection]
+    SS[📸 Manual] -->|slow| AUTO[🤖 Auto Capture]
+
+    style OLD fill:#fee2e2,stroke:#ef4444
+    style NEW fill:#dcfce7,stroke:#22c55e
+    style PW fill:#dcfce7,stroke:#22c55e
+    style SMART fill:#dcfce7,stroke:#22c55e
+    style AUTO fill:#dcfce7,stroke:#22c55e
 ```
 
-</td>
-<td valign="top">
-
-**No more broken automation**
-- Playwright-powered (not fragile Chrome extensions)
-- Smart element detection survives UI updates
-- Automatic screenshots & consistent results
-
-*Works today. Works tomorrow.*
-
-</td>
-</tr>
-</table>
+Playwright-powered instead of fragile Chrome extensions. Smart element detection survives UI updates. Automatic screenshots & consistent results.
 
 ---
 
 ### 📊 Know Your Automation Status
-
-<table>
-<tr>
-<td width="40%">
 
 ```mermaid
 pie title Task Results
@@ -168,19 +115,7 @@ pie title Task Results
     "❌ Errors" : 18
 ```
 
-</td>
-<td valign="top">
-
-**Production monitoring**
-- Success/Error rate tracking
-- P95 response time metrics
-- Risk level assessment
-
-*Always know how your automation is performing.*
-
-</td>
-</tr>
-</table>
+Success/Error rate tracking, P95 response time metrics, and risk level assessment. Always know how your automation is performing.
 
 ---
 
@@ -188,38 +123,56 @@ pie title Task Results
 
 ```mermaid
 flowchart TB
-    subgraph USER["👤 Users"]
-        T["Telegram"]
-        D["Discord"]
-        S["Slack"]
-        W["WhatsApp"]
+    subgraph Users[👤 Channels]
+        T[Telegram]:::purple
+        D[Discord]:::purple
+        S[Slack]:::purple
+        W[WhatsApp]:::purple
     end
 
-    subgraph GATEWAY["🚀 Gateway"]
-        R["Routing"]
-        A["Auth"]
-        C["Channels"]
+    subgraph Gateway[🚀 Gateway]
+        R[Routing]
+        A[Auth]
+        C[Channels]
     end
 
-    subgraph AGENT["🤖 Agent Runtime"]
-        M["🧠 Memory"]
-        B["🌐 Browser"]
-        T2["🔧 Tools"]
-        G["🔄 Growth"]
-        I["👤 Identity"]
+    subgraph Agent[🤖 Agent Runtime]
+        M[🧠 Memory]
+        B[🌐 Browser]
+        T2[🔧 Tools]
+        G[🔄 Growth]
+        I[👤 Identity]
     end
 
-    subgraph MEMORY["💾 Memory System"]
-        MA["Layer A: System Profile"]
-        MB["Layer B: Desktop Mirror"]
+    subgraph Memory[💾 Memory]
+        MA[Layer A]
+        MB[Layer B]
     end
 
-    USER --> GATEWAY
-    GATEWAY --> AGENT
-    AGENT --> MEMORY
+    Users --> Gateway
+    Gateway --> Agent
+    Agent --> Memory
     M --> MA
     M --> MB
-    G --> AGENT
+
+    style Users fill:none,stroke:#7c3aed,stroke-width:2px
+    style Gateway fill:none,stroke:#7c3aed,stroke-width:2px
+    style Agent fill:none,stroke:#7c3aed,stroke-width:2px
+    style Memory fill:none,stroke:#7c3aed,stroke-width:2px
+    style T fill:none,stroke:#9333ea
+    style D fill:none,stroke:#9333ea
+    style S fill:none,stroke:#9333ea
+    style W fill:none,stroke:#9333ea
+    style R fill:none,stroke:#9333ea
+    style A fill:none,stroke:#9333ea
+    style C fill:none,stroke:#9333ea
+    style M fill:none,stroke:#9333ea
+    style B fill:none,stroke:#9333ea
+    style T2 fill:none,stroke:#9333ea
+    style G fill:none,stroke:#9333ea
+    style I fill:none,stroke:#9333ea
+    style MA fill:none,stroke:#9333ea
+    style MB fill:none,stroke:#9333ea
 ```
 
 ---
