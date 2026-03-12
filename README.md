@@ -46,63 +46,126 @@ Every conversation starts from scratch. They forget everything.
 
 ## ✨ Key Features
 
-### 🧠 Two-Layer Permanent Memory
+### 🧠 Permanent Memory That Actually Remembers
+
+<table>
+<tr>
+<td width="45%">
 
 ```mermaid
 mindmap
-  root((🧠 Memory))
-    Layer A
-      ::icon(⚙️)
-      System Profile
-        Preferences
-        Facts
-        Patterns
-        Confidence
-    Layer B
-      ::icon(📁)
-      Desktop Mirror
-        identity
-        knowledge
-        autonomy
-        retrospectives
-        logs
+  root((🧠))
+    L1[L1 System]
+      Prefs
+      Facts
+      Patterns
+    L2[L2 Desktop]
+      identity
+      knowledge
+      logs
 ```
 
-### 🔄 Self-Growth Loop
+</td>
+<td valign="top">
 
-```mermaid
-flowchart TD
-    A[📋 Task] --> B[📊 Result]
-    B --> C[🔍 Retrospective]
-    C --> D[📚 Learning]
-    D --> E[✨ Better Task]
-    E -.-> A
-```
+**Dual-layer memory system**
+- **Layer A**: Machine-readable system profile stores preferences, facts, patterns with confidence scores
+- **Layer B**: Human-readable desktop mirror at `~/Desktop/resonix-M/` for inspection
 
-### 🌐 Built-in Browser Control
+*Resonix never forgets. Every conversation builds on the last.*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🔄 Self-Learning That Improves Over Time
+
+<table>
+<tr>
+<td width="45%">
 
 ```mermaid
 flowchart LR
-    A[❌ Chrome Extensions] -->|breaks| B[🎭 Playwright]
-    C[🎯 Fragile Selectors] -->|replaced| D[🧠 Smart Detection]
-    E[📸 Manual Screenshots] -->|auto| F[🤖 Auto Capture]
-    G[💥 It Worked Yesterday] -->|now| H[⚡ Consistent]
+    T[Task] --> R[Result]
+    R --> Ret[Review]
+    Ret --> L[Learn]
+    L -.-> T
 ```
 
-### 📊 Cron Intelligence Board
+</td>
+<td valign="top">
+
+**Growth loop**
+- Task executes → Result analyzed → Retrospective created → Learning stored → Better next task
+- Captures mistakes and successes to improve future performance
+
+*Gets smarter with every task it completes.*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 🌐 Built-in Browser Automation
+
+<table>
+<tr>
+<td width="45%">
 
 ```mermaid
-flowchart TB
-    B[📊 Cron Board]
-    S[✅ Success 82%]
-    E[❌ Errors 18%]
-    T[⏱️ P95 2.3s]
-    R[⚠️ Risk Low]
-    B --> S
-    B --> E
-    B --> T
-    B --> R
+flowchart LR
+    Ext[❌ Ext] -->|unreliable| PW[✓ Playwright]
+    Sel[❌ Selector] -->|unstable| Smart[✓ Smart]
+    SS[❌ Manual] -->|slow| Auto[✓ Auto]
 ```
+
+</td>
+<td valign="top">
+
+**No more broken extensions**
+- Playwright-powered reliability instead of fragile Chrome extensions
+- Smart element detection handles UI changes
+- Automatic screenshots and consistent automation
+
+*Works today, works tomorrow.*
+
+</td>
+</tr>
+</table>
+
+---
+
+### 📊 Production-Ready Cron Intelligence
+
+<table>
+<tr>
+<td width="45%">
+
+```mermaid
+flowchart RL
+    B[📊 Board]
+    S[✅ 82%] --> B
+    E[❌ 18%] --> B
+    T[⏱️ 2.3s] --> B
+    R[⚠️ Low] --> B
+```
+
+</td>
+<td valign="top">
+
+**Monitor scheduled tasks**
+- Success/Error rate tracking
+- P95 response time monitoring
+- Risk assessment for automation
+
+*Know exactly how your automation performs.*
+
+</td>
+</tr>
+</table>
 
 ---
 
