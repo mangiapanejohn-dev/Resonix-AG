@@ -1,252 +1,263 @@
-<div align="center">
+# 👾 Resonix
 
-![photo_2026-03-04 23 24 56](https://github.com/user-attachments/assets/8fc884ad-9139-4f92-b849-b7fffd61d9e6)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8fc884ad-9139-4f92-b849-b7fffd61d9e6" width="200" alt="Resonix Logo"/>
+</p>
 
+<p align="center">
+  <strong>Version 2026.3.12</strong><br/>
+  An autonomous AI agent with permanent memory & self-learning capabilities
+</p>
 
-**Version `2026.3.12`**
+<p align="center">
+  <a href="#">
+    <img src="https://img.shields.io/github/stars/mangiapanejohn-dev/Resonix-AG?style=social" alt="GitHub Stars"/>
+  </a>
+  <a href="https://discord.gg/FKXPBAtPwG">
+    <img src="https://img.shields.io/discord/FKXPBAtPwG?label=Discord&logo=discord&style=for-the-badge" alt="Discord"/>
+  </a>
+  <a href="https://x.com/moralesjavx1032">
+    <img src="https://img.shields.io/twitter/follow/moralesjavx1032?logo=X&style=for-the-badge" alt="X"/>
+  </a>
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"/>
+</p>
 
-**Autonomous agent runtime with permanent memory, self-growth loops, and an integrated browser stack.**
+---
 
-> "Heyy man! I'm not some chatbot. I'm your digital roommate who happens to run on code. I remember what matters, keep learning, and still let you stay in control."
+## 😢 Traditional AI Assistants
 
-Built by **MarkEllington**.
+> **"What do I like?"**
+>
+> *"I don't know, you just told me."*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Discord](https://img.shields.io/discord/FKXPBAtPwG?label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/FKXPBAtPwG)
-[![X](https://img.shields.io/twitter/follow/moralesjavx1032?logo=X&style=for-the-badge)](https://x.com/moralesjavx1032)
+Every conversation starts from scratch. They forget everything.
 
-</div>
+---
 
-## Why Resonix
+## 🤩 Resonix Remembers
 
-Resonix is a production-focused autonomous runtime derived from the OpenClaw ecosystem, with a clear product direction:
+> **"What do I like?"**
+>
+> *"Based on our conversations, you prefer coffee over tea, usually take your coffee with oat milk, and you're a night owl who does your best work between 10PM-2AM."*
 
-- **Permanent knowledge continuity** instead of short-lived session memory.
-- **Autonomy with feedback** so the system improves from outcomes.
-- **Operational readiness** for real deployment, not only demos.
+**Resonix actually remembers things.** It learns from every conversation and builds on past knowledge.
 
-Professional by architecture, relaxed in tone.
+---
 
-## What Resonix Is Great At
+## ✨ Key Features
 
-| Capability | What it does | Why it matters |
-| --- | --- | --- |
-| Two-layer permanent memory | System profile + Desktop `resonix-M` mirror | Durable knowledge + human-auditable memory |
-| Autonomous growth loop | Captures outcomes, retrospectives, corrective signals | Fewer repeated mistakes over time |
-| Integrated browser runtime | Built-in Playwright-based browser flow | Reliable browser automation without extension dependency |
-| Cron intelligence board | Success/error trend, p95 duration, risk view | Production visibility for scheduled automation |
-| Auth/onboarding hardening | Dispatch fixes + timeout fallback | Reduced auth stalls and silent failures |
-| Cross-platform deployment | macOS/Linux/Windows/Termux scripts | Fast setup where users actually are |
+### 🧠 Two-Layer Permanent Memory
 
-## Runtime Architecture Map
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     YOUR CONVERSATION                           │
+└────────────────────────────┬─────────────────────────────────────┘
+                           │
+         ┌─────────────────┴─────────────────┐
+         ▼                                   ▼
+┌─────────────────────┐          ┌─────────────────────────────┐
+│   LAYER A          │          │      LAYER B              │
+│   System Profile    │          │   Desktop Mirror          │
+│   (Machine-Ready)  │          │   (Human-Readable)        │
+├─────────────────────┤          ├─────────────────────────────┤
+│ • Preferences      │          │ ~/Desktop/resonix-M/      │
+│ • Facts           │          │   ├── identity/           │
+│ • Patterns        │          │   ├── knowledge/          │
+│ • Confidence      │          │   ├── autonomy/           │
+│ • Sources        │          │   ├── retrospectives/    │
+└─────────────────────┘          │   └── logs/              │
+                                └─────────────────────────────┘
+```
+
+### 🔄 Self-Growth Loop
+
+```
+TASK → RESULT → RETROSPECTIVE → LEARNING → BETTER NEXT TASK
+  │                                              ▲
+  └──────────────────────────────────────────────┘
+```
+
+> Every task outcome → summarized → stored → used for future tasks
+
+### 🌐 Built-in Browser Control
+
+| Without Resonix | With Resonix |
+|-----------------|---------------|
+| Chrome extensions that break | Playwright-powered reliability |
+| Fragile selectors | Smart element detection |
+| Manual screenshots | Automatic capture |
+| "It worked yesterday" | Consistent automation |
+
+### 📊 Cron Intelligence Board
+
+```
+┌──────────────────────────────────────────┐
+│         CRON INTELLIGENCE BOARD           │
+├──────────────────────────────────────────┤
+│                                          │
+│   ✅ Success    ████████████░░  82%      │
+│   ❌ Errors     ████░░░░░░░░░░  18%      │
+│   ⏱️ P95 Time   ████████████░░  2.3s      │
+│   ⚠️  Risk     ██░░░░░░░░░░░░  Low       │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '17px', 'primaryTextColor': '#1E1B4B', 'lineColor': '#7C3AED', 'primaryColor': '#EDE9FE', 'tertiaryColor': '#F5F3FF', 'background': '#FFFFFF' }}}%%
 flowchart TB
-  U[User and Channels] --> G[Gateway and Routing]
-  G --> A[Agent Runtime]
-  A --> T[Tools and Safety Policy Engine]
-  A --> M1[Memory Plane A System Profile]
-  A --> M2[Memory Plane B Desktop resonix-M Mirror]
-  A --> B[Integrated Browser Runtime]
-  A --> C[Cron Hooks and Delivery Engine]
-  C --> R[Action Results and Feedback]
-  R --> M1
-  R --> M2
-  C --> U
+    subgraph USER["👤 Users"]
+        T["Telegram"]
+        D["Discord"]
+        S["Slack"]
+        W["WhatsApp"]
+    end
+
+    subgraph GATEWAY["🚀 Gateway"]
+        R["Routing"]
+        A["Auth"]
+        C["Channels"]
+    end
+
+    subgraph AGENT["🤖 Agent Runtime"]
+        M["🧠 Memory"]
+        B["🌐 Browser"]
+        T2["🔧 Tools"]
+        G["🔄 Growth"]
+        I["👤 Identity"]
+    end
+
+    subgraph MEMORY["💾 Memory System"]
+        MA["Layer A: System Profile"]
+        MB["Layer B: Desktop Mirror"]
+    end
+
+    USER --> GATEWAY
+    GATEWAY --> AGENT
+    AGENT --> MEMORY
+    M --> MA
+    M --> MB
+    G --> AGENT
 ```
 
+---
 
-## Permanent Memory and Self Growth
+## 🚀 Quick Start
 
-Resonix memory is a **dual-plane permanent system**, not temporary in-memory context.
+### One-Line Install
 
-1. **Memory Plane A: System Permanent Profile**
-- Location: `src/memory/permanent-profile.ts`
-- Purpose: machine-readable durable memory for retrieval continuity
-- Stores: preferences, project facts, relationship context, recurring patterns, confidence scores, source traces
+| Platform | Command |
+|----------|---------|
+| **macOS / Linux** | ```curl -fsSL https://resonix.ai/install.sh \| bash``` |
+| **Windows** | ```iwr -useb https://resonix.ai/install.ps1 \| iex``` |
+| **Termux** | ```curl -fsSL https://resonix.ai/install-termux.sh \| bash``` |
 
-2. **Memory Plane B: Human-visible `resonix-M` Mirror**
-- Location: `src/memory/resonix-m.ts`
-- Purpose: inspectable long-term knowledge workspace
-- Default folder: `~/Desktop/resonix-M`
+### Get Started
 
-```text
+```bash
+resonix -v              # Verify installation
+resonix onboard         # First-time setup
+resonix gateway          # Start the gateway
+```
+
+---
+
+## 📱 Supported Channels
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"/>
+  <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"/>
+  <img href="https://slack.com">
+  <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white" alt="Slack"/>
+  </img>
+  <img src="https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp"/>
+  <img src="https://img.shields.io/badge/Signal-3A76DF?style=for-the-badge&logo=signal&logoColor=white" alt="Signal"/>
+</p>
+
+---
+
+## 📂 What Resonix Remembers
+
+```
 ~/Desktop/resonix-M/
-  identity/
-  knowledge/
-  autonomy/
-  retrospectives/
-  logs/
+│
+├── identity/           # "Mark is a 14-year-old developer from Hong Kong"
+├── knowledge/          # "Coffee with oat milk, not tea"
+├── autonomy/           # "Learns faster when given examples"
+├── retrospectives/     # "Don't use regex for HTML parsing"
+└── logs/              # Conversation history
 ```
-
-### Growth Loop
-
-- Task outcomes are summarized into retrospectives.
-- Useful context is promoted into permanent profile fields.
-- Future runs retrieve this memory to avoid repeating the same mistakes.
-
-Yes, it remembers your preferences. No, it will not roast your TODO list.
-
-## Deployment and Troubleshooting
-
-### Deployment Matrix
-
-| Platform | Install Mode | Script |
-| --- | --- | --- |
-| macOS | One-line installer | `install.sh` |
-| Linux | One-line installer | `install.sh` |
-| Windows | PowerShell installer | `install.ps1` |
-| Termux (Android) | Termux installer | `install-termux.sh` |
-
-### Copy and Run
-
-macOS / Linux:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh | bash
-```
-
-Windows (PowerShell):
-
-```powershell
-iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
-```
-
-Termux (Android):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash
-```
-
-### Verify After Install
-
-```bash
-resonix -v
-resonix onboard
-```
-
-### Troubleshooting Quick Fixes
-
-**Windows installer exits immediately**
-
-- Use PowerShell (Windows PowerShell 5.1+ or PowerShell 7+).
-- Ensure Node.js 22+ is installed and available in PATH.
-- Re-run with explicit execution policy:
-
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
-```
-
-**`resonix` command not found after install**
-
-- Open a new terminal session first.
-- If still missing, run from launcher path:
-  - macOS/Linux: `~/.local/bin/resonix -v`
-  - Windows: `%LOCALAPPDATA%\\Resonix\\bin\\resonix.cmd -v`
-  - Termux: `$PREFIX/bin/resonix -v`
-- Re-run installer if launcher file is missing.
-
-**Termux script fails on desktop OS**
-
-- `install-termux.sh` is Termux-only.
-- Run it inside Termux where `pkg` exists.
-
----
-## Star History
-
-[![Star History Chart](https://api.star-history.com/image?repos=mangiapanejohn-dev/Resonix-AG&type=timeline&legend=top-left)](https://www.star-history.com/?repos=mangiapanejohn-dev%2FResonix-AG&type=timeline&logscale=&legend=top-left)
 
 ---
 
-## Operations Quick Start
+## 🎯 Resonix vs Traditional Assistants
+
+| Feature | ChatGPT / Claude / Gemini | Resonix |
+|---------|---------------------------|---------|
+| **Memory** | Context window only | Permanent + Desktop mirror |
+| **Learning** | Starts fresh each chat | Remembers & learns |
+| **Identity** | Generic | Knows who you are |
+| **Browser** | Extensions / API | Built-in Playwright |
+| **Persistence** | Session-based | Long-term storage |
+
+---
+
+## 🛠️ Commands
+
+| Command | Description |
+|---------|-------------|
+| `resonix onboard` | First-time setup |
+| `resonix gateway` | Start the gateway |
+| `resonix gateway status` | Check status |
+| `resonix cron board` | View scheduled tasks |
+| `resonix memory profile` | View learned profile |
+
+---
+
+## 🤝 Contributing
 
 ```bash
-resonix onboard
-resonix gateway start
-resonix gateway status
-resonix cron board
-resonix memory profile
-```
+# Clone the repo
+git clone https://github.com/mangiapanejohn-dev/Resonix-AG.git
+cd Resonix-AG
 
-## What Is New In `2026.3.12`
-
-- Hardened provider auth dispatch to avoid skipped auth handlers.
-- Added timeout fallback for plugin auth loading to reduce onboarding stall paths.
-- Improved installer UX with stronger failure handling.
-- Added dedicated Termux deployment path.
-- Unified release version metadata and installer messaging.
-
-## Resonix vs OpenClaw (Fork Direction)
-
-| Area | Resonix `2026.3.12` | Typical OpenClaw baseline |
-| --- | --- | --- |
-| Memory strategy | Dual-plane permanent memory + Desktop mirror (`resonix-M`) | Mostly runtime/session-centric memory flow |
-| Identity continuity | Explicit Resonix identity profile integrated in runtime behavior | No fork-specific identity continuity layer by default |
-| Onboarding resilience | Auth dispatch hardening + plugin loader timeout fallback | Standard provider auth flow |
-| Browser posture | Integrated browser runtime and profile-isolated behavior | Common extension-centric or provider-specific flows |
-| Cron operations | Board-level observability + run-governance hooks | Core scheduler operations |
-| Installer coverage | macOS/Linux/Windows + Termux one-line path | Depends on upstream release track |
-
-## Repository Structure
-
-### Repository Runtime Architecture
-
-```mermaid
-flowchart LR
-  ROOT[Resonix Repository]
-  ROOT --> SRC[src/]
-  ROOT --> EXT[extensions/ optional plugin packages]
-  ROOT --> DOCS[docs/ documentation]
-
-  SRC --> CLI[src/cli command surfaces]
-  SRC --> CMDS[src/commands onboarding and config orchestration]
-  SRC --> GW[src/gateway protocol RPC and services]
-  SRC --> CRON[src/cron scheduler metrics and run governance]
-  SRC --> MEM[src/memory permanent profile and resonix-M sync]
-  SRC --> ID[src/identity runtime identity model]
-  SRC --> CH[src/channels channel adapters and routing integration]
-```
-
-### Repository Runtime Architecture (Plain Text Fallback)
-
-```text
-src/
-  cli/             # command surfaces
-  commands/        # onboarding/auth/config orchestration
-  gateway/         # protocol, RPC, services
-  cron/            # scheduler, board metrics, run governance
-  memory/          # permanent profile and resonix-M sync
-  identity/        # runtime identity model
-  channels/        # channel adapters and routing integration
-extensions/        # optional plugin packages
-docs/              # documentation
-```
-
-## Development
-
-```bash
+# Install dependencies
 pnpm install
+
+# Build
 pnpm build
+
+# Test
 pnpm test
 ```
 
-Focused checks for critical paths:
+---
 
-```bash
-pnpm test src/commands/auth-choice.e2e.test.ts
-pnpm test src/gateway/server.cron.e2e.test.ts
-pnpm test src/memory/permanent-profile.test.ts src/memory/resonix-m.test.ts
-```
+## 📚 Documentation
 
-## Community
-
-- Discord: <https://discord.gg/FKXPBAtPwG>
-- X: <https://x.com/moralesjavx1032>
-
-## License
-
-MIT
+- **Docs**: [docs.resonix.ai](https://docs.resonix.ai)
+- **Discord**: [Join our community](https://discord.gg/FKXPBAtPwG)
+- **X**: [Follow us](https://x.com/moralesjavx1032)
 
 ---
+
+## ⭐ Show Your Support
+
+> **If Resonix helped you, we'd love a ⭐!**
+
+It motivates me to keep building and improving. 💪
+
+---
+
+## 📄 License
+
+MIT License - Built by [MarkEllington](https://github.com/mangiapanejohn-dev)
+
+---
+
+<p align="center">
+  <sub>Made with ❤️ by a 14-year-old developer</sub>
+</p>
