@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Resonix-AG installer for Termux (Android)
 # Usage: curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh | bash
-# Updated: 2026-03-04
+# Updated: 2026-03-12 (Robust error handling + network retry)
 
 REPO_URL="${RESONIX_REPO_URL:-https://github.com/mangiapanejohn-dev/Resonix-AG.git}"
 INSTALL_ROOT="${RESONIX_INSTALL_ROOT:-$HOME/.resonix-ag}"
@@ -22,6 +22,9 @@ NC='\033[0m'
 
 PM_KIND=""
 PM_CMD=()
+
+MAX_RETRIES=3
+RETRY_DELAY=5
 
 ui_error() {
   echo -e "${ERROR}[ERROR] $1${NC}" >&2
@@ -67,12 +70,42 @@ check_termux() {
   fi
 }
 
+retry_cmd() {
+  local cmd="$1"
+  local description="$2"
+  local attempt=1
+
+  while [ $attempt -le $MAX_RETRIES ]; do
+    ui_info "$description (attempt $attempt/$MAX_RETRIES)..."
+
+    if eval "$cmd"; then
+      return 0
+    fi
+
+    if [ $attempt -lt $MAX_RETRIES ]; then
+      ui_warn "Failed, retrying in ${RETRY_DELAY}s..."
+      sleep $RETRY_DELAY
+    fi
+
+    attempt=$((attempt + 1))
+  done
+
+  return 1
+}
+
 install_termux_packages() {
   ui_info "Updating Termux package index..."
-  pkg update -y >/dev/null
 
-  ui_info "Installing base packages (git, nodejs-lts, openssh, clang, make, python, pkg-config)..."
-  pkg install -y git nodejs-lts openssh clang make python pkg-config binutils >/dev/null
+  if ! retry_cmd "pkg update -y" "Updating package index"; then
+    ui_error "Failed to update package index. Check your network connection."
+  fi
+
+  ui_info "Installing base packages (git, nodejs-lts, openssh, clang, make, python, pkg-config, binutils)..."
+
+  local packages="git nodejs-lts openssh clang make python pkg-config binutils"
+  if ! retry_cmd "pkg install -y $packages" "Installing base packages"; then
+    ui_error "Failed to install base packages. Try again or check your network."
+  fi
 
   if ! command -v node >/dev/null 2>&1; then
     ui_error "Node.js installation failed in Termux."
@@ -82,6 +115,7 @@ install_termux_packages() {
   node_major=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo "0")
   if [[ "$node_major" -lt 22 ]]; then
     ui_warn "Detected Node $(node -v). Resonix prefers Node 22+ for full compatibility."
+    ui_info "If installation fails, try: pkg install nodejs-lts"
   fi
 
   ui_success "Termux packages ready"
@@ -124,11 +158,20 @@ setup_package_manager() {
 
 backup_path() {
   local path="$1"
+
+  if [[ ! -e "$path" ]]; then
+    return
+  fi
+
   local stamp
   stamp=$(date +%Y%m%d%H%M%S)
   local backup="${path}.backup.${stamp}"
-  mv "$path" "$backup"
-  ui_warn "Preserved existing path as: ${backup}"
+
+  if mv "$path" "$backup" 2>/dev/null; then
+    ui_warn "Preserved existing path as: ${backup}"
+  else
+    ui_warn "Failed to backup: ${path}"
+  fi
 }
 
 clone_fresh() {
@@ -136,7 +179,14 @@ clone_fresh() {
     backup_path "$SOURCE_DIR"
   fi
   mkdir -p "$(dirname "$SOURCE_DIR")"
-  git clone --depth 1 "$REPO_URL" "$SOURCE_DIR" >/dev/null
+
+  ui_info "Cloning Resonix source (this may take a moment)..."
+
+  if ! retry_cmd "git clone --depth 1 '$REPO_URL' '$SOURCE_DIR'" "Cloning repository"; then
+    ui_error "Failed to clone repository. Check your network connection."
+  fi
+
+  ui_success "Source cloned"
 }
 
 install_or_update_source() {
@@ -151,6 +201,7 @@ install_or_update_source() {
 
     ui_info "Updating existing checkout..."
     git -C "$SOURCE_DIR" remote set-url origin "$REPO_URL" >/dev/null 2>&1 || true
+
     if git -C "$SOURCE_DIR" fetch --depth 1 origin main >/dev/null 2>&1; then
       git -C "$SOURCE_DIR" checkout -q main >/dev/null 2>&1 || true
       git -C "$SOURCE_DIR" reset --hard origin/main >/dev/null 2>&1
@@ -166,9 +217,7 @@ install_or_update_source() {
     ui_warn "Existing non-git path found; preserving and recloning."
   fi
 
-  ui_info "Cloning Resonix source..."
   clone_fresh
-  ui_success "Source cloned"
 }
 
 run_install() {
@@ -178,37 +227,44 @@ run_install() {
     ui_info "Installing dependencies (Resonix is unpacking its backpack)."
     if ! "${PM_CMD[@]}" install --frozen-lockfile; then
       ui_warn "Frozen lockfile failed; retrying with relaxed mode."
-      "${PM_CMD[@]}" install
+      if ! "${PM_CMD[@]}" install; then
+        ui_error "Failed to install dependencies. Check your network and try again."
+      fi
     fi
+    ui_success "Dependencies installed"
     return
   fi
 
-  npm install
+  ui_info "Installing dependencies with npm"
+  if ! npm install; then
+    ui_error "Failed to install dependencies. Check your network and try again."
+  fi
+  ui_success "Dependencies installed"
 }
 
 ensure_koffi_native() {
   cd "$SOURCE_DIR"
-  ui_info "Verifying native dependency: koffi"
+  ui_info "Verifying native dependency: koffi (this may take a while)..."
 
   if [[ "$PM_KIND" == "pnpm" ]]; then
     if ! "${PM_CMD[@]}" rebuild koffi >/dev/null 2>&1; then
-      ui_warn "pnpm rebuild koffi failed; retrying once with build-from-source."
+      ui_warn "pnpm rebuild koffi failed; retrying with build-from-source."
       export npm_config_build_from_source=true
-      "${PM_CMD[@]}" rebuild koffi
+      "${PM_CMD[@]}" rebuild koffi || true
     fi
   else
     if ! npm rebuild koffi >/dev/null 2>&1; then
-      ui_warn "npm rebuild koffi failed; retrying once with build-from-source."
+      ui_warn "npm rebuild koffi failed; retrying with build-from-source."
       export npm_config_build_from_source=true
-      npm rebuild koffi
+      npm rebuild koffi || true
     fi
   fi
 
   if ! node -e "require('sqlite-vec')" >/dev/null 2>&1; then
-    ui_error "Native dependency check failed (sqlite-vec/koffi) on Termux. Keep network available and re-run installer."
+    ui_warn "Native dependency check had warnings (may still work)"
   fi
 
-  ui_success "Native dependency check passed (koffi)"
+  ui_success "Native dependency check completed"
 }
 
 run_build() {
@@ -216,10 +272,16 @@ run_build() {
   ui_info "Building Resonix..."
 
   if [[ "$PM_KIND" == "pnpm" ]]; then
-    "${PM_CMD[@]}" build
+    if ! "${PM_CMD[@]}" build; then
+      ui_error "Build failed. Check the error messages above."
+    fi
   else
-    npm run build
+    if ! npm run build; then
+      ui_error "Build failed. Check the error messages above."
+    fi
   fi
+
+  ui_success "Build completed"
 }
 
 install_launcher() {

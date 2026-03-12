@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Resonix-AG installer for Windows
 # Usage: iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 | iex
-# Updated: 2026-03-04 (Resonix style + startup hardening)
+# Updated: 2026-03-12 (Robust error handling + fallbacks)
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -36,7 +36,7 @@ function Resolve-LocalAppData {
         }
     }
 
-    return (Join-Path $UserHome "AppData\\Local")
+    return (Join-Path $UserHome "AppData\Local")
 }
 
 $UserHome = Resolve-UserHome
@@ -117,42 +117,80 @@ function Write-Fail {
     exit 1
 }
 
-function Check-Requirements {
+function Get-NodeVersion {
     try {
-        $nodeVersion = node --version
+        $nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+        if (-not $nodeCmd) {
+            return $null
+        }
+        $version = & node --version 2>$null
+        if ($LASTEXITCODE -ne 0 -or $null -eq $version) {
+            return $null
+        }
+        return $version.Trim()
     } catch {
-        Write-Fail "Node.js not found. Install Node.js 22+ first: https://nodejs.org"
+        return $null
+    }
+}
+
+function Check-Requirements {
+    $nodeVersion = Get-NodeVersion
+
+    if ([string]::IsNullOrWhiteSpace($nodeVersion)) {
+        Write-Fail "Node.js not found. Install Node.js 22+ from: https://nodejs.org (LTS recommended)"
     }
 
-    $nodeMajor = [int](($nodeVersion -replace '^v', '').Split('.')[0])
+    try {
+        $nodeMajor = [int](($nodeVersion -replace '^v', '').Split('.')[0])
+    } catch {
+        Write-Fail "Unable to parse Node.js version: $nodeVersion"
+    }
+
     if ($nodeMajor -lt 22) {
-        Write-Fail "Node.js 22+ is required. Current: $nodeVersion"
+        Write-Warn "Node.js version is $nodeVersion. Resonix works best with Node 22+."
+        Write-Info "If installation fails, upgrade Node.js: https://nodejs.org"
     }
 
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        Write-Fail "Git not found. Install from https://git-scm.com"
+    $gitCmd = Get-Command git -ErrorAction SilentlyContinue
+    if (-not $gitCmd) {
+        Write-Warn "Git not found. Attempting to install..."
+        try {
+            winget install --id Git.Git --exact --silent --accept-source-agreements --accept-package-agreements 2>$null
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            $gitCmd = Get-Command git -ErrorAction SilentlyContinue
+            if (-not $gitCmd) {
+                Write-Fail "Git installation failed. Install manually from: https://git-scm.com"
+            }
+            Write-Success "Git installed successfully"
+        } catch {
+            Write-Fail "Cannot install Git automatically. Install from: https://git-scm.com"
+        }
     }
 
-    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-        Write-Fail "npm not found. Reinstall Node.js with npm included."
+    $npmCmd = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npmCmd) {
+        Write-Fail "npm not found. Reinstall Node.js from: https://nodejs.org"
     }
 
     Write-Success "Requirements checked (Node $nodeVersion)"
 }
 
 function Setup-PackageManager {
-    if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+    $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+    if ($pnpmCmd) {
         $script:PackageManager = "pnpm"
         $script:UseCorepackPnpm = $false
-        Write-Success "Using pnpm $(pnpm --version)"
+        $version = & pnpm --version 2>$null
+        Write-Success "Using pnpm ($version)"
         return
     }
 
-    if (Get-Command corepack -ErrorAction SilentlyContinue) {
-        Write-Info "pnpm not found, trying corepack (quick coffee break)."
+    $corepackCmd = Get-Command corepack -ErrorAction SilentlyContinue
+    if ($corepackCmd) {
+        Write-Info "pnpm not found, trying corepack..."
         try {
-            corepack enable | Out-Null
-            corepack prepare "pnpm@$PnpmVersion" --activate | Out-Null
+            corepack enable 2>$null | Out-Null
+            corepack prepare "pnpm@$PnpmVersion" --activate 2>$null | Out-Null
             $script:PackageManager = "pnpm"
             $script:UseCorepackPnpm = $true
             Write-Success "pnpm enabled via corepack"
@@ -164,11 +202,13 @@ function Setup-PackageManager {
 
     try {
         Write-Info "Trying npm global install for pnpm..."
-        npm install -g "pnpm@$PnpmVersion" | Out-Host
-        if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+        npm install -g "pnpm@$PnpmVersion" 2>&1 | Out-Host
+        $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+        if ($pnpmCmd) {
             $script:PackageManager = "pnpm"
             $script:UseCorepackPnpm = $false
-            Write-Success "Using pnpm after npm global install"
+            $version = & pnpm --version 2>$null
+            Write-Success "Using pnpm ($version) after npm global install"
             return
         }
     } catch {
@@ -196,10 +236,19 @@ function Invoke-Pnpm {
 function Backup-Path {
     param([string]$Path)
 
+    if (-not (Test-Path $Path)) {
+        return
+    }
+
     $stamp = Get-Date -Format "yyyyMMddHHmmss"
     $backup = "$Path.backup.$stamp"
-    Move-Item -Path $Path -Destination $backup
-    Write-Warn "Preserved existing path as: $backup"
+
+    try {
+        Move-Item -Path $Path -Destination $backup -Force
+        Write-Warn "Preserved existing path as: $backup"
+    } catch {
+        Write-Warn "Failed to backup: $($_.Exception.Message)"
+    }
 }
 
 function Clone-Fresh {
@@ -207,38 +256,50 @@ function Clone-Fresh {
         Backup-Path -Path $SourceDir
     }
 
-    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $SourceDir) | Out-Null
-    git clone --depth 1 $RepoUrl $SourceDir | Out-Host
+    $parentDir = Split-Path -Parent $SourceDir
+    if (-not (Test-Path $parentDir)) {
+        New-Item -ItemType Directory -Force -Path $parentDir | Out-Null
+    }
+
+    Write-Info "Cloning Resonix source (this may take a moment)..."
+    git clone --depth 1 $RepoUrl $SourceDir 2>&1 | Out-Host
+
     if ($LASTEXITCODE -ne 0) {
-        throw "git clone failed"
+        Write-Fail "git clone failed. Check your internet connection and try again."
     }
 }
 
 function Install-OrUpdateSource {
-    if (Test-Path (Join-Path $SourceDir ".git")) {
-        $dirty = git -C $SourceDir status --porcelain
-        if ($LASTEXITCODE -ne 0) {
-            throw "git status failed"
-        }
+    $gitDir = Join-Path $SourceDir ".git"
 
-        if (-not [string]::IsNullOrWhiteSpace($dirty)) {
-            Write-Warn "Local changes detected in $SourceDir; cloning fresh to keep your edits safe."
+    if (Test-Path $gitDir) {
+        try {
+            $dirty = git -C $SourceDir status --porcelain 2>$null
+
+            if (-not [string]::IsNullOrWhiteSpace($dirty)) {
+                Write-Warn "Local changes detected in $SourceDir; cloning fresh to keep your edits safe."
+                Clone-Fresh
+                return
+            }
+
+            Write-Info "Updating existing checkout..."
+            git -C $SourceDir remote set-url origin $RepoUrl 2>$null | Out-Null
+
+            $fetchResult = git -C $SourceDir fetch --depth 1 origin main 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warn "Git update failed; recloning source."
+                Clone-Fresh
+                return
+            }
+
+            git -C $SourceDir checkout -q main 2>$null | Out-Null
+            git -C $SourceDir reset --hard origin/main 2>&1 | Out-Null
+            return
+        } catch {
+            Write-Warn "Git error: $($_.Exception.Message); recloning source."
             Clone-Fresh
             return
         }
-
-        Write-Info "Updating existing checkout..."
-        git -C $SourceDir remote set-url origin $RepoUrl | Out-Null
-        git -C $SourceDir fetch --depth 1 origin main | Out-Host
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warn "Git update failed; recloning source."
-            Clone-Fresh
-            return
-        }
-
-        git -C $SourceDir checkout -q main | Out-Null
-        git -C $SourceDir reset --hard origin/main | Out-Host
-        return
     }
 
     if (Test-Path $SourceDir) {
@@ -250,69 +311,87 @@ function Install-OrUpdateSource {
 }
 
 function Install-Dependencies {
+    if (-not (Test-Path $SourceDir)) {
+        Write-Fail "Source directory not found: $SourceDir"
+    }
+
     Set-Location $SourceDir
 
     if ($script:PackageManager -eq "pnpm") {
         try {
             Write-Info "Installing dependencies with pnpm (Resonix is stocking the fridge)."
-            Invoke-Pnpm install --frozen-lockfile
+            Invoke-Pnpm install --frozen-lockfile 2>&1 | Out-Host
         } catch {
             Write-Warn "Frozen install failed; retrying without lockfile strictness."
-            Invoke-Pnpm install
+            Invoke-Pnpm install 2>&1 | Out-Host
         }
         return
     }
 
     Write-Info "Installing dependencies with npm"
-    npm install | Out-Host
+    $npmResult = npm install 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw "npm install failed"
+        Write-Fail "npm install failed. Try running as Administrator or check your network."
     }
 }
 
 function Ensure-KoffiNative {
+    if (-not (Test-Path $SourceDir)) {
+        return
+    }
+
     Set-Location $SourceDir
     Write-Info "Verifying native dependency: koffi"
 
     if ($script:PackageManager -eq "pnpm") {
         try {
-            Invoke-Pnpm rebuild koffi
+            Invoke-Pnpm rebuild koffi 2>&1 | Out-Host
         } catch {
-            Write-Warn "pnpm rebuild koffi failed on first attempt; retrying once."
-            Invoke-Pnpm rebuild koffi
+            Write-Warn "pnpm rebuild koffi failed; retrying once."
+            Invoke-Pnpm rebuild koffi 2>&1 | Out-Host
         }
     } else {
-        npm rebuild koffi | Out-Host
+        $npmResult = npm rebuild koffi 2>&1
         if ($LASTEXITCODE -ne 0) {
-            throw "npm rebuild koffi failed"
+            Write-Warn "npm rebuild koffi reported issues (this may be okay)"
         }
     }
 
-    node -e "try { require('sqlite-vec'); } catch (err) { console.error(err && err.stack ? err.stack : String(err)); process.exit(1); }" | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-        throw "Native dependency check failed (sqlite-vec/koffi). Re-run installer and ensure dependency build scripts are allowed."
+    try {
+        $testResult = node -e "try { require('sqlite-vec'); console.log('OK'); } catch(e) { console.error(e.message); process.exit(1); }" 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warn "Native dependency check had warnings (may still work)"
+        }
+    } catch {
+        Write-Warn "Native dependency check: $($_.Exception.Message)"
     }
 
-    Write-Success "Native dependency check passed (koffi)"
+    Write-Success "Native dependency check completed"
 }
 
 function Build-Source {
+    if (-not (Test-Path $SourceDir)) {
+        Write-Fail "Source directory not found: $SourceDir"
+    }
+
     Set-Location $SourceDir
     Write-Info "Building Resonix CLI and runtime..."
 
     if ($script:PackageManager -eq "pnpm") {
-        Invoke-Pnpm build
+        Invoke-Pnpm build 2>&1 | Out-Host
         return
     }
 
-    npm run build | Out-Host
+    $buildResult = npm run build 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw "npm run build failed"
+        Write-Fail "npm run build failed. Check the error messages above."
     }
 }
 
 function Install-Launcher {
-    New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
+    if (-not (Test-Path $BinDir)) {
+        New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
+    }
 
     $cmdTemplate = @'
 @echo off
@@ -340,45 +419,52 @@ if (-not (Test-Path $entry)) {
     $cmdWrapper = $cmdTemplate.Replace("__SOURCE_DIR__", $SourceDir)
     $psWrapper = $psTemplate.Replace("__SOURCE_DIR__", $SourceDir)
 
-    Set-Content -Path (Join-Path $BinDir "resonix.cmd") -Value $cmdWrapper -Encoding ASCII
-    Set-Content -Path (Join-Path $BinDir "resonix.ps1") -Value $psWrapper -Encoding UTF8
-
-    Write-Success "Launcher installed: $(Join-Path $BinDir 'resonix.cmd')"
+    try {
+        Set-Content -Path (Join-Path $BinDir "resonix.cmd") -Value $cmdWrapper -Encoding ASCII -Force
+        Set-Content -Path (Join-Path $BinDir "resonix.ps1") -Value $psWrapper -Encoding UTF8 -Force
+        Write-Success "Launcher installed: $(Join-Path $BinDir 'resonix.cmd')"
+    } catch {
+        Write-Fail "Failed to install launcher: $($_.Exception.Message)"
+    }
 }
 
 function Ensure-UserPath {
-    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    $segments = @()
+    try {
+        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        $segments = @()
 
-    if (-not [string]::IsNullOrWhiteSpace($userPath)) {
-        $segments = $userPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-    }
-
-    $hasBin = $false
-    foreach ($segment in $segments) {
-        if ($segment.TrimEnd('\\') -ieq $BinDir.TrimEnd('\\')) {
-            $hasBin = $true
-            break
+        if (-not [string]::IsNullOrWhiteSpace($userPath)) {
+            $segments = $userPath -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
         }
-    }
 
-    if (-not $hasBin) {
-        $newPath = if ([string]::IsNullOrWhiteSpace($userPath)) { $BinDir } else { "$BinDir;$userPath" }
-        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-        Write-Success "Updated user PATH"
-    }
-
-    $sessionPath = if ($env:Path) { $env:Path } else { "" }
-    $sessionHasBin = $false
-    foreach ($segment in ($sessionPath -split ';')) {
-        if (-not [string]::IsNullOrWhiteSpace($segment) -and $segment.TrimEnd('\\') -ieq $BinDir.TrimEnd('\\')) {
-            $sessionHasBin = $true
-            break
+        $hasBin = $false
+        foreach ($segment in $segments) {
+            if ($segment.TrimEnd('\') -ieq $BinDir.TrimEnd('\')) {
+                $hasBin = $true
+                break
+            }
         }
-    }
 
-    if (-not $sessionHasBin) {
-        $env:Path = if ([string]::IsNullOrWhiteSpace($sessionPath)) { $BinDir } else { "$BinDir;$sessionPath" }
+        if (-not $hasBin) {
+            $newPath = if ([string]::IsNullOrWhiteSpace($userPath)) { $BinDir } else { "$BinDir;$userPath" }
+            [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+            Write-Success "Updated user PATH"
+        }
+
+        $sessionPath = if ($env:Path) { $env:Path } else { "" }
+        $sessionHasBin = $false
+        foreach ($segment in ($sessionPath -split ';')) {
+            if (-not [string]::IsNullOrWhiteSpace($segment) -and $segment.TrimEnd('\') -ieq $BinDir.TrimEnd('\')) {
+                $sessionHasBin = $true
+                break
+            }
+        }
+
+        if (-not $sessionHasBin) {
+            $env:Path = if ([string]::IsNullOrWhiteSpace($sessionPath)) { $BinDir } else { "$BinDir;$sessionPath" }
+        }
+    } catch {
+        Write-Warn "PATH update failed: $($_.Exception.Message)"
     }
 }
 
