@@ -5,6 +5,25 @@ import { resolveProfileContext } from "./agent.shared.js";
 import type { BrowserRequest, BrowserResponse, BrowserRouteRegistrar } from "./types.js";
 import { getProfileContext, jsonError, toStringOrEmpty } from "./utils.js";
 
+// Retry helper for browser operations
+async function withBrowserRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries = 2,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (err) {
+      lastError = err;
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 async function withBasicProfileRoute(params: {
   req: BrowserRequest;
   res: BrowserResponse;
@@ -16,7 +35,8 @@ async function withBasicProfileRoute(params: {
     return;
   }
   try {
-    await params.run(profileCtx);
+    // Wrap in retry for stability
+    await withBrowserRetry(() => params.run(profileCtx), 2);
   } catch (err) {
     jsonError(params.res, 500, String(err));
   }

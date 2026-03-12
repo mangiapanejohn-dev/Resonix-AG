@@ -1,5 +1,5 @@
 # Resonix gateway — Podman Quadlet (rootless)
-# Installed by setup-podman.sh into resonix user's ~/.config/containers/systemd/
+# Installed by setup-podman.sh into resonix's ~/.config/containers/systemd/
 # {{RESONIX_HOME}} is replaced at install time.
 
 [Unit]

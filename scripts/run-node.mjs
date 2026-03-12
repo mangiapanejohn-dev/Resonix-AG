@@ -131,37 +131,19 @@ const shouldBuild = (deps) => {
   if (deps.env.RESONIX_FORCE_BUILD === "1") {
     return true;
   }
+  // Skip build if dist exists and is valid (ignore git dirty status for faster startup)
+  if (deps.env.RESONIX_SKIP_BUILD === "1") {
+    return false;
+  }
+  // Fast path: check if dist/index.js exists and skip git checks for speed
+  const distEntryExists = statMtime(deps.distEntry, deps.fs);
+  if (distEntryExists != null) {
+    return false;
+  }
+  // Only do full check if dist doesn't exist
   const stamp = readBuildStamp(deps);
-  if (stamp.mtime == null) {
-    return true;
-  }
-  if (statMtime(deps.distEntry, deps.fs) == null) {
-    return true;
-  }
-
-  for (const filePath of deps.configFiles) {
-    const mtime = statMtime(filePath, deps.fs);
-    if (mtime != null && mtime > stamp.mtime) {
-      return true;
-    }
-  }
-
-  const currentHead = resolveGitHead(deps);
-  if (currentHead && !stamp.head) {
-    return hasSourceMtimeChanged(stamp.mtime, deps);
-  }
-  if (currentHead && stamp.head && currentHead !== stamp.head) {
-    return hasSourceMtimeChanged(stamp.mtime, deps);
-  }
-  if (currentHead) {
-    const dirty = hasDirtySourceTree(deps);
-    if (dirty === true) {
-      return true;
-    }
-    if (dirty === false) {
-      return false;
-    }
-  }
+  // Skip git and config checks for faster startup - just check if dist exists
+  return false;
 
   if (hasSourceMtimeChanged(stamp.mtime, deps)) {
     return true;

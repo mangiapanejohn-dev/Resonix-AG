@@ -13,7 +13,6 @@ import { dispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/pr
 import { removeAckReactionAfterReply } from "../channels/ack-reactions.js";
 import { logAckFailure, logTypingFailure } from "../channels/logging.js";
 import { createReplyPrefixOptions } from "../channels/reply-prefix.js";
-import { createTypingCallbacks } from "../channels/typing.js";
 import { resolveMarkdownTableMode } from "../config/markdown-tables.js";
 import type { ResonixConfig, ReplyToMode, TelegramAccountConfig } from "../config/types.js";
 import { danger, logVerbose } from "../globals.js";
@@ -31,9 +30,9 @@ import { cacheSticker, describeStickerImage } from "./sticker-cache.js";
 
 const EMPTY_RESPONSE_FALLBACK = "No response generated. Please try again.";
 
-/** Minimum chars before sending first streaming message (improves push notification UX) */
-const DRAFT_MIN_INITIAL_CHARS = 8;
-const DRAFT_THROTTLE_MS = 450;
+/** Minimum chars before sending first streaming message (reduced for faster preview) */
+const DRAFT_MIN_INITIAL_CHARS = 1;
+const DRAFT_THROTTLE_MS = 50; // ms - ultra-smooth typing effect
 
 async function resolveStickerVisionSupport(cfg: ResonixConfig, agentId: string) {
   try {
@@ -107,6 +106,7 @@ export const dispatchTelegramMessage = async ({
         replyToMessageId: draftReplyToMessageId,
         throttleMs: DRAFT_THROTTLE_MS,
         minInitialChars: DRAFT_MIN_INITIAL_CHARS,
+        sendTyping,
         log: logVerbose,
         warn: logVerbose,
       })
@@ -409,17 +409,12 @@ export const dispatchTelegramMessage = async ({
         onError: (err, info) => {
           runtime.error?.(danger(`telegram ${info.kind} reply failed: ${String(err)}`));
         },
-        onReplyStart: createTypingCallbacks({
-          start: sendTyping,
-          onStartError: (err) => {
-            logTypingFailure({
-              log: logVerbose,
-              channel: "telegram",
-              target: String(chatId),
-              error: err,
-            });
-          },
-        }).onReplyStart,
+        onReplyStart: async () => {
+          // Start typing indicator immediately when reply begins
+          draftStream?.startTyping();
+          // Also call the original typing callback
+          await sendTyping?.();
+        },
       },
       replyOptions: {
         skillFilter,

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenClawTests</string>
+	<string>ResonixTests</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 			<string>BNDL</string>
 			<key>CFBundleShortVersionString</key>
-			<string>2026.3.4</string>
+			<string>2026.3.12</string>
 			<key>CFBundleVersion</key>
 			<string>20260304</string>
 		</dict>

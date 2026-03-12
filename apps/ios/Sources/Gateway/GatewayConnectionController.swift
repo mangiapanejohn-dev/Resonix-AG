@@ -5,7 +5,7 @@ import CoreMotion
 import CryptoKit
 import EventKit
 import Foundation
-import OpenClawKit
+import ResonixKit
 import Network
 import Observation
 import Photos
@@ -682,7 +682,7 @@ final class GatewayConnectionController {
         if manualClientId?.isEmpty == false {
             return manualClientId!
         }
-        return "openclaw-ios"
+        return "resonix-ios"
     }
 
     private func resolveManualPort(host: String, port: Int, useTLS: Bool) -> Int? {
@@ -712,32 +712,32 @@ final class GatewayConnectionController {
     }
 
     private func currentCaps() -> [String] {
-        var caps = [OpenClawCapability.canvas.rawValue, OpenClawCapability.screen.rawValue]
+        var caps = [ResonixCapability.canvas.rawValue, ResonixCapability.screen.rawValue]
 
         // Default-on: if the key doesn't exist yet, treat it as enabled.
         let cameraEnabled =
             UserDefaults.standard.object(forKey: "camera.enabled") == nil
                 ? true
                 : UserDefaults.standard.bool(forKey: "camera.enabled")
-        if cameraEnabled { caps.append(OpenClawCapability.camera.rawValue) }
+        if cameraEnabled { caps.append(ResonixCapability.camera.rawValue) }
 
         let voiceWakeEnabled = UserDefaults.standard.bool(forKey: VoiceWakePreferences.enabledKey)
-        if voiceWakeEnabled { caps.append(OpenClawCapability.voiceWake.rawValue) }
+        if voiceWakeEnabled { caps.append(ResonixCapability.voiceWake.rawValue) }
 
         let locationModeRaw = UserDefaults.standard.string(forKey: "location.enabledMode") ?? "off"
-        let locationMode = OpenClawLocationMode(rawValue: locationModeRaw) ?? .off
-        if locationMode != .off { caps.append(OpenClawCapability.location.rawValue) }
+        let locationMode = ResonixLocationMode(rawValue: locationModeRaw) ?? .off
+        if locationMode != .off { caps.append(ResonixCapability.location.rawValue) }
 
-        caps.append(OpenClawCapability.device.rawValue)
+        caps.append(ResonixCapability.device.rawValue)
         if WatchMessagingService.isSupportedOnDevice() {
-            caps.append(OpenClawCapability.watch.rawValue)
+            caps.append(ResonixCapability.watch.rawValue)
         }
-        caps.append(OpenClawCapability.photos.rawValue)
-        caps.append(OpenClawCapability.contacts.rawValue)
-        caps.append(OpenClawCapability.calendar.rawValue)
-        caps.append(OpenClawCapability.reminders.rawValue)
+        caps.append(ResonixCapability.photos.rawValue)
+        caps.append(ResonixCapability.contacts.rawValue)
+        caps.append(ResonixCapability.calendar.rawValue)
+        caps.append(ResonixCapability.reminders.rawValue)
         if Self.motionAvailable() {
-            caps.append(OpenClawCapability.motion.rawValue)
+            caps.append(ResonixCapability.motion.rawValue)
         }
 
         return caps
@@ -745,58 +745,58 @@ final class GatewayConnectionController {
 
     private func currentCommands() -> [String] {
         var commands: [String] = [
-            OpenClawCanvasCommand.present.rawValue,
-            OpenClawCanvasCommand.hide.rawValue,
-            OpenClawCanvasCommand.navigate.rawValue,
-            OpenClawCanvasCommand.evalJS.rawValue,
-            OpenClawCanvasCommand.snapshot.rawValue,
-            OpenClawCanvasA2UICommand.push.rawValue,
-            OpenClawCanvasA2UICommand.pushJSONL.rawValue,
-            OpenClawCanvasA2UICommand.reset.rawValue,
-            OpenClawScreenCommand.record.rawValue,
-            OpenClawSystemCommand.notify.rawValue,
-            OpenClawChatCommand.push.rawValue,
-            OpenClawTalkCommand.pttStart.rawValue,
-            OpenClawTalkCommand.pttStop.rawValue,
-            OpenClawTalkCommand.pttCancel.rawValue,
-            OpenClawTalkCommand.pttOnce.rawValue,
+            ResonixCanvasCommand.present.rawValue,
+            ResonixCanvasCommand.hide.rawValue,
+            ResonixCanvasCommand.navigate.rawValue,
+            ResonixCanvasCommand.evalJS.rawValue,
+            ResonixCanvasCommand.snapshot.rawValue,
+            ResonixCanvasA2UICommand.push.rawValue,
+            ResonixCanvasA2UICommand.pushJSONL.rawValue,
+            ResonixCanvasA2UICommand.reset.rawValue,
+            ResonixScreenCommand.record.rawValue,
+            ResonixSystemCommand.notify.rawValue,
+            ResonixChatCommand.push.rawValue,
+            ResonixTalkCommand.pttStart.rawValue,
+            ResonixTalkCommand.pttStop.rawValue,
+            ResonixTalkCommand.pttCancel.rawValue,
+            ResonixTalkCommand.pttOnce.rawValue,
         ]
 
         let caps = Set(self.currentCaps())
-        if caps.contains(OpenClawCapability.camera.rawValue) {
-            commands.append(OpenClawCameraCommand.list.rawValue)
-            commands.append(OpenClawCameraCommand.snap.rawValue)
-            commands.append(OpenClawCameraCommand.clip.rawValue)
+        if caps.contains(ResonixCapability.camera.rawValue) {
+            commands.append(ResonixCameraCommand.list.rawValue)
+            commands.append(ResonixCameraCommand.snap.rawValue)
+            commands.append(ResonixCameraCommand.clip.rawValue)
         }
-        if caps.contains(OpenClawCapability.location.rawValue) {
-            commands.append(OpenClawLocationCommand.get.rawValue)
+        if caps.contains(ResonixCapability.location.rawValue) {
+            commands.append(ResonixLocationCommand.get.rawValue)
         }
-        if caps.contains(OpenClawCapability.device.rawValue) {
-            commands.append(OpenClawDeviceCommand.status.rawValue)
-            commands.append(OpenClawDeviceCommand.info.rawValue)
+        if caps.contains(ResonixCapability.device.rawValue) {
+            commands.append(ResonixDeviceCommand.status.rawValue)
+            commands.append(ResonixDeviceCommand.info.rawValue)
         }
-        if caps.contains(OpenClawCapability.watch.rawValue) {
-            commands.append(OpenClawWatchCommand.status.rawValue)
-            commands.append(OpenClawWatchCommand.notify.rawValue)
+        if caps.contains(ResonixCapability.watch.rawValue) {
+            commands.append(ResonixWatchCommand.status.rawValue)
+            commands.append(ResonixWatchCommand.notify.rawValue)
         }
-        if caps.contains(OpenClawCapability.photos.rawValue) {
-            commands.append(OpenClawPhotosCommand.latest.rawValue)
+        if caps.contains(ResonixCapability.photos.rawValue) {
+            commands.append(ResonixPhotosCommand.latest.rawValue)
         }
-        if caps.contains(OpenClawCapability.contacts.rawValue) {
-            commands.append(OpenClawContactsCommand.search.rawValue)
-            commands.append(OpenClawContactsCommand.add.rawValue)
+        if caps.contains(ResonixCapability.contacts.rawValue) {
+            commands.append(ResonixContactsCommand.search.rawValue)
+            commands.append(ResonixContactsCommand.add.rawValue)
         }
-        if caps.contains(OpenClawCapability.calendar.rawValue) {
-            commands.append(OpenClawCalendarCommand.events.rawValue)
-            commands.append(OpenClawCalendarCommand.add.rawValue)
+        if caps.contains(ResonixCapability.calendar.rawValue) {
+            commands.append(ResonixCalendarCommand.events.rawValue)
+            commands.append(ResonixCalendarCommand.add.rawValue)
         }
-        if caps.contains(OpenClawCapability.reminders.rawValue) {
-            commands.append(OpenClawRemindersCommand.list.rawValue)
-            commands.append(OpenClawRemindersCommand.add.rawValue)
+        if caps.contains(ResonixCapability.reminders.rawValue) {
+            commands.append(ResonixRemindersCommand.list.rawValue)
+            commands.append(ResonixRemindersCommand.add.rawValue)
         }
-        if caps.contains(OpenClawCapability.motion.rawValue) {
-            commands.append(OpenClawMotionCommand.activity.rawValue)
-            commands.append(OpenClawMotionCommand.pedometer.rawValue)
+        if caps.contains(ResonixCapability.motion.rawValue) {
+            commands.append(ResonixMotionCommand.activity.rawValue)
+            commands.append(ResonixMotionCommand.pedometer.rawValue)
         }
 
         return commands

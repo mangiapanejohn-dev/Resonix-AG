@@ -3,7 +3,8 @@ import { createDraftStreamLoop } from "../channels/draft-stream-loop.js";
 import { buildTelegramThreadParams, type TelegramThreadSpec } from "./bot/helpers.js";
 
 const TELEGRAM_STREAM_MAX_CHARS = 4096;
-const DEFAULT_THROTTLE_MS = 450;
+const DEFAULT_THROTTLE_MS = 50; // ms - ultra-smooth typing effect
+const TYPING_INDICATOR_INTERVAL_MS = 1500; // Refresh typing indicator every 1.5s to keep animation smooth
 
 export type TelegramDraftStream = {
   update: (text: string) => void;
@@ -13,6 +14,8 @@ export type TelegramDraftStream = {
   stop: () => Promise<void>;
   /** Reset internal state so the next update creates a new message instead of editing. */
   forceNewMessage: () => void;
+  /** Start typing indicator immediately when reply begins (before any content) */
+  startTyping: () => void;
 };
 
 export function createTelegramDraftStream(params: {
@@ -24,6 +27,8 @@ export function createTelegramDraftStream(params: {
   throttleMs?: number;
   /** Minimum chars before sending first message (debounce for push notifications) */
   minInitialChars?: number;
+  /** Callback to send typing indicator periodically during streaming */
+  sendTyping?: () => Promise<void>;
   log?: (message: string) => void;
   warn?: (message: string) => void;
 }): TelegramDraftStream {
@@ -31,7 +36,7 @@ export function createTelegramDraftStream(params: {
     params.maxChars ?? TELEGRAM_STREAM_MAX_CHARS,
     TELEGRAM_STREAM_MAX_CHARS,
   );
-  const throttleMs = Math.max(250, params.throttleMs ?? DEFAULT_THROTTLE_MS);
+  const throttleMs = Math.max(16, params.throttleMs ?? DEFAULT_THROTTLE_MS); // Min 16ms for 60fps-like smoothness
   const minInitialChars = params.minInitialChars;
   const chatId = params.chatId;
   const threadParams = buildTelegramThreadParams(params.thread);
@@ -44,6 +49,29 @@ export function createTelegramDraftStream(params: {
   let lastSentText = "";
   let stopped = false;
   let isFinal = false;
+
+  // Keep typing indicator alive during streaming
+  let typingInterval: ReturnType<typeof setInterval> | undefined;
+  let lastTypingSent = 0;
+
+  const startTypingIndicator = () => {
+    if (!params.sendTyping) return;
+    // Send initial typing
+    void params.sendTyping().catch(() => {});
+    // Set up periodic typing indicator (Telegram requires typing to be re-sent every ~5s)
+    typingInterval = setInterval(() => {
+      if (!stopped && !isFinal) {
+        void params.sendTyping?.().catch(() => {});
+      }
+    }, TYPING_INDICATOR_INTERVAL_MS);
+  };
+
+  const stopTypingIndicator = () => {
+    if (typingInterval) {
+      clearInterval(typingInterval);
+      typingInterval = undefined;
+    }
+  };
 
   const sendOrEditStreamMessage = async (text: string): Promise<boolean> => {
     // Allow final flush even if stopped (e.g., after clear()).
@@ -88,6 +116,10 @@ export function createTelegramDraftStream(params: {
         return false;
       }
       streamMessageId = Math.trunc(sentMessageId);
+      // Start typing indicator after first message is sent
+      if (!typingInterval) {
+        startTypingIndicator();
+      }
       return true;
     } catch (err) {
       stopped = true;
@@ -108,16 +140,22 @@ export function createTelegramDraftStream(params: {
     if (stopped || isFinal) {
       return;
     }
+    // Start typing indicator on first update with content
+    if (!typingInterval && text.length > 0) {
+      startTypingIndicator();
+    }
     loop.update(text);
   };
 
   const stop = async (): Promise<void> => {
     isFinal = true;
+    stopTypingIndicator();
     await loop.flush();
   };
 
   const clear = async () => {
     stopped = true;
+    stopTypingIndicator();
     loop.stop();
     await loop.waitForInFlight();
     const messageId = streamMessageId;
@@ -140,12 +178,20 @@ export function createTelegramDraftStream(params: {
     loop.resetPending();
   };
 
+  // Start typing indicator immediately when reply begins (before any content)
+  const startTyping = () => {
+    if (!typingInterval) {
+      startTypingIndicator();
+    }
+  };
+
   params.log?.(`telegram stream preview ready (maxChars=${maxChars}, throttleMs=${throttleMs})`);
 
   return {
     update,
     flush: loop.flush,
     messageId: () => streamMessageId,
+    startTyping,
     clear,
     stop,
     forceNewMessage,

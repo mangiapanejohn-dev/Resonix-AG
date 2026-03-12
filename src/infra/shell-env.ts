@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { isTruthyEnvValue } from "./env.js";
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 3_000; // Reduced from 15s for faster startup
 const DEFAULT_MAX_BUFFER_BYTES = 2 * 1024 * 1024;
 let lastAppliedKeys: string[] = [];
 let cachedShellPath: string | null | undefined;

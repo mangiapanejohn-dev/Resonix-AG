@@ -2,14 +2,16 @@
 // Auto-selected local team overrides live in .local-signing.xcconfig (git-ignored).
 // Manual local overrides can go in LocalSigning.xcconfig (git-ignored).
 
-OPENCLAW_CODE_SIGN_STYLE = Manual
-OPENCLAW_DEVELOPMENT_TEAM = Y5PE65HELJ
+RESONIX_CODE_SIGN_STYLE = Manual
+RESONIX_DEVELOPMENT_TEAM = Y5PE65HELJ
 
-OPENCLAW_APP_BUNDLE_ID = ai.openclaw.ios
-OPENCLAW_SHARE_BUNDLE_ID = ai.openclaw.ios.share
+RESONIX_APP_BUNDLE_ID = ai.resonix.ios
+RESONIX_SHARE_BUNDLE_ID = ai.resonix.ios.share
+RESONIX_WATCH_APP_BUNDLE_ID = ai.resonix.client.watchkitapp
+RESONIX_WATCH_EXTENSION_BUNDLE_ID = ai.resonix.client.watchkitapp.extension
 
-OPENCLAW_APP_PROFILE = ai.openclaw.ios Development
-OPENCLAW_SHARE_PROFILE = ai.openclaw.ios.share Development
+RESONIX_APP_PROFILE = ai.resonix.ios Development
+RESONIX_SHARE_PROFILE = ai.resonix.ios.share Development
 
 // Keep local includes after defaults: xcconfig is evaluated top-to-bottom,
 // so later assignments in local files override the defaults above.

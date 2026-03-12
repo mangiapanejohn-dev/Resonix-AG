@@ -165,9 +165,9 @@ export function resolveTelegramStreamMode(telegramCfg?: {
     return "off";
   }
   if (telegramCfg?.streaming === true) {
-    return "partial";
+    return "block"; // Use block mode for guaranteed typewriter effect
   }
-  return "partial";
+  return "block"; // Default to block mode for typewriter effect
 }
 
 export function buildTelegramGroupPeerId(chatId: number | string, messageThreadId?: number) {

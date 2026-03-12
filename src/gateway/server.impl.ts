@@ -470,7 +470,8 @@ export async function startGatewayServer(
 
   if (!minimalTestGateway) {
     const machineDisplayName = await getMachineDisplayName();
-    const discovery = await startGatewayDiscovery({
+    // Start discovery in background to not block gateway startup
+    startGatewayDiscovery({
       machineDisplayName,
       port,
       gatewayTls: gatewayTls.enabled
@@ -481,8 +482,11 @@ export async function startGatewayServer(
       tailscaleMode,
       mdnsMode: cfgAtStart.discovery?.mdns?.mode,
       logDiscovery,
+    }).then((discovery) => {
+      bonjourStop = discovery.bonjourStop;
+    }).catch((err) => {
+      logDiscovery?.error?.(`discovery failed: ${err}`);
     });
-    bonjourStop = discovery.bonjourStop;
   }
 
   if (!minimalTestGateway) {
@@ -688,15 +692,21 @@ export async function startGatewayServer(
       },
     });
   }
-  const tailscaleCleanup = minimalTestGateway
-    ? null
-    : await startGatewayTailscaleExposure({
-        tailscaleMode,
-        resetOnExit: tailscaleConfig.resetOnExit,
-        port,
-        controlUiBasePath,
-        logTailscale,
-      });
+  // Start Tailscale in background to not block gateway startup
+  let tailscaleCleanup: (() => Promise<void>) | null = null;
+  if (!minimalTestGateway) {
+    startGatewayTailscaleExposure({
+      tailscaleMode,
+      resetOnExit: tailscaleConfig.resetOnExit,
+      port,
+      controlUiBasePath,
+      logTailscale,
+    }).then((cleanup) => {
+      tailscaleCleanup = cleanup;
+    }).catch((err) => {
+      logTailscale?.error?.(`tailscale exposure failed: ${err}`);
+    });
+  }
 
   let browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> = null;
   if (!minimalTestGateway) {

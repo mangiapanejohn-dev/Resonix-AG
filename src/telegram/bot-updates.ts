@@ -2,7 +2,7 @@ import type { Message } from "@grammyjs/types";
 import { createDedupeCache } from "../infra/dedupe.js";
 import type { TelegramContext } from "./bot/types.js";
 
-const MEDIA_GROUP_TIMEOUT_MS = 500;
+const MEDIA_GROUP_TIMEOUT_MS = 200; // Reduced from 500ms for faster response
 const RECENT_TELEGRAM_UPDATE_TTL_MS = 5 * 60_000;
 const RECENT_TELEGRAM_UPDATE_MAX = 2000;
 

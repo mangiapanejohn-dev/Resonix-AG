@@ -25,8 +25,8 @@ logs
 tmp/
 temp/
 
-# OpenClaw embedded repo
-openclaw/
+# Resonix embedded repo (if any)
+# resonix/
 
 # Packages
 packages/*/node_modules/

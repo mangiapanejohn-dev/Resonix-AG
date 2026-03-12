@@ -1,4 +1,4 @@
-import OpenClawKit
+import ResonixKit
 import SwiftUI
 
 struct ScreenTab: View {

@@ -335,10 +335,34 @@ function createProfileContext(
     }
   };
 
+  // Retry helper for browser operations with exponential backoff
+  const withRetry = async <T>(
+    operation: () => Promise<T>,
+    maxRetries = 2,
+    baseDelayMs = 500,
+  ): Promise<T> => {
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (err) {
+        lastError = err;
+        if (attempt < maxRetries) {
+          const delay = baseDelayMs * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    }
+    throw lastError;
+  };
+
   const ensureTabAvailable = async (targetId?: string): Promise<BrowserTab> => {
-    await ensureBrowserAvailable();
+    // Use retry for ensureBrowserAvailable to handle transient failures
+    await withRetry(() => ensureBrowserAvailable(), 2, 500);
     const profileState = getProfileState();
-    const tabs1 = await listTabs();
+
+    // Retry listTabs in case of transient CDP connection issues
+    const tabs1 = await withRetry(() => listTabs(), 2, 300);
     if (tabs1.length === 0) {
       await openTab("about:blank");
     }

@@ -95,6 +95,22 @@ type RouteWithTabParams<T> = {
   run: (ctx: RouteTabContext) => Promise<T>;
 };
 
+// Retry helper for tab operations
+async function withTabRetry<T>(operation: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= 2; attempt++) {
+    try {
+      return await operation();
+    } catch (err) {
+      lastError = err;
+      if (attempt < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 export async function withRouteTabContext<T>(
   params: RouteWithTabParams<T>,
 ): Promise<T | undefined> {
@@ -103,7 +119,8 @@ export async function withRouteTabContext<T>(
     return undefined;
   }
   try {
-    const tab = await profileCtx.ensureTabAvailable(params.targetId);
+    // Use retry for tab operations to handle transient failures
+    const tab = await withTabRetry(() => profileCtx.ensureTabAvailable(params.targetId));
     return await params.run({
       profileCtx,
       tab,

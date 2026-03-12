@@ -1,6 +1,6 @@
 {
   "name": "resonix",
-  "version": "2026.3.4",
+  "version": "2026.3.12",
   "description": "Autonomous AI Agent with Self-Cognition, Learning, and Permanent Memory",
   "keywords": [
     "agent",
@@ -57,7 +57,7 @@
     "android:install": "cd apps/android && ./gradlew :app:installDebug",
     "android:run": "cd apps/android && ./gradlew :app:installDebug && adb shell am start -n ai.resonix.android/.MainActivity",
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
-    "build": "tsdown && node -e \"require('fs').copyFileSync('dist/index.mjs', 'dist/entry.mjs')\" && pnpm build:plugin-sdk:dts && node --import tsx scripts/write-plugin-sdk-entry-dts.ts && RESONIX_A2UI_SKIP_MISSING=1 node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/copy-export-html-templates.ts && node --import tsx scripts/write-build-info.ts && node --import tsx scripts/write-cli-compat.ts",
+    "build": "tsdown && node -e \"require('fs').copyFileSync('dist/index.js', 'dist/entry.mjs')\" && pnpm build:plugin-sdk:dts && node --import tsx scripts/write-plugin-sdk-entry-dts.ts && RESONIX_A2UI_SKIP_MISSING=1 node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/copy-export-html-templates.ts && node --import tsx scripts/write-build-info.ts && node --import tsx scripts/write-cli-compat.ts",
     "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
     "check": "pnpm format:check && pnpm tsgo && pnpm lint",
@@ -76,6 +76,7 @@
     "format:docs:check": "git ls-files 'docs/**/*.md' 'docs/**/*.mdx' 'README.md' | xargs oxfmt --check",
     "format:fix": "oxfmt --write",
     "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/ResonixKit/Sources",
+    "gateway:fast": "RESONIX_SKIP_BUILD=1 node scripts/run-node.mjs gateway",
     "gateway:dev": "RESONIX_SKIP_CHANNELS=1 RESONIXDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway",
     "gateway:dev:reset": "RESONIX_SKIP_CHANNELS=1 RESONIXDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway --reset",
     "gateway:watch": "node scripts/watch-node.mjs gateway --force",

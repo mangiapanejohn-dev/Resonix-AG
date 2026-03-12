@@ -21,7 +21,7 @@ if (module.enableCompileCache && !process.env.NODE_DISABLE_COMPILE_CACHE) {
 // Forward all arguments to the actual CLI
 const args = process.argv.slice(2);
 const nodeBin = process.execPath;
-const indexPath = path.join(scriptDir, "dist", "index.mjs");
+const indexPath = path.join(scriptDir, "dist", "index.js");
 
 const child = spawn(nodeBin, [indexPath, ...args], {
   stdio: "inherit",

@@ -1,5 +1,5 @@
 import Foundation
-import OpenClawKit
+import ResonixKit
 import OSLog
 @preconcurrency import WatchConnectivity
 
@@ -15,13 +15,13 @@ enum WatchMessagingError: LocalizedError {
         case .notPaired:
             "WATCH_UNAVAILABLE: no paired Apple Watch"
         case .watchAppNotInstalled:
-            "WATCH_UNAVAILABLE: OpenClaw watch companion app is not installed"
+            "WATCH_UNAVAILABLE: Resonix watch companion app is not installed"
         }
     }
 }
 
 final class WatchMessagingService: NSObject, WatchMessagingServicing, @unchecked Sendable {
-    private static let logger = Logger(subsystem: "ai.openclaw", category: "watch.messaging")
+    private static let logger = Logger(subsystem: "ai.resonix", category: "watch.messaging")
     private let session: WCSession?
 
     override init() {
@@ -71,7 +71,7 @@ final class WatchMessagingService: NSObject, WatchMessagingServicing, @unchecked
         id: String,
         title: String,
         body: String,
-        priority: OpenClawNotificationPriority?) async throws -> WatchNotificationSendResult
+        priority: ResonixNotificationPriority?) async throws -> WatchNotificationSendResult
     {
         await self.ensureActivated()
         guard let session = self.session else {
@@ -87,7 +87,7 @@ final class WatchMessagingService: NSObject, WatchMessagingServicing, @unchecked
             "id": id,
             "title": title,
             "body": body,
-            "priority": priority?.rawValue ?? OpenClawNotificationPriority.active.rawValue,
+            "priority": priority?.rawValue ?? ResonixNotificationPriority.active.rawValue,
             "sentAtMs": Int(Date().timeIntervalSince1970 * 1000),
         ]
 

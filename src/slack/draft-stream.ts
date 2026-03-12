@@ -3,7 +3,7 @@ import { deleteSlackMessage, editSlackMessage } from "./actions.js";
 import { sendMessageSlack } from "./send.js";
 
 const SLACK_STREAM_MAX_CHARS = 4000;
-const DEFAULT_THROTTLE_MS = 1000;
+const DEFAULT_THROTTLE_MS = 150; // ms - smoother typing effect
 
 export type SlackDraftStream = {
   update: (text: string) => void;
@@ -30,7 +30,7 @@ export function createSlackDraftStream(params: {
   remove?: typeof deleteSlackMessage;
 }): SlackDraftStream {
   const maxChars = Math.min(params.maxChars ?? SLACK_STREAM_MAX_CHARS, SLACK_STREAM_MAX_CHARS);
-  const throttleMs = Math.max(250, params.throttleMs ?? DEFAULT_THROTTLE_MS);
+  const throttleMs = Math.max(16, params.throttleMs ?? DEFAULT_THROTTLE_MS);
   const send = params.send ?? sendMessageSlack;
   const edit = params.edit ?? editSlackMessage;
   const remove = params.remove ?? deleteSlackMessage;

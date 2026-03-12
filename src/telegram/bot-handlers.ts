@@ -76,7 +76,7 @@ export const registerTelegramHandlers = ({
   processMessage,
   logger,
 }: RegisterTelegramHandlerParams) => {
-  const DEFAULT_TEXT_FRAGMENT_MAX_GAP_MS = 1500;
+  const DEFAULT_TEXT_FRAGMENT_MAX_GAP_MS = 300; // Reduced from 1500ms for faster response
   const TELEGRAM_TEXT_FRAGMENT_START_THRESHOLD_CHARS = 4000;
   const TELEGRAM_TEXT_FRAGMENT_MAX_GAP_MS =
     typeof opts.testTimings?.textFragmentGapMs === "number" &&

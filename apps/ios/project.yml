@@ -92,7 +92,7 @@ targets:
           - CFBundleURLName: ai.resonix.ios
             CFBundleURLSchemes:
               - resonix
-        CFBundleShortVersionString: "2026.3.4"
+        CFBundleShortVersionString: "2026.3.12"
         CFBundleVersion: "20260304"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
@@ -144,7 +144,7 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: Resonix Share
-        CFBundleShortVersionString: "2026.3.4"
+        CFBundleShortVersionString: "2026.3.12"
         CFBundleVersion: "20260304"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
@@ -174,7 +174,7 @@ targets:
       path: WatchApp/Info.plist
       properties:
         CFBundleDisplayName: Resonix
-        CFBundleShortVersionString: "2026.3.4"
+        CFBundleShortVersionString: "2026.3.12"
         CFBundleVersion: "20260304"
         WKCompanionAppBundleIdentifier: "$(RESONIX_APP_BUNDLE_ID)"
         WKWatchKitApp: true
@@ -198,7 +198,7 @@ targets:
       path: WatchExtension/Info.plist
       properties:
         CFBundleDisplayName: Resonix
-        CFBundleShortVersionString: "2026.3.4"
+        CFBundleShortVersionString: "2026.3.12"
         CFBundleVersion: "20260304"
         NSExtension:
           NSExtensionAttributes:
@@ -226,5 +226,5 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: ResonixTests
-        CFBundleShortVersionString: "2026.3.4"
+        CFBundleShortVersionString: "2026.3.12"
         CFBundleVersion: "20260304"

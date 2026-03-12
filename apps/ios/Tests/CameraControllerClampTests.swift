@@ -1,5 +1,5 @@
 import Testing
-@testable import OpenClaw
+@testable import Resonix
 
 @Suite struct CameraControllerClampTests {
     @Test func clampQualityDefaultsAndBounds() {

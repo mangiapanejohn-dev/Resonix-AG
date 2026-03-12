@@ -3,8 +3,8 @@ import { getChannelDock } from "../channels/dock.js";
 import type { ResonixConfig } from "../config/config.js";
 import { normalizeAccountId } from "../routing/session-key.js";
 
-const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 200;
-const DEFAULT_TELEGRAM_DRAFT_STREAM_MAX = 800;
+const DEFAULT_TELEGRAM_DRAFT_STREAM_MIN = 50; // Smaller chunks for smoother typewriter
+const DEFAULT_TELEGRAM_DRAFT_STREAM_MAX = 200;
 
 export function resolveTelegramDraftStreamingChunking(
   cfg: ResonixConfig | undefined,

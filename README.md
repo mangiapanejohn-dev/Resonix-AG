@@ -3,7 +3,7 @@
 ![photo_2026-03-04 23 24 56](https://github.com/user-attachments/assets/8fc884ad-9139-4f92-b849-b7fffd61d9e6)
 
 
-**Version `2026.3.4`**
+**Version `2026.3.12`**
 
 **Autonomous agent runtime with permanent memory, self-growth loops, and an integrated browser stack.**
 
@@ -170,7 +170,7 @@ resonix cron board
 resonix memory profile
 ```
 
-## What Is New In `2026.3.4`
+## What Is New In `2026.3.12`
 
 - Hardened provider auth dispatch to avoid skipped auth handlers.
 - Added timeout fallback for plugin auth loading to reduce onboarding stall paths.
@@ -180,7 +180,7 @@ resonix memory profile
 
 ## Resonix vs OpenClaw (Fork Direction)
 
-| Area | Resonix `2026.3.4` | Typical OpenClaw baseline |
+| Area | Resonix `2026.3.12` | Typical OpenClaw baseline |
 | --- | --- | --- |
 | Memory strategy | Dual-plane permanent memory + Desktop mirror (`resonix-M`) | Mostly runtime/session-centric memory flow |
 | Identity continuity | Explicit Resonix identity profile integrated in runtime behavior | No fork-specific identity continuity layer by default |

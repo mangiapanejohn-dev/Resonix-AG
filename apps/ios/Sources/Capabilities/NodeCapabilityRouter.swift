@@ -1,5 +1,5 @@
 import Foundation
-import OpenClawKit
+import ResonixKit
 
 @MainActor
 final class NodeCapabilityRouter {

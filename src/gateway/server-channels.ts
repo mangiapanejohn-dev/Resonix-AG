@@ -337,9 +337,8 @@ export function createChannelManager(opts: ChannelManagerOptions): ChannelManage
   };
 
   const startChannels = async () => {
-    for (const plugin of listChannelPlugins()) {
-      await startChannel(plugin.id);
-    }
+    // Start all channels in parallel for faster startup
+    await Promise.all(listChannelPlugins().map((plugin) => startChannel(plugin.id)));
   };
 
   const markChannelLoggedOut = (channelId: ChannelId, cleared: boolean, accountId?: string) => {
