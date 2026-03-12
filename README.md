@@ -48,60 +48,113 @@ Every conversation starts from scratch. They forget everything.
 
 ### 🧠 Two-Layer Permanent Memory
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                     YOUR CONVERSATION                           │
-└────────────────────────────┬─────────────────────────────────────┘
-                           │
-         ┌─────────────────┴─────────────────┐
-         ▼                                   ▼
-┌─────────────────────┐          ┌─────────────────────────────┐
-│   LAYER A          │          │      LAYER B              │
-│   System Profile    │          │   Desktop Mirror          │
-│   (Machine-Ready)  │          │   (Human-Readable)        │
-├─────────────────────┤          ├─────────────────────────────┤
-│ • Preferences      │          │ ~/Desktop/resonix-M/      │
-│ • Facts           │          │   ├── identity/           │
-│ • Patterns        │          │   ├── knowledge/          │
-│ • Confidence      │          │   ├── autonomy/           │
-│ • Sources        │          │   ├── retrospectives/    │
-└─────────────────────┘          │   └── logs/              │
-                                └─────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph CONV["💬 Conversation"]
+        direction TB
+        Q["User Message"]
+        A["AI Response"]
+    end
+
+    subgraph LAYER_A["🔧 Layer A: System Profile"]
+        direction TB
+        PREF["⚙️ Preferences"]
+        FACTS["📌 Facts"]
+        PATTERNS["🔄 Patterns"]
+        CONF["📊 Confidence"]
+    end
+
+    subgraph LAYER_B["📁 Layer B: Desktop Mirror"]
+        direction TB
+        ID["👤 identity/"]
+        KNOW["📚 knowledge/"]
+        AUTO["🧠 autonomy/"]
+        RETRO["📝 retrospectives/"]
+        LOGS["📜 logs/"]
+    end
+
+    CONV --> LAYER_A
+    CONV --> LAYER_B
+    LAYER_A -.->|stores| PREF
+    LAYER_A -.->|stores| FACTS
+    LAYER_A -.->|stores| PATTERNS
+    LAYER_A -.->|stores| CONF
+    LAYER_B -.-> ID
+    LAYER_B -.-> KNOW
+    LAYER_B -.-> AUTO
+    LAYER_B -.-> RETRO
+    LAYER_B -.-> LOGS
+
+    style LAYER_A fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px
+    style LAYER_B fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
 ```
 
 ### 🔄 Self-Growth Loop
 
-```
-TASK → RESULT → RETROSPECTIVE → LEARNING → BETTER NEXT TASK
-  │                                              ▲
-  └──────────────────────────────────────────────┘
-```
+```mermaid
+flowchart LR
+    TASK["📋 Task"] --> |"execute"| RESULT["📊 Result"]
+    RESULT --> |"analyze"| RETRO["🔍 Retrospective"]
+    RETRO --> |"extract learnings"| LEARN["📚 Learning"]
+    LEARN --> |"apply"| BETTER["✨ Better Next Task"]
+    BETTER --> TASK
 
-> Every task outcome → summarized → stored → used for future tasks
+    style TASK fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style RESULT fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style RETRO fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style LEARN fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    style BETTER fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+```
 
 ### 🌐 Built-in Browser Control
 
-| Without Resonix | With Resonix |
-|-----------------|---------------|
-| Chrome extensions that break | Playwright-powered reliability |
-| Fragile selectors | Smart element detection |
-| Manual screenshots | Automatic capture |
-| "It worked yesterday" | Consistent automation |
+```mermaid
+flowchart LR
+    subgraph TRADITION["❌ Without Resonix"]
+        EXT["🔌 Chrome Extensions"]
+        SELECT["🎯 Fragile Selectors"]
+        SCREEN["📸 Manual Screenshots"]
+        BROKE["💥 It Worked Yesterday"]
+    end
+
+    subgraph RESONIX["✅ With Resonix"]
+        PW["🎭 Playwright"]
+        SMART["🧠 Smart Detection"]
+        AUTO["🤖 Automatic Capture"]
+        CONSISTENT["⚡ Consistent Automation"]
+    end
+
+    EXT -->|breaks| PW
+    SELECT -->|unreliable| SMART
+    SCREEN -->|slow| AUTO
+    BROKE -->|flaky| CONSISTENT
+
+    style TRADITION fill:#fee2e2,stroke:#ef4444,stroke-width:2px
+    style RESONIX fill:#dcfce7,stroke:#22c55e,stroke-width:2px
+```
 
 ### 📊 Cron Intelligence Board
 
-```
-┌──────────────────────────────────────────┐
-│         CRON INTELLIGENCE BOARD           │
-├──────────────────────────────────────────┤
-│                                          │
-│   ✅ Success    ████████████░░  82%      │
-│   ❌ Errors     ████░░░░░░░░░░  18%      │
-│   ⏱️ P95 Time   ████████████░░  2.3s      │
-│   ⚠️  Risk     ██░░░░░░░░░░░░  Low       │
-│                                          │
-└──────────────────────────────────────────┘
-```
+```mermaid
+flowchart TB
+    subgraph BOARD["📊 Cron Intelligence Board"]
+        direction TB
+        SUC["✅ Success Rate"]
+        ERR["❌ Error Rate"]
+        TIME["⏱️ P95 Response Time"]
+        RISK["⚠️ Risk Level"]
+    end
+
+    SUC --> |"82%"| BAR1["████████████"]
+    ERR --> |"18%"| BAR2["████░░░░░░░"]
+    TIME --> |"2.3s"| BAR3["████████████"]
+    RISK --> |"Low"| BAR4["██░░░░░░░░░░"]
+
+    style BOARD fill:#f3e8ff,stroke:#9333ea,stroke-width:2px
+    style SUC fill:#dcfce7,stroke:#16a34a
+    style ERR fill:#fee2e2,stroke:#ef4444
+    style TIME fill:#dbeafe,stroke:#2563eb
+    style RISK fill:#fef9c3,stroke:#eab308
 
 ---
 
