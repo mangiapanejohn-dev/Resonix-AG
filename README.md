@@ -46,33 +46,40 @@ Every conversation starts from scratch. They forget everything.
 
 ## ✨ Key Features
 
-### 🧠 Permanent Memory That Actually Remembers
+### 🧠 Memory That Never Forgets
 
 <table>
 <tr>
-<td width="45%">
+<td width="40%">
 
 ```mermaid
-mindmap
-  root((🧠))
-    L1[L1 System]
-      Prefs
-      Facts
-      Patterns
-    L2[L2 Desktop]
-      identity
-      knowledge
-      logs
+flowchart TB
+    subgraph Conv[💬 Conversation]
+        direction LR
+        Q[User] --> A[AI]
+    end
+    subgraph L1[📦 Layer A: System Profile]
+        P[⚙️ Prefs]
+        F[📌 Facts]
+        C[🔄 Patterns]
+    end
+    subgraph L2[📁 Layer B: Desktop Mirror]
+        I[👤 identity]
+        K[📚 knowledge]
+        L[📜 logs]
+    end
+    Conv --> L1
+    Conv --> L2
 ```
 
 </td>
 <td valign="top">
 
-**Dual-layer memory system**
-- **Layer A**: Machine-readable system profile stores preferences, facts, patterns with confidence scores
-- **Layer B**: Human-readable desktop mirror at `~/Desktop/resonix-M/` for inspection
+**Two-layer permanent memory**
+- **Layer A** → Machine-readable profile (preferences, facts, patterns)
+- **Layer B** → Human-readable files at `~/Desktop/resonix-M/`
 
-*Resonix never forgets. Every conversation builds on the last.*
+*Every conversation builds on the last. Resonix actually remembers you.*
 
 </td>
 </tr>
@@ -80,28 +87,32 @@ mindmap
 
 ---
 
-### 🔄 Self-Learning That Improves Over Time
+### 🔄 Gets Smarter Over Time
 
 <table>
 <tr>
-<td width="45%">
+<td width="40%">
 
 ```mermaid
 flowchart LR
-    T[Task] --> R[Result]
-    R --> Ret[Review]
-    Ret --> L[Learn]
-    L -.-> T
+    A[📋 Task] --> B[📊 Result]
+    B --> C[🔍 Review]
+    C --> D[📚 Learn]
+    D -.-> A
+    style A fill:#e0f2fe,stroke:#0284c7
+    style B fill:#fef3c7,stroke:#d97706
+    style C fill:#f3e8ff,stroke:#9333ea
+    style D fill:#dcfce7,stroke:#16a34a
 ```
 
 </td>
 <td valign="top">
 
-**Growth loop**
-- Task executes → Result analyzed → Retrospective created → Learning stored → Better next task
-- Captures mistakes and successes to improve future performance
+**Self-growth loop**
+- Execute task → Analyze result → Create retrospective → Store learning → Improve next task
+- Remembers what worked and what didn't
 
-*Gets smarter with every task it completes.*
+*Starts dumb, gets smart.learns from every outcome.*
 
 </td>
 </tr>
@@ -109,28 +120,35 @@ flowchart LR
 
 ---
 
-### 🌐 Built-in Browser Automation
+### 🌐 Browser That Just Works
 
 <table>
 <tr>
-<td width="45%">
+<td width="40%">
 
 ```mermaid
 flowchart LR
-    Ext[❌ Ext] -->|unreliable| PW[✓ Playwright]
-    Sel[❌ Selector] -->|unstable| Smart[✓ Smart]
-    SS[❌ Manual] -->|slow| Auto[✓ Auto]
+    subgraph Old[❌ Old Way]
+        E[🔌 Ext] -.-> B[💥 Breaks]
+        S[🎯 Selector] -.-> F[😰 Fragile]
+    end
+    subgraph New[✅ Resonix]
+        P[🎭 Playwright] ==> W[✓ Works]
+        D[🧠 Smart] ==> R[✓ Reliable]
+    end
+    style Old fill:#fee2e2,stroke:#ef4444
+    style New fill:#dcfce7,stroke:#22c55e
 ```
 
 </td>
 <td valign="top">
 
-**No more broken extensions**
-- Playwright-powered reliability instead of fragile Chrome extensions
-- Smart element detection handles UI changes
-- Automatic screenshots and consistent automation
+**No more broken automation**
+- Playwright-powered (not fragile Chrome extensions)
+- Smart element detection survives UI updates
+- Automatic screenshots & consistent results
 
-*Works today, works tomorrow.*
+*Works today. Works tomorrow.*
 
 </td>
 </tr>
@@ -138,30 +156,27 @@ flowchart LR
 
 ---
 
-### 📊 Production-Ready Cron Intelligence
+### 📊 Know Your Automation Status
 
 <table>
 <tr>
-<td width="45%">
+<td width="40%">
 
 ```mermaid
-flowchart RL
-    B[📊 Board]
-    S[✅ 82%] --> B
-    E[❌ 18%] --> B
-    T[⏱️ 2.3s] --> B
-    R[⚠️ Low] --> B
+pie title Task Results
+    "✅ Success" : 82
+    "❌ Errors" : 18
 ```
 
 </td>
 <td valign="top">
 
-**Monitor scheduled tasks**
+**Production monitoring**
 - Success/Error rate tracking
-- P95 response time monitoring
-- Risk assessment for automation
+- P95 response time metrics
+- Risk level assessment
 
-*Know exactly how your automation performs.*
+*Always know how your automation is performing.*
 
 </td>
 </tr>
