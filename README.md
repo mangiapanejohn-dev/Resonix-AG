@@ -281,7 +281,7 @@ pnpm test
 
 ## 📚 Documentation
 
-- **Docs**: [docs.resonix.ai](https://github.com/mangiapanejohn-dev/Resonix-AG/tree/main/docs)
+- **Docs**: [docs.resonix.ai](https://resonix.milcorx.com/docs/install.html)
 - **Discord**: [Join our community](https://discord.gg/FKXPBAtPwG)
 - **X**: [Follow us](https://x.com/moralesjavx1032)
 
