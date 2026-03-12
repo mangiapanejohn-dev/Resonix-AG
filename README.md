@@ -194,9 +194,9 @@ flowchart TB
 
 | Platform | Command |
 |----------|---------|
-| **macOS / Linux** | ```curl -fsSL https://resonix.ai/install.sh \| bash``` |
-| **Windows** | ```iwr -useb https://resonix.ai/install.ps1 \| iex``` |
-| **Termux** | ```curl -fsSL https://resonix.ai/install-termux.sh \| bash``` |
+| **macOS / Linux** | ```curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh \| bash``` |
+| **Windows** | ```iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 \| iex``` |
+| **Termux** | ```curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh \| bash``` |
 
 ### Get Started
 
@@ -281,7 +281,7 @@ pnpm test
 
 ## 📚 Documentation
 
-- **Docs**: [docs.resonix.ai](https://docs.resonix.ai)
+- **Docs**: [docs.resonix.ai](https://github.com/mangiapanejohn-dev/Resonix-AG/tree/main/docs)
 - **Discord**: [Join our community](https://discord.gg/FKXPBAtPwG)
 - **X**: [Follow us](https://x.com/moralesjavx1032)
 
