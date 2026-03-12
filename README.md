@@ -50,19 +50,26 @@ Every conversation starts from scratch. They forget everything.
 
 ```mermaid
 flowchart TB
-    USER["👤 User"] -->|"message"| BOT["🤖 Resonix"]
-    BOT --> LAYERA["📦 Layer A<br/>System Profile"]
-    BOT --> LAYERB["📁 Layer B<br/>Desktop Mirror"]
-    LAYERA --> PREF["⚙️ Prefs"]
-    LAYERA --> FACTS["📌 Facts"]
-    LAYERA --> PAT["🔄 Patterns"]
-    LAYERB --> ID["👤 identity"]
-    LAYERB --> KNOW["📚 knowledge"]
-    LAYERB --> LOGS["📜 logs"]
+    USER("👤 User") -->|"message"| BOT("🤖 Resonix")
+    BOT --> LAYERA("📦 Layer A<br/>System Profile")
+    BOT --> LAYERB("📁 Layer B<br/>Desktop Mirror")
+    LAYERA --> PREF("⚙️ Prefs")
+    LAYERA --> FACTS("📌 Facts")
+    LAYERA --> PAT("🔄 Patterns")
+    LAYERB --> ID("👤 identity")
+    LAYERB --> KNOW("📚 knowledge")
+    LAYERB --> LOGS("📜 logs")
 
+    style USER fill:#fafafa,stroke:#7c3aed,stroke-width:2
     style BOT fill:#7c3aed,stroke:#7c3aed,color:#fff
-    style LAYERA fill:#e0e7ff,stroke:#4f46e5
-    style LAYERB fill:#f0fdf4,stroke:#16a34a
+    style LAYERA fill:#f3e8ff,stroke:#9333ea,stroke-width:2
+    style LAYERB fill:#fdf2f8,stroke:#db2777,stroke-width:2
+    style PREF fill:#fafafa,stroke:#7c3aed
+    style FACTS fill:#fafafa,stroke:#7c3aed
+    style PAT fill:#fafafa,stroke:#7c3aed
+    style ID fill:#fafafa,stroke:#db2777
+    style KNOW fill:#fafafa,stroke:#db2777
+    style LOGS fill:#fafafa,stroke:#db2777
 ```
 
 Two-layer permanent memory. Layer A stores machine-readable profile, Layer B creates human-readable files at `~/Desktop/resonix-M/`. Every conversation builds on the last.
@@ -73,14 +80,15 @@ Two-layer permanent memory. Layer A stores machine-readable profile, Layer B cre
 
 ```mermaid
 flowchart LR
-    TASK[📋 Task] --> RESULT[📊 Result]
-    RESULT --> RETRO[🔍 Review]
-    RETRO --> LEARN[📚 Learn]
+    TASK("📋 Task") --> RESULT("📊 Result")
+    RESULT --> RETRO("🔍 Review")
+    RETRO --> LEARN("📚 Learn")
     LEARN -.-> TASK
-    style TASK fill:#e0f2fe,stroke:#0284c7
-    style RESULT fill:#fef3c7,stroke:#d97706
-    style RETRO fill:#f3e8ff,stroke:#9333ea
-    style LEARN fill:#dcfce7,stroke:#16a34a
+
+    style TASK fill:#fce7f3,stroke:#db2777,stroke-width:2
+    style RESULT fill:#f3e8ff,stroke:#9333ea,stroke-width:2
+    style RETRO fill:#e0e7ff,stroke:#7c3aed,stroke-width:2
+    style LEARN fill:#dbeafe,stroke:#6366f1,stroke-width:2
 ```
 
 Execute task → Analyze result → Create retrospective → Store learning → Improve next task. Remembers what worked and what didn't.
@@ -91,15 +99,18 @@ Execute task → Analyze result → Create retrospective → Store learning → 
 
 ```mermaid
 flowchart LR
-    OLD[❌ Old] -->|breaks| NEW[✅ Resonix]
-    EXT[🔌 Ext] -->|unreliable| PW[🎭 Playwright]
-    SEL[🎯 Selector] -->|unstable| SMART[🧠 Smart Detection]
-    SS[📸 Manual] -->|slow| AUTO[🤖 Auto Capture]
+    OLD("❌ Old") -->|breaks| NEW("✅ Resonix")
+    EXT("🔌 Ext") -->|unreliable| PW("🎭 Playwright")
+    SEL("🎯 Selector") -->|unstable| SMART("🧠 Smart")
+    SS("📸 Manual") -->|slow| AUTO("🤖 Auto")
 
-    style OLD fill:#fee2e2,stroke:#ef4444
-    style NEW fill:#dcfce7,stroke:#22c55e
+    style OLD fill:#fee2e2,stroke:#ef4444,stroke-width:2
+    style NEW fill:#dcfce7,stroke:#22c55e,stroke-width:2
+    style EXT fill:#fafafa,stroke:#ef4444
     style PW fill:#dcfce7,stroke:#22c55e
+    style SEL fill:#fafafa,stroke:#ef4444
     style SMART fill:#dcfce7,stroke:#22c55e
+    style SS fill:#fafafa,stroke:#ef4444
     style AUTO fill:#dcfce7,stroke:#22c55e
 ```
 
@@ -111,8 +122,8 @@ Playwright-powered instead of fragile Chrome extensions. Smart element detection
 
 ```mermaid
 pie title Task Results
-    "✅ Success" : 82
-    "❌ Errors" : 18
+    "✅ Success 82%" : 82
+    "❌ Errors 18%" : 18
 ```
 
 Success/Error rate tracking, P95 response time metrics, and risk level assessment. Always know how your automation is performing.
@@ -124,29 +135,29 @@ Success/Error rate tracking, P95 response time metrics, and risk level assessmen
 ```mermaid
 flowchart TB
     subgraph Users[👤 Channels]
-        T[Telegram]:::purple
-        D[Discord]:::purple
-        S[Slack]:::purple
-        W[WhatsApp]:::purple
+        T(Telegram)
+        D(Discord)
+        S(Slack)
+        W(WhatsApp)
     end
 
     subgraph Gateway[🚀 Gateway]
-        R[Routing]
-        A[Auth]
-        C[Channels]
+        R(Routing)
+        A(Auth)
+        C(Channels)
     end
 
     subgraph Agent[🤖 Agent Runtime]
-        M[🧠 Memory]
-        B[🌐 Browser]
-        T2[🔧 Tools]
-        G[🔄 Growth]
-        I[👤 Identity]
+        M(🧠 Memory)
+        B(🌐 Browser)
+        T2(🔧 Tools)
+        G(🔄 Growth)
+        I(👤 Identity)
     end
 
     subgraph Memory[💾 Memory]
-        MA[Layer A]
-        MB[Layer B]
+        MA(Layer A)
+        MB(Layer B)
     end
 
     Users --> Gateway
@@ -155,24 +166,24 @@ flowchart TB
     M --> MA
     M --> MB
 
-    style Users fill:none,stroke:#7c3aed,stroke-width:2px
-    style Gateway fill:none,stroke:#7c3aed,stroke-width:2px
-    style Agent fill:none,stroke:#7c3aed,stroke-width:2px
-    style Memory fill:none,stroke:#7c3aed,stroke-width:2px
-    style T fill:none,stroke:#9333ea
-    style D fill:none,stroke:#9333ea
-    style S fill:none,stroke:#9333ea
-    style W fill:none,stroke:#9333ea
-    style R fill:none,stroke:#9333ea
-    style A fill:none,stroke:#9333ea
-    style C fill:none,stroke:#9333ea
-    style M fill:none,stroke:#9333ea
-    style B fill:none,stroke:#9333ea
-    style T2 fill:none,stroke:#9333ea
-    style G fill:none,stroke:#9333ea
-    style I fill:none,stroke:#9333ea
-    style MA fill:none,stroke:#9333ea
-    style MB fill:none,stroke:#9333ea
+    style Users fill:none,stroke:#7c3aed,stroke-width:2
+    style Gateway fill:none,stroke:#7c3aed,stroke-width:2
+    style Agent fill:none,stroke:#db2777,stroke-width:2
+    style Memory fill:none,stroke:#9333ea,stroke-width:2
+    style T fill:#fafafa,stroke:#7c3aed,stroke-width:2
+    style D fill:#fafafa,stroke:#7c3aed,stroke-width:2
+    style S fill:#fafafa,stroke:#7c3aed,stroke-width:2
+    style W fill:#fafafa,stroke:#7c3aed,stroke-width:2
+    style R fill:#fafafa,stroke:#7c3aed
+    style A fill:#fafafa,stroke:#7c3aed
+    style C fill:#fafafa,stroke:#7c3aed
+    style M fill:#fce7f3,stroke:#db2777,stroke-width:2
+    style B fill:#f3e8ff,stroke:#9333ea,stroke-width:2
+    style T2 fill:#fafafa,stroke:#7c3aed
+    style G fill:#fafafa,stroke:#db2777
+    style I fill:#fafafa,stroke:#db2777
+    style MA fill:#f3e8ff,stroke:#9333ea
+    style MB fill:#fdf2f8,stroke:#db2777
 ```
 
 ---
