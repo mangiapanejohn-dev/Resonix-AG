@@ -302,5 +302,5 @@ MIT License - Built by [MarkEllington](https://github.com/mangiapanejohn-dev)
 ---
 
 <p align="center">
-  <sub>Made with ❤️ by a 14-year-old developer</sub>
+  <sub>Made with ❤️ by a Personl developer</sub>
 </p>
