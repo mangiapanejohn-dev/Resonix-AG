@@ -227,7 +227,7 @@ resonix gateway         # Start the gateway
 ```
 ~/Desktop/resonix-M/
 │
-├── identity/           # "Mark is a 14-year-old developer from Hong Kong"
+├── identity/           # "Mark is a funny boy developer from Hong Kong"
 ├── knowledge/          # "Coffee with oat milk, not tea"
 ├── autonomy/          # "Learns faster when given examples"
 ├── retrospectives/     # "Don't use regex for HTML parsing"
