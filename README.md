@@ -196,6 +196,7 @@ flowchart TB
 |----------|---------|
 | **macOS / Linux** | ```curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.sh \| bash``` |
 | **Windows** | ```iwr -useb https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install.ps1 \| iex``` |
+| **npm** | ```npm install -g github:mangiapanejohn-dev/Resonix-AG``` |
 | **Termux** | ```curl -fsSL https://raw.githubusercontent.com/mangiapanejohn-dev/Resonix-AG/main/install-termux.sh \| bash``` |
 
 ### Get Started
