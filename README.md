@@ -50,15 +50,15 @@ Every conversation starts from scratch. They forget everything.
 
 ```mermaid
 flowchart TB
-    USER["👤 User"] -->|"message"| BOT["🤖 Resonix"]
-    BOT --> LAYERA["📦 Layer A"]
-    BOT --> LAYERB["📁 Layer B"]
-    LAYERA --> PREF["⚙️ Prefs"]
-    LAYERA --> FACTS["📌 Facts"]
-    LAYERA --> PAT["🔄 Patterns"]
-    LAYERB --> ID["👤 identity"]
-    LAYERB --> KNOW["📚 knowledge"]
-    LAYERB --> LOGS["📜 logs"]
+    USER["User"] -->|"message"| BOT["👾 Resonix"]
+    BOT --> LAYERA["Layer A"]
+    BOT --> LAYERB["Layer B"]
+    LAYERA --> PREF["Prefs"]
+    LAYERA --> FACTS["Facts"]
+    LAYERA --> PAT["Patterns"]
+    LAYERB --> ID["identity"]
+    LAYERB --> KNOW["knowledge"]
+    LAYERB --> LOGS["logs"]
 
     style USER fill:#fff,stroke:#333,stroke-width:2,color:#000
     style BOT fill:#7c3aed,stroke:#333,stroke-width:2,color:#fff
@@ -80,9 +80,9 @@ Two-layer permanent memory. Layer A stores machine-readable profile, Layer B cre
 
 ```mermaid
 flowchart LR
-    TASK["📋 Task"] --> RESULT["📊 Result"]
-    RESULT --> RETRO["🔍 Review"]
-    RETRO --> LEARN["📚 Learn"]
+    TASK["📋 Task"] --> RESULT["Result"]
+    RESULT --> RETRO["Review"]
+    RETRO --> LEARN["Learn"]
     LEARN -.-> TASK
 
     style TASK fill:#fff,stroke:#db2777,stroke-width:2,color:#000
@@ -100,9 +100,9 @@ Execute task → Analyze result → Create retrospective → Store learning → 
 ```mermaid
 flowchart LR
     OLD["❌ Old"] -->|breaks| NEW["✅ Resonix"]
-    EXT["🔌 Ext"] -->|unreliable| PW["🎭 Playwright"]
-    SEL["🎯 Selector"] -->|unstable| SMART["🧠 Smart"]
-    SS["📸 Manual"] -->|slow| AUTO["🤖 Auto"]
+    EXT["Ext"] -->|unreliable| PW["Playwright"]
+    SEL["Selector"] -->|unstable| SMART["Smart"]
+    SS["Manual"] -->|slow| AUTO["👾 Auto"]
 
     style OLD fill:#fee2e2,stroke:#ef4444,stroke-width:2,color:#000
     style NEW fill:#dcfce7,stroke:#22c55e,stroke-width:2,color:#000
@@ -134,25 +134,25 @@ Success/Error rate tracking, P95 response time metrics, and risk level assessmen
 
 ```mermaid
 flowchart TB
-    subgraph Users[👤 Channels]
+    subgraph Users[Channels]
         T[Telegram]
         D[Discord]
         S[Slack]
         W[WhatsApp]
     end
 
-    subgraph Gateway[🚀 Gateway]
+    subgraph Gateway[Gateway]
         R[Routing]
         A[Auth]
         C[Channels]
     end
 
-    subgraph Agent[🤖 Agent Runtime]
-        M[🧠 Memory]
-        B[🌐 Browser]
-        T2[🔧 Tools]
-        G[🔄 Growth]
-        I[👤 Identity]
+    subgraph Agent[👾 Agent Runtime]
+        M[Memory]
+        B[Browser]
+        T2[Tools]
+        G[Growth]
+        I[Identity]
     end
 
     subgraph Memory[💾 Memory]
